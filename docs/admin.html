@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff"><meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self';">
+  <title>Admin — Listily.au</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<nav class="navbar" id="navbar"><div class="nav-inner container">
+  <a href="index.html" class="nav-logo"><div class="logo-icon"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div><span class="logo-word">l<span class="li">i</span>st<span class="li">i</span>ly</span><span class="logo-suffix">.au</span></a>
+  <div class="nav-actions" style="margin-left:auto">
+    <a href="index.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-arrow-left"></i> Back to site</a>
+    <button class="btn btn-ghost btn-sm" id="logout-btn" onclick="doLogout()" style="display:none"><i class="fa-solid fa-right-from-bracket"></i> Sign out</button>
+  </div>
+</div></nav>
+
+<div class="container" style="padding-top:2rem;padding-bottom:3rem">
+  <!-- Login -->
+  <div id="admin-login-view" class="admin-login-wrap">
+    <div class="login-card">
+      <div class="login-logo"><i class="fa-solid fa-shield-halved"></i></div>
+      <h1>Admin login</h1>
+      <p>Sign in to manage Listly business listings and opportunities.</p>
+      <div class="form-group"><label>Username</label><input type="text" id="a-user" placeholder="admin" autocomplete="username"></div>
+      <div class="form-group" style="margin-top:10px"><label>Password</label><input type="password" id="a-pass" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="login-err" id="login-err" role="alert"></div>
+      <button class="btn btn-primary full-btn" style="margin-top:1rem" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign in</button>
+      <p class="demo-hint">Demo: <code>admin</code> / <code>admin123</code></p>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="admin-dash" style="display:none">
+    <div class="admin-topbar">
+      <div>
+        <h1 class="admin-title"><i class="fa-solid fa-shield-halved"></i> Listly Admin</h1>
+        <p class="admin-sub">Review submissions, manage listings and opportunities, view analytics.</p>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card stat-green"><div class="stat-val" id="st-ab">0</div><div class="stat-lbl"><i class="fa-solid fa-circle-check"></i> Active businesses</div></div>
+      <div class="stat-card stat-amber"><div class="stat-val" id="st-pb">0</div><div class="stat-lbl"><i class="fa-solid fa-clock"></i> Pending businesses</div></div>
+      <div class="stat-card stat-red"><div class="stat-val" id="st-rb">0</div><div class="stat-lbl"><i class="fa-solid fa-xmark"></i> Rejected</div></div>
+      <div class="stat-card stat-blue"><div class="stat-val" id="st-ao">0</div><div class="stat-lbl"><i class="fa-solid fa-briefcase"></i> Active opps</div></div>
+      <div class="stat-card stat-purple"><div class="stat-val" id="st-po">0</div><div class="stat-lbl"><i class="fa-solid fa-clock"></i> Pending opps</div></div>
+      <div class="stat-card stat-gray"><div class="stat-val" id="st-total">0</div><div class="stat-lbl"><i class="fa-solid fa-database"></i> Total submissions</div></div>
+    </div>
+
+    <div class="admin-tabs" role="tablist">
+      <button class="atab active" onclick="switchAdminTab('pending',this)"><i class="fa-solid fa-clock"></i> Pending businesses <span class="atab-badge" id="atab-pending">0</span></button>
+      <button class="atab" onclick="switchAdminTab('opp-pending',this)"><i class="fa-solid fa-briefcase"></i> Pending opportunities</button>
+      <button class="atab" onclick="switchAdminTab('approved',this)"><i class="fa-solid fa-circle-check"></i> Active listings</button>
+      <button class="atab" onclick="switchAdminTab('opp-approved',this)"><i class="fa-solid fa-list-check"></i> Active opportunities</button>
+      <button class="atab" onclick="switchAdminTab('rejected',this)"><i class="fa-solid fa-xmark"></i> Rejected</button>
+      <button class="atab" onclick="switchAdminTab('analytics',this)"><i class="fa-solid fa-chart-bar"></i> Analytics</button>
+    </div>
+
+    <div id="admin-pane-pending"></div>
+    <div id="admin-pane-opp-pending" style="display:none"></div>
+    <div id="admin-pane-approved" style="display:none"></div>
+    <div id="admin-pane-opp-approved" style="display:none"></div>
+    <div id="admin-pane-rejected" style="display:none"></div>
+    <div id="admin-pane-analytics" style="display:none"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true"><div class="modal-box"><button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button><div id="modal-body"></div></div></div>
+<div class="toast" id="toast"></div>
+<script src="js/data.js"></script><script src="js/utils.js"></script><script src="js/admin.js"></script>
+</body></html>

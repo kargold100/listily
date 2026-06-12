@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Add your business or post a job, apprenticeship or volunteering opportunity — Listily.au">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff"><meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self';">
+  <title>Register — Listily.au</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/register.css">
+</head>
+<body>
+<nav class="navbar" id="navbar"><div class="nav-inner container">
+  <a href="index.html" class="nav-logo"><div class="logo-icon"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div><span class="logo-word">l<span class="li">i</span>st<span class="li">i</span>ly</span><span class="logo-suffix">.au</span></a>
+  <div class="nav-links" id="nav-links"><a href="index.html" class="nav-link">Home</a><a href="directory.html" class="nav-link">Businesses</a><a href="opportunities.html" class="nav-link">Opportunities</a><a href="register.html" class="nav-link active">Add listing</a></div>
+  <div class="nav-actions"><a href="admin.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-shield-halved"></i> Admin</a><button class="nav-burger" id="nav-burger" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button></div>
+</div></nav>
+
+<div class="container" style="padding-top:2rem;padding-bottom:3rem;max-width:820px">
+  <div style="display:flex;gap:6px;margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1rem">
+    <button id="tab-biz" class="btn btn-primary" onclick="switchRegTab('biz')"><i class="fa-solid fa-building-user"></i> Register business</button>
+    <button id="tab-opp" class="btn btn-ghost" onclick="switchRegTab('opp')"><i class="fa-solid fa-briefcase"></i> Post opportunity</button>
+  </div>
+
+  <!-- BUSINESS FORM -->
+  <div id="biz-form-section">
+    <div id="reg-form-wrapper">
+      <h1 class="page-title">Register your business</h1>
+      <p class="page-sub">Free listing — reach customers searching in your area. Reviewed within 24 hours.</p>
+
+      <div style="display:flex;gap:6px;margin-bottom:1.5rem;flex-wrap:wrap" id="step-tabs">
+        <div class="reg-step active" data-step="1"><span class="step-num">1</span> Details</div>
+        <div class="reg-step" data-step="2"><span class="step-num">2</span> Contact person</div>
+        <div class="reg-step" data-step="3"><span class="step-num">3</span> Contact details</div>
+        <div class="reg-step" data-step="4"><span class="step-num">4</span> Hours</div>
+        <div class="reg-step" data-step="5"><span class="step-num">5</span> Review</div>
+      </div>
+
+      <div class="reg-step-panel active" id="step-1">
+        <h2 class="step-title"><i class="fa-solid fa-building-user"></i> Business details</h2>
+        <div class="form-grid">
+          <div class="form-group full"><label>Business name <span class="req">*</span></label><input type="text" id="r-name" placeholder="Your trading name" autocomplete="organization"></div>
+          <div class="form-group"><label>Industry <span class="req">*</span></label><select id="r-industry"><option value="">Select…</option><option>Hospitality &amp; Food</option><option>Home &amp; Trade Services</option><option>Health &amp; Medical</option><option>Real Estate &amp; Property</option><option>Education &amp; Childcare</option><option>Professional Services</option><option>Retail &amp; Shopping</option><option>Beauty &amp; Personal Care</option><option>Automotive</option><option>Community &amp; Culture</option><option>Technology &amp; IT</option><option>Finance &amp; Insurance</option><option>Fitness &amp; Sport</option><option>Events &amp; Entertainment</option><option>Home Business</option></select></div>
+          <div class="form-group"><label>Category <span class="req">*</span></label><select id="r-cat"><option value="">Select industry first…</option></select></div>
+          <div class="form-group"><label>State <span class="req">*</span></label><select id="r-state"><option value="">Select…</option><option value="VIC">Victoria</option><option value="NSW">New South Wales</option><option value="QLD">Queensland</option><option value="WA">Western Australia</option><option value="SA">South Australia</option><option value="TAS">Tasmania</option><option value="ACT">ACT</option><option value="NT">Northern Territory</option></select></div>
+          <div class="form-group"><label>Suburb <span class="req">*</span></label><input type="text" id="r-suburb" placeholder="Type your suburb…" list="suburb-list"><datalist id="suburb-list"></datalist></div>
+          <div class="form-group"><label>Postcode</label><input type="text" id="r-postcode" placeholder="e.g. 3030" maxlength="4"></div>
+          <div class="form-group"><label>ABN</label><input type="text" id="r-abn" placeholder="12 345 678 901" maxlength="14"></div>
+          <div class="form-group full"><label>Service description <span class="req">*</span></label><textarea id="r-desc" placeholder="What services do you offer? What makes you stand out?" rows="4"></textarea></div>
+          <div class="form-group"><label>Keywords (comma-separated)</label><input type="text" id="r-keywords" placeholder="plumbing, hot water, leaks"></div>
+          <div class="form-group"><label>Areas serviced</label><input type="text" id="r-areas" placeholder="Point Cook, Werribee, Hoppers…"></div>
+        </div>
+        <div class="step-nav"><button class="btn btn-primary" onclick="goStep(2)">Next <i class="fa-solid fa-arrow-right"></i></button></div>
+      </div>
+
+      <div class="reg-step-panel" id="step-2">
+        <h2 class="step-title"><i class="fa-solid fa-user"></i> Contact person</h2>
+        <div class="form-grid">
+          <div class="form-group"><label>Full name <span class="req">*</span></label><input type="text" id="r-contact" placeholder="Your name" autocomplete="name"></div>
+          <div class="form-group"><label>Role / title</label><input type="text" id="r-role" placeholder="Owner, Manager…"></div>
+        </div>
+        <div class="step-nav"><button class="btn btn-ghost" onclick="goStep(1)"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn btn-primary" onclick="goStep(3)">Next <i class="fa-solid fa-arrow-right"></i></button></div>
+      </div>
+
+      <div class="reg-step-panel" id="step-3">
+        <h2 class="step-title"><i class="fa-solid fa-phone"></i> Contact details</h2>
+        <div class="form-grid">
+          <div class="form-group"><label>Mobile</label><input type="tel" id="r-mobile" placeholder="04xx xxx xxx"></div>
+          <div class="form-group"><label>Landline</label><input type="tel" id="r-phone" placeholder="03 xxxx xxxx"></div>
+          <div class="form-group"><label>Email <span class="req">*</span></label><input type="email" id="r-email" placeholder="you@business.com.au" autocomplete="email"></div>
+          <div class="form-group"><label>WhatsApp</label><input type="tel" id="r-wa" placeholder="04xx xxx xxx"></div>
+          <div class="form-group"><label>Website</label><input type="url" id="r-web" placeholder="https://yourbusiness.com.au"></div>
+          <div class="form-group"><label>Facebook</label><input type="url" id="r-fb" placeholder="https://facebook.com/yourbusiness"></div>
+          <div class="form-group"><label>Instagram</label><input type="text" id="r-ig" placeholder="@yourbusiness"></div>
+          <div class="form-group"><label>LinkedIn</label><input type="url" id="r-li" placeholder="https://linkedin.com/company/…"></div>
+        </div>
+        <div class="step-nav"><button class="btn btn-ghost" onclick="goStep(2)"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn btn-primary" onclick="goStep(4)">Next <i class="fa-solid fa-arrow-right"></i></button></div>
+      </div>
+
+      <div class="reg-step-panel" id="step-4">
+        <h2 class="step-title"><i class="fa-solid fa-clock"></i> Trading hours</h2>
+        <div class="hours-form-grid">
+          <div class="hours-row-header"><span>Day</span><span>Hours (or "Closed")</span></div>
+          <div class="hours-row"><label>Monday</label><input type="text" class="hi" data-day="Mon" placeholder="9am–5pm"></div>
+          <div class="hours-row"><label>Tuesday</label><input type="text" class="hi" data-day="Tue" placeholder="9am–5pm"></div>
+          <div class="hours-row"><label>Wednesday</label><input type="text" class="hi" data-day="Wed" placeholder="9am–5pm"></div>
+          <div class="hours-row"><label>Thursday</label><input type="text" class="hi" data-day="Thu" placeholder="9am–5pm"></div>
+          <div class="hours-row"><label>Friday</label><input type="text" class="hi" data-day="Fri" placeholder="9am–5pm"></div>
+          <div class="hours-row"><label>Saturday</label><input type="text" class="hi" data-day="Sat" placeholder="9am–2pm or Closed"></div>
+          <div class="hours-row"><label>Sunday</label><input type="text" class="hi" data-day="Sun" placeholder="Closed"></div>
+          <div class="hours-row"><label>Public holidays</label><input type="text" class="hi" data-day="PH" placeholder="Closed or call ahead"></div>
+        </div>
+        <div class="step-nav"><button class="btn btn-ghost" onclick="goStep(3)"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn btn-primary" onclick="goStep(5)">Review <i class="fa-solid fa-arrow-right"></i></button></div>
+      </div>
+
+      <div class="reg-step-panel" id="step-5">
+        <h2 class="step-title"><i class="fa-solid fa-clipboard-check"></i> Review &amp; submit</h2>
+        <div class="review-box" id="review-box"></div>
+        <div class="info-card" style="margin-bottom:1rem"><i class="fa-solid fa-circle-info"></i><p>Your listing will be reviewed by our admin team within 24 hours before going live on Listly.</p></div>
+        <div class="step-nav"><button class="btn btn-ghost" onclick="goStep(4)"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn btn-primary" onclick="submitReg()"><i class="fa-solid fa-paper-plane"></i> Submit for approval</button></div>
+      </div>
+    </div>
+    <div class="success-panel" id="success-panel" style="display:none">
+      <div class="success-icon-wrap"><i class="fa-solid fa-clock-rotate-left"></i></div>
+      <h2>Submitted for review</h2><p id="success-msg">Your listing has been sent for admin review.</p>
+      <a href="index.html" class="btn btn-primary" style="margin-top:1.5rem">Back to home</a>
+      <button class="btn btn-ghost" onclick="resetForm()" style="margin-top:0.5rem;width:100%;justify-content:center">Register another</button>
+    </div>
+  </div>
+
+  <!-- OPPORTUNITY FORM -->
+  <div id="opp-form-section" style="display:none">
+    <div id="opp-form">
+      <h1 class="page-title">Post an opportunity</h1>
+      <p class="page-sub">Free to post — reach local jobseekers, apprentices, interns and volunteers. Reviewed within 24 hours.</p>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1rem">
+        <h2 class="step-title"><i class="fa-solid fa-briefcase"></i> Opportunity details</h2>
+        <div class="form-grid">
+          <div class="form-group full"><label>Job / opportunity title <span class="req">*</span></label><input type="text" id="ro-title" placeholder="e.g. Plumbing Apprentice, Café Volunteer, IT Intern…"></div>
+          <div class="form-group"><label>Opportunity type <span class="req">*</span></label>
+            <select id="ro-type"><option value="">Select type…</option><option value="Job">Job</option><option value="Apprenticeship">Apprenticeship</option><option value="Traineeship">Traineeship</option><option value="Internship">Internship</option><option value="Volunteering">Volunteering</option><option value="Work Experience">Work Experience</option></select></div>
+          <div class="form-group"><label>Organisation / business name <span class="req">*</span></label><input type="text" id="ro-org" placeholder="Your business name"></div>
+          <div class="form-group"><label>Industry</label><select id="ro-industry"><option value="">Select…</option><option>Hospitality &amp; Food</option><option>Home &amp; Trade Services</option><option>Health &amp; Medical</option><option>Real Estate &amp; Property</option><option>Education &amp; Childcare</option><option>Professional Services</option><option>Retail &amp; Shopping</option><option>Beauty &amp; Personal Care</option><option>Automotive</option><option>Community &amp; Culture</option><option>Technology &amp; IT</option><option>Finance &amp; Insurance</option><option>Fitness &amp; Sport</option><option>Events &amp; Entertainment</option><option>Home Business</option></select></div>
+          <div class="form-group"><label>State <span class="req">*</span></label><select id="ro-state"><option value="">Select…</option><option value="VIC">Victoria</option><option value="NSW">New South Wales</option><option value="QLD">Queensland</option><option value="WA">Western Australia</option><option value="SA">South Australia</option><option value="TAS">Tasmania</option><option value="ACT">ACT</option><option value="NT">Northern Territory</option></select></div>
+          <div class="form-group"><label>Suburb</label><input type="text" id="ro-suburb" placeholder="e.g. Point Cook"></div>
+          <div class="form-group"><label>Work arrangement</label><select id="ro-arrange"><option value="">Select…</option><option>Full-time</option><option>Part-time</option><option>Casual</option><option>Contract</option><option>Remote</option><option>Hybrid</option><option>On-site</option><option>Volunteer</option></select></div>
+          <div class="form-group"><label>Salary / remuneration</label><input type="text" id="ro-salary" placeholder="e.g. $25/hr, Award wage, Unpaid…"></div>
+          <div class="form-group"><label>Duration</label><input type="text" id="ro-duration" placeholder="e.g. 3 months, 4 years, Ongoing…"></div>
+          <div class="form-group"><label>Closing date</label><input type="date" id="ro-closing"></div>
+          <div class="form-group full"><label>Description <span class="req">*</span></label><textarea id="ro-desc" rows="5" placeholder="Describe the opportunity, the role and what makes it great…"></textarea></div>
+          <div class="form-group full"><label>Key responsibilities (one per line)</label><textarea id="ro-responsibilities" rows="4" placeholder="Assist licensed tradespeople on site&#10;Learn safe work practices&#10;Complete TAFE block release…"></textarea></div>
+          <div class="form-group full"><label>Requirements (one per line)</label><textarea id="ro-requirements" rows="4" placeholder="Year 10 minimum&#10;Current driver's licence&#10;Willingness to learn…"></textarea></div>
+        </div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1rem">
+        <h2 class="step-title"><i class="fa-solid fa-phone"></i> How to apply</h2>
+        <div class="form-grid">
+          <div class="form-group"><label>Contact name</label><input type="text" id="ro-contact" placeholder="Hiring manager name"></div>
+          <div class="form-group"><label>Contact email <span class="req">*</span></label><input type="email" id="ro-email" placeholder="jobs@yourbusiness.com.au"></div>
+          <div class="form-group"><label>Contact phone</label><input type="tel" id="ro-phone" placeholder="04xx xxx xxx"></div>
+          <div class="form-group"><label>Application URL</label><input type="url" id="ro-apply-url" placeholder="https://…/apply (optional)"></div>
+        </div>
+      </div>
+      <div class="info-card" style="margin-bottom:1rem"><i class="fa-solid fa-circle-info"></i><p>Opportunities are reviewed by our admin team before appearing publicly. This usually takes less than 24 hours.</p></div>
+      <button class="btn btn-primary full-btn" onclick="submitOpp()"><i class="fa-solid fa-paper-plane"></i> Submit opportunity for approval</button>
+    </div>
+    <div class="success-panel" id="opp-success" style="display:none">
+      <div class="success-icon-wrap"><i class="fa-solid fa-briefcase"></i></div>
+      <h2>Opportunity submitted!</h2><p id="opp-success-msg">Your opportunity has been sent for review.</p>
+      <a href="opportunities.html" class="btn btn-primary" style="margin-top:1.5rem">Browse opportunities</a>
+      <button class="btn btn-ghost" onclick="document.getElementById('opp-form').style.display='block';document.getElementById('opp-success').style.display='none'" style="margin-top:0.5rem;width:100%;justify-content:center">Post another</button>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer"><div class="footer-bottom"><div class="container"><p>© 2026 Listily.au</p></div></div></footer>
+<div class="toast" id="toast"></div>
+<script src="js/data.js"></script><script src="js/utils.js"></script><script src="js/register.js"></script>
+<script>
+function switchRegTab(t){
+  document.getElementById("tab-biz").className=t==="biz"?"btn btn-primary":"btn btn-ghost";
+  document.getElementById("tab-opp").className=t==="opp"?"btn btn-primary":"btn btn-ghost";
+  document.getElementById("biz-form-section").style.display=t==="biz"?"block":"none";
+  document.getElementById("opp-form-section").style.display=t==="opp"?"block":"none";
+}
+</script>
+</body></html>
