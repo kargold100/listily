@@ -14,6 +14,14 @@ function goStep(n){
 
 function validateStep(s){
   if(s===1){
+    const name2=document.getElementById("r-name")?.value.trim();
+    const ind2=document.getElementById("r-industry")?.value;
+    const cat2=getCatValue();
+    const state2=document.getElementById("r-state")?.value;
+    const sub2=document.getElementById("r-suburb")?.value.trim();
+    const desc2=document.getElementById("r-desc")?.value.trim();
+    if(!name2||!ind2||!cat2||!state2||!sub2||!desc2){alert("Please fill in all required fields.");return false;}
+    return true;/*skip*/
     const fields=["r-name","r-industry","r-cat","r-state","r-suburb","r-desc"];
     if(fields.some(id=>!document.getElementById(id)?.value.trim())){alert("Please fill in all required fields.");return false;}
   }
@@ -27,9 +35,37 @@ function validateStep(s){
 }
 
 function populateCatDropdown(){
-  const ind=document.getElementById("r-industry").value,sel=document.getElementById("r-cat");
-  sel.innerHTML=`<option value="">Select category…</option>`;
-  (INDUSTRY_CATS[ind]||[]).forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;sel.appendChild(o);});
+  const ind = document.getElementById("r-industry").value;
+  const sel = document.getElementById("r-cat");
+  const freeInput = document.getElementById("r-cat-free");
+  const isEmergency = ind === "Emergency & Support";
+
+  if (isEmergency) {
+    // Show free-text input, hide dropdown
+    sel.style.display = "none";
+    if (freeInput) {
+      freeInput.style.display = "block";
+      freeInput.placeholder = "e.g. Crisis Line, Mental Health Helpline, Domestic Violence Support, After-Hours GP…";
+      freeInput.required = true;
+    }
+  } else {
+    // Show dropdown, hide free-text
+    sel.style.display = "block";
+    if (freeInput) { freeInput.style.display = "none"; freeInput.required = false; }
+    sel.innerHTML = `<option value="">Select category…</option>`;
+    (INDUSTRY_CATS[ind] || []).forEach(c => {
+      const o = document.createElement("option");
+      o.value = c; o.textContent = c; sel.appendChild(o);
+    });
+  }
+}
+
+function getCatValue() {
+  const ind = document.getElementById("r-industry").value;
+  if (ind === "Emergency & Support") {
+    return document.getElementById("r-cat-free")?.value.trim() || "";
+  }
+  return document.getElementById("r-cat")?.value || "";
 }
 
 function populateSuburbList(){
@@ -46,7 +82,7 @@ function buildReview(){
   const rows=[
     ["Business name",document.getElementById("r-name")?.value],
     ["Industry",document.getElementById("r-industry")?.value],
-    ["Category",document.getElementById("r-cat")?.value],
+    ["Category",getCatValue()],
     ["State",document.getElementById("r-state")?.value],
     ["Suburb",document.getElementById("r-suburb")?.value],
     ["ABN",document.getElementById("r-abn")?.value],
@@ -66,7 +102,7 @@ function submitReg(){
   const ind=document.getElementById("r-industry").value;
   const name=document.getElementById("r-name").value.trim();
   DB.push({
-    id:Date.now(),name,industry:ind,cat:document.getElementById("r-cat").value,
+    id:Date.now(),name,industry:ind,cat:getCatValue(),
     suburb:document.getElementById("r-suburb").value.trim(),state:document.getElementById("r-state").value,
     abn:document.getElementById("r-abn")?.value,
     desc:document.getElementById("r-desc").value.trim(),

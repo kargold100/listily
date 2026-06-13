@@ -1,62 +1,34 @@
-// ─── Admin auth ─────────────────────────────────────────────────
-// Credentials are loaded from sessionStorage so they are never
-// hard-coded in source. On first visit the operator sets them via
-// the setup screen below. Change them in Site Settings before launch.
+// ─── Admin credentials ──────────────────────────────────────────
+// Credentials are stored here. Change these before deploying to production.
+const ADMIN_USER = "listly_admin";
+const ADMIN_PASS = "ListlyAdmin123$";
+
 let adminLoggedIn = false;
 
-function getStoredCreds() {
-  try {
-    const raw = sessionStorage.getItem('_listily_admin_cfg');
-    if (raw) return JSON.parse(raw);
-  } catch(e) {}
-  return null;
-}
-
 function doLogin() {
-  const u = document.getElementById('a-user').value.trim();
-  const p = document.getElementById('a-pass').value;
-  const err = document.getElementById('login-err');
-  if (!u || !p) { err.textContent = 'Please enter both username and password.'; return; }
-
-  const stored = getStoredCreds();
-  if (!stored) {
-    err.textContent = 'No admin account configured. Use "Set up admin account" below.';
-    return;
-  }
-  if (u === stored.u && p === stored.p) {
+  const u = document.getElementById("a-user").value.trim();
+  const p = document.getElementById("a-pass").value;
+  const err = document.getElementById("login-err");
+  if (!u || !p) { err.textContent = "Please enter both username and password."; return; }
+  if (u === ADMIN_USER && p === ADMIN_PASS) {
     adminLoggedIn = true;
-    document.getElementById('admin-login-view').style.display = 'none';
-    document.getElementById('admin-dash').style.display = 'block';
-    document.getElementById('logout-btn').style.display = '';
+    document.getElementById("admin-login-view").style.display = "none";
+    document.getElementById("admin-dash").style.display = "block";
+    document.getElementById("logout-btn").style.display = "";
     renderAdminDash();
   } else {
-    err.textContent = 'Incorrect username or password.';
-    document.getElementById('a-pass').value = '';
+    err.textContent = "Incorrect username or password.";
+    document.getElementById("a-pass").value = "";
   }
 }
 
 function doLogout() {
   adminLoggedIn = false;
-  document.getElementById('admin-login-view').style.display = 'block';
-  document.getElementById('admin-dash').style.display = 'none';
-  document.getElementById('logout-btn').style.display = 'none';
-  ['a-user','a-pass'].forEach(id => { document.getElementById(id).value = ''; });
-  document.getElementById('login-err').textContent = '';
-}
-
-function saveAdminSetup() {
-  const u = document.getElementById('setup-user').value.trim();
-  const p = document.getElementById('setup-pass').value;
-  const p2 = document.getElementById('setup-pass2').value;
-  const err = document.getElementById('setup-err');
-  if (!u || u.length < 3) { err.textContent = 'Username must be at least 3 characters.'; return; }
-  if (!p || p.length < 8) { err.textContent = 'Password must be at least 8 characters.'; return; }
-  if (p !== p2) { err.textContent = 'Passwords do not match.'; return; }
-  sessionStorage.setItem('_listily_admin_cfg', JSON.stringify({ u, p }));
-  document.getElementById('setup-panel').style.display = 'none';
-  document.getElementById('login-panel').style.display = 'block';
-  document.getElementById('login-success').style.display = 'block';
-  setTimeout(() => document.getElementById('login-success').style.display = 'none', 3000);
+  document.getElementById("admin-login-view").style.display = "block";
+  document.getElementById("admin-dash").style.display = "none";
+  document.getElementById("logout-btn").style.display = "none";
+  ["a-user", "a-pass"].forEach(id => { document.getElementById(id).value = ""; });
+  document.getElementById("login-err").textContent = "";
 }
 
 function updateStats() {
@@ -228,10 +200,5 @@ function renderAnalytics() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('a-pass')?.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-  document.getElementById('setup-pass2')?.addEventListener('keydown', e => { if(e.key==='Enter') saveAdminSetup(); });
-  // Show setup panel if no creds stored yet
-  if (!getStoredCreds()) {
-    document.getElementById('setup-info').style.display = 'block';
-  }
+  document.getElementById('a-pass')?.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 });
