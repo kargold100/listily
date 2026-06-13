@@ -259,3 +259,138 @@ DB.push(
   {id:102,name:"Tarneit Auto & Manual Driving",industry:"Driving Schools",cat:"Manual Lessons",suburb:"Tarneit",state:"VIC",desc:"Manual and automatic driving lessons across Wyndham. Log book hours, HPT test prep and VicRoads licence test expertise. Bilingual instructors available in Hindi, Punjabi and Tamil.",icon:"🕹️",tags:["Manual","HPT prep","Bilingual"],mobile:"0433 345 678",email:"tarneit.driving@gmail.com",wa:"0433 345 678",hours:{Mon:"7am–7pm",Tue:"7am–7pm",Wed:"7am–7pm",Thu:"7am–7pm",Fri:"7am–7pm",Sat:"7am–5pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-03-05",contact:"Instructor",status:"approved",addedBy:"admin"},
   {id:103,name:"International Licence Conversion VIC",industry:"Driving Schools",cat:"International Licence Conversion",suburb:"Footscray",state:"VIC",desc:"Specialising in helping overseas licence holders convert to a Victorian licence. Familiar with road rules differences for drivers from India, Sri Lanka, Philippines, China and Middle East. Affordable packages.",icon:"🌐",tags:["International licence","Overseas drivers","Conversion"],mobile:"0455 456 789",email:"intlicenceconversion@gmail.com",wa:"0455 456 789",hours:{Mon:"8am–6pm",Tue:"8am–6pm",Wed:"8am–6pm",Thu:"8am–6pm",Fri:"8am–6pm",Sat:"8am–5pm",Sun:"By appointment",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-04-01",contact:"Instructor",status:"approved",addedBy:"admin"}
 );
+
+// POINT COOK COMMUNITY ORGANISATIONS
+DB.push(
+  {
+    id: 119,
+    name: "Point Cook Action Group (PCAG)",
+    industry: "Community & Culture",
+    cat: "Volunteer Group",
+    suburb: "Point Cook",
+    state: "VIC",
+    desc: "PCAG is the voice of Point Cook residents — a grassroots advocacy group championing quality facilities and infrastructure for the fastest-growing suburb in Victoria. Key wins include the Sneydes Road interchange, Palmers Road Sound Wall, Point Cook Pop Up Park and the WYNBUS on-demand public transport trial. Current president: Karthick Thanigaimani. Open to all Point Cook residents — individual, student and corporate memberships available via the website.",
+    icon: "📣",
+    tags: ["Advocacy", "Resident group", "Transport & roads"],
+    web: "https://www.pointcookactiongroup.org.au",
+    hours: {
+      Mon: "By arrangement",
+      Tue: "By arrangement",
+      Wed: "By arrangement",
+      Thu: "By arrangement",
+      Fri: "By arrangement",
+      Sat: "By arrangement",
+      Sun: "By arrangement",
+      PH: "By arrangement"
+    },
+    lastUpdated: "2026-06-13",
+    submittedAt: "2026-06-13",
+    contact: "Karthick Thanigaimani (President)",
+    status: "approved",
+    featured: true,
+    addedBy: "admin"
+  },
+  {
+    id: 120,
+    name: "Point Cook Library of Things (PCLoT)",
+    industry: "Community & Culture",
+    cat: "Volunteer Group",
+    suburb: "Point Cook",
+    state: "VIC",
+    desc: "Borrow useful household items instead of buying them — a not-for-profit community initiative promoting sustainability and reducing waste. Items include gardening tools, wheelchairs, walkers, heaters, party supplies, kitchen appliances, accessibility equipment and more. Based at the Jamieson Way Community Centre, 59 Jamieson Way Point Cook. Founded by Benish Chaudhry as a project of PCAG. Membership: $50/year · $30/six months · $20 one-off borrow. Point Cook residents only.",
+    icon: "🔧",
+    tags: ["Borrow tools", "Sustainability", "Community sharing"],
+    web: "https://pointcooklibraryofthings.org.au",
+    hours: {
+      Mon: "Closed",
+      Tue: "Closed",
+      Wed: "By appointment",
+      Thu: "By appointment",
+      Fri: "Closed",
+      Sat: "10am–12pm",
+      Sun: "Closed",
+      PH: "Closed"
+    },
+    lastUpdated: "2026-06-13",
+    submittedAt: "2026-06-13",
+    contact: "Benish Chaudhry (Founder)",
+    status: "approved",
+    featured: true,
+    addedBy: "admin",
+    address: "Jamieson Way Community Centre, 59 Jamieson Way, Point Cook VIC 3030"
+  }
+);
+
+// ─── Additional verified Point Cook / Wyndham community organisations ──────
+DB.push(
+
+  // Helping Hampers Point Cook Inc.
+  // Verified: ACNC registered charity. Food hamper relief for Point Cook families.
+  // Source: ACNC profile, Facebook page (2,184 followers), CommBank Community Donation feature
+  {
+    id: 121,
+    name: "Helping Hampers Point Cook Inc.",
+    industry: "NFP & Charities",
+    cat: "Food Relief",
+    suburb: "Point Cook",
+    state: "VIC",
+    desc: "Helping Hampers Point Cook is a registered not-for-profit dedicated to putting food on the table for Point Cook families who are struggling. They provide food hampers and also help connect families with relevant local support groups and services for ongoing wellbeing. Accepts food and financial donations from individuals and local businesses. Volunteer opportunities available.",
+    icon: "🧺",
+    tags: ["Food hampers", "Donations accepted", "Volunteers welcome"],
+    web: "https://www.facebook.com/Helping-Hampers-Point-Cook-277644156099907",
+    hours: {
+      Mon: "By arrangement",
+      Tue: "By arrangement",
+      Wed: "By arrangement",
+      Thu: "By arrangement",
+      Fri: "By arrangement",
+      Sat: "By arrangement",
+      Sun: "By arrangement",
+      PH: "By arrangement"
+    },
+    lastUpdated: "2026-06-13",
+    submittedAt: "2026-06-13",
+    contact: "Helping Hampers PC",
+    status: "approved",
+    featured: true,
+    addedBy: "admin"
+  },
+
+  // Christmas at the Lakes
+  // Verified: Annual community event, 18+ years running, NFP organisation.
+  // Breezewater Reserve, 25 The Breezewater / Sanctuary Lakes, Point Cook.
+  // 2026 date confirmed: 12 December 2026, 4pm–10.30pm.
+  // Profits donated to Point Cook CFA, Lions, Rotary and Whitelion.
+  // Source: wyndham.starweekly.com.au, wyndham.vic.gov.au, christmasatthelakes.org.au
+  {
+    id: 122,
+    name: "Christmas at the Lakes",
+    industry: "Community & Culture",
+    cat: "Cultural Organisation",
+    suburb: "Point Cook",
+    state: "VIC",
+    desc: "One of Point Cook's most beloved community events — an annual Christmas celebration at Breezewater Reserve, Sanctuary Lakes running for over 18 years. Features live carols, local performers, children's rides and amusements, market and food stalls, a visit from Santa and a fireworks finale. Surplus profits are donated each year to community organisations including Point Cook CFA, Lions Club, Rotary and Whitelion. 2026 event: Friday 12 December, 4pm–10.30pm. Volunteers welcome.",
+    icon: "🎄",
+    tags: ["Christmas", "Annual event", "Fireworks"],
+    web: "https://www.christmasatthelakes.org.au",
+    hours: {
+      Mon: "Annual event only",
+      Tue: "Annual event only",
+      Wed: "Annual event only",
+      Thu: "Annual event only",
+      Fri: "Annual event only",
+      Sat: "Annual event only",
+      Sun: "Annual event only",
+      PH: "Annual event only"
+    },
+    lastUpdated: "2026-06-13",
+    submittedAt: "2026-06-13",
+    contact: "Bruce Cahoon (Chair)",
+    address: "Breezewater Reserve, 25 The Breezewater, Sanctuary Lakes, Point Cook VIC 3030",
+    status: "approved",
+    featured: true,
+    addedBy: "admin"
+  }
+
+);
+
