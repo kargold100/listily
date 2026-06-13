@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Search Listily by speciality, function or purpose — volunteering, food relief, mentoring, emergency services, pet care, legal help and more.">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self';">
+  <title>Search by Speciality — Listily.au</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/base.css">
+  <style>
+    /* ── Search hero ─────────────────────────────── */
+    .search-hero{
+      background:linear-gradient(140deg,#07120D 0%,#0D2218 50%,#0F3020 100%);
+      padding:4rem 0 3rem;position:relative;overflow:hidden;
+    }
+    .search-hero::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 60% 50%,rgba(26,158,114,.1) 0%,transparent 70%);pointer-events:none}
+    .sh-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-light);margin-bottom:1.25rem;background:rgba(26,158,114,.1);border:1px solid rgba(26,158,114,.18);padding:5px 14px;border-radius:var(--r-full)}
+    .sh-title{font-family:var(--font-d);font-size:clamp(28px,4.5vw,46px);font-weight:800;line-height:1.1;color:#fff;margin-bottom:.875rem;letter-spacing:-.02em}
+    .sh-accent{background:linear-gradient(135deg,#4FD490 0%,#A0E4CB 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .sh-sub{font-size:16px;color:rgba(255,255,255,.6);max-width:500px;line-height:1.65}
+
+    /* Main search box */
+    .main-search-bar{
+      background:#fff;border-radius:var(--r-xl);padding:6px;
+      display:flex;align-items:center;gap:0;
+      box-shadow:0 16px 48px rgba(0,0,0,.3);
+      margin-top:1.75rem;max-width:680px;
+      color-scheme:light;
+    }
+    .msb-field{flex:1;position:relative;display:flex;align-items:center}
+    .msb-field+.msb-field{border-left:1.5px solid #E8E8E4}
+    .msb-icon{position:absolute;left:14px;color:#6B7280;font-size:14px;pointer-events:none}
+    .msb-field input,.msb-field select{
+      width:100%;padding:14px 14px 14px 42px;
+      border:none;outline:none;font-size:14px;
+      background:transparent;color:#111827;font-family:var(--font);
+    }
+    .msb-field input::placeholder{color:#9CA3AF}
+    .msb-field input:focus,.msb-field select:focus{box-shadow:inset 0 0 0 2px rgba(26,158,114,.3);border-radius:10px}
+    .msb-btn{padding:12px 22px;background:var(--brand);color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;font-family:var(--font);display:flex;align-items:center;gap:8px;white-space:nowrap;transition:all .18s;flex-shrink:0}
+    .msb-btn:hover{background:var(--brand-mid);transform:translateY(-1px)}
+
+    /* Function tiles */
+    .function-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:2rem 0 1.5rem}
+    .fn-tile{
+      background:var(--bg-card);border:1.5px solid var(--border);
+      border-radius:var(--r-xl);padding:1.125rem .875rem;
+      text-align:center;cursor:pointer;transition:all .18s;
+      user-select:none;
+    }
+    .fn-tile:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+    .fn-tile.active{border-width:2px}
+    .fn-icon{font-size:26px;display:block;margin-bottom:.625rem}
+    .fn-label{font-size:12.5px;font-weight:600;line-height:1.3}
+    .fn-count{font-size:11px;color:var(--text-3);margin-top:3px}
+
+    /* Colour variants */
+    .fn-green{border-color:var(--green-b)} .fn-green.active{background:var(--green-bg);border-color:var(--green-t)} .fn-green .fn-label{color:var(--green-t)}
+    .fn-amber{border-color:var(--amber-b)} .fn-amber.active{background:var(--amber-bg);border-color:var(--amber-t)} .fn-amber .fn-label{color:var(--amber-t)}
+    .fn-blue{border-color:var(--blue-b)}   .fn-blue.active{background:var(--blue-bg);border-color:var(--blue-t)}   .fn-blue .fn-label{color:var(--blue-t)}
+    .fn-red{border-color:var(--red-b)}     .fn-red.active{background:var(--red-bg);border-color:var(--red-t)}     .fn-red .fn-label{color:var(--red-t)}
+    .fn-purple{border-color:var(--purple-b)}.fn-purple.active{background:var(--purple-bg);border-color:var(--purple-t)}.fn-purple .fn-label{color:var(--purple-t)}
+    .fn-orange{border-color:#F4BD5E}        .fn-orange.active{background:#FEF3DC;border-color:#92560A}              .fn-orange .fn-label{color:#92560A}
+    .fn-teal{border-color:var(--brand-border)}.fn-teal.active{background:var(--brand-bg);border-color:var(--brand-dark)}.fn-teal .fn-label{color:var(--brand-dark)}
+    .fn-mentor{border-color:var(--mentor-border)}.fn-mentor.active{background:var(--mentor-bg);border-color:var(--mentor-dark)}.fn-mentor .fn-label{color:var(--mentor-dark)}
+
+    /* Results */
+    .results-section{padding:2.5rem 0}
+    .results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.875rem}
+    .results-title{font-family:var(--font-d);font-size:22px;font-weight:700}
+    .results-count{font-size:13px;color:var(--text-3)}
+    .results-tabs{display:flex;gap:6px;flex-wrap:wrap}
+    .rtab{padding:6px 14px;border:1.5px solid var(--border);border-radius:var(--r-full);font-size:12.5px;font-weight:500;cursor:pointer;color:var(--text-2);background:var(--bg-card);font-family:var(--font);transition:all .15s}
+    .rtab:hover{background:var(--bg-tint)}
+    .rtab.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+    /* Result card */
+    .result-card{
+      background:var(--bg-card);border:1px solid var(--border);
+      border-radius:var(--r-xl);padding:1.125rem 1.25rem;
+      display:flex;align-items:flex-start;gap:14px;
+      cursor:pointer;transition:all .18s;
+    }
+    .result-card:hover{border-color:var(--brand-border);box-shadow:var(--sh-sm);transform:translateX(3px)}
+    .rc-icon{font-size:24px;width:46px;height:46px;border-radius:var(--r-lg);background:var(--bg-tint);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .rc-body{flex:1;min-width:0}
+    .rc-name{font-weight:600;font-size:14.5px;margin-bottom:2px}
+    .rc-meta{font-size:12px;color:var(--text-3);display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+    .rc-desc{font-size:13px;color:var(--text-2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .rc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+    .rc-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+    .rc-type{font-size:10px;font-weight:700;padding:3px 9px;border-radius:var(--r-full);white-space:nowrap}
+    .type-business{background:var(--brand-bg);color:var(--brand-dark)}
+    .type-opportunity{background:var(--blue-bg);color:var(--blue-t)}
+    .type-mentor{background:var(--mentor-bg);color:var(--mentor-dark)}
+    .type-nfp{background:var(--green-bg);color:var(--green-t)}
+    .type-emergency{background:var(--red-bg);color:var(--red-t)}
+
+    .no-results-search{text-align:center;padding:3.5rem 1rem;color:var(--text-3)}
+    .no-results-search i{font-size:40px;display:block;margin-bottom:1rem;opacity:.3}
+
+    /* Suggested searches */
+    .suggested-wrap{margin-top:1rem}
+    .suggested-label{font-size:12px;color:rgba(255,255,255,.45);margin-bottom:.625rem;font-weight:500}
+    .suggested-pills{display:flex;flex-wrap:wrap;gap:6px}
+    .sugg-pill{font-size:12px;color:rgba(255,255,255,.75);background:rgba(255,255,255,.08);padding:5px 13px;border-radius:var(--r-full);border:1px solid rgba(255,255,255,.15);cursor:pointer;transition:all .15s;font-family:var(--font)}
+    .sugg-pill:hover{background:rgba(255,255,255,.16);color:#fff}
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-icon"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div>
+      <span class="logo-word">l<span class="li">i</span>st<span class="li">i</span>ly</span>
+      <span class="logo-suffix">.au</span>
+    </a>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="directory.html" class="nav-link">Businesses</a>
+      <a href="opportunities.html" class="nav-link">Opportunities</a>
+      <a href="mentors.html" class="nav-link">Mentors</a>
+      <a href="nfp.html" class="nav-link">Give &amp; Receive</a>
+      <a href="register.html" class="nav-link">Add listing</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="search.html" class="nav-link active" style="color:var(--brand);font-weight:600"><i class="fa-solid fa-magnifying-glass" style="font-size:11px"></i> Search</a>
+    </div>
+    <div class="nav-actions">
+      <a href="admin.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-shield-halved"></i> Admin</a>
+      <a href="register.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Add listing</a>
+      <button class="nav-burger" id="nav-burger" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="search-hero">
+  <div class="hero-grid-bg" aria-hidden="true"></div>
+  <div class="container" style="position:relative;z-index:1">
+    <div class="sh-eyebrow"><i class="fa-solid fa-magnifying-glass"></i> Speciality &amp; function search</div>
+    <h1 class="sh-title">Search by <span class="sh-accent">what you need</span></h1>
+    <p class="sh-sub">Find businesses, services, volunteer roles, mentors and support organisations by speciality or function — not just category.</p>
+
+    <div class="main-search-bar" role="search" aria-label="Speciality search">
+      <div class="msb-field" style="flex:2.5">
+        <i class="fa-solid fa-magnifying-glass msb-icon"></i>
+        <input type="text" id="spec-keyword" placeholder="e.g. electrician, food relief, driving, Tamil, SES…" autocomplete="off" aria-label="Search keyword" oninput="doSearch()" onkeydown="if(event.key==='Enter')doSearch()">
+      </div>
+      <div class="msb-field">
+        <i class="fa-solid fa-location-dot msb-icon"></i>
+        <select id="spec-state" aria-label="State" onchange="doSearch()">
+          <option value="">All states</option>
+          <option value="VIC">Victoria</option>
+          <option value="NSW">New South Wales</option>
+          <option value="QLD">Queensland</option>
+          <option value="WA">Western Australia</option>
+          <option value="SA">South Australia</option>
+          <option value="TAS">Tasmania</option>
+          <option value="ACT">ACT</option>
+          <option value="NT">NT</option>
+        </select>
+      </div>
+      <button class="msb-btn" onclick="doSearch()"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+    </div>
+
+    <div class="suggested-wrap">
+      <div class="suggested-label">Try searching for:</div>
+      <div class="suggested-pills">
+        <span class="sugg-pill" onclick="quickSearch('volunteer')">🙋 Volunteering</span>
+        <span class="sugg-pill" onclick="quickSearch('SES')">🟠 SES</span>
+        <span class="sugg-pill" onclick="quickSearch('CFA')">🚒 CFA</span>
+        <span class="sugg-pill" onclick="quickSearch('food relief')">🥫 Food relief</span>
+        <span class="sugg-pill" onclick="quickSearch('driving')">🚗 Driving</span>
+        <span class="sugg-pill" onclick="quickSearch('Tamil')">📖 Tamil</span>
+        <span class="sugg-pill" onclick="quickSearch('electrician')">⚡ Electrician</span>
+        <span class="sugg-pill" onclick="quickSearch('mental health')">💚 Mental health</span>
+        <span class="sugg-pill" onclick="quickSearch('apprenticeship')">🔧 Apprenticeship</span>
+        <span class="sugg-pill" onclick="quickSearch('pets')">🐾 Pet services</span>
+        <span class="sugg-pill" onclick="quickSearch('legal')">⚖️ Legal help</span>
+        <span class="sugg-pill" onclick="quickSearch('children')">🌱 Children & youth</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Function tiles -->
+<section style="background:var(--bg-card);border-bottom:1px solid var(--border);padding:2rem 0">
+  <div class="container">
+    <p style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:1rem">Or browse by function</p>
+    <div class="function-grid" id="fn-grid">
+      <div class="fn-tile fn-green" onclick="setFunction('volunteer',this)" data-fn="volunteer">
+        <span class="fn-icon">🙋</span>
+        <div class="fn-label">Volunteer</div>
+        <div class="fn-count" id="fn-c-volunteer">— opportunities</div>
+      </div>
+      <div class="fn-tile fn-amber" onclick="setFunction('donate',this)" data-fn="donate">
+        <span class="fn-icon">📦</span>
+        <div class="fn-label">Donate goods</div>
+        <div class="fn-count" id="fn-c-donate">— accept donations</div>
+      </div>
+      <div class="fn-tile fn-blue" onclick="setFunction('get help',this)" data-fn="get help">
+        <span class="fn-icon">🤲</span>
+        <div class="fn-label">Get support</div>
+        <div class="fn-count" id="fn-c-get help">— support services</div>
+      </div>
+      <div class="fn-tile fn-red" onclick="setFunction('emergency',this)" data-fn="emergency">
+        <span class="fn-icon">🚨</span>
+        <div class="fn-label">Emergency services</div>
+        <div class="fn-count" id="fn-c-emergency">— services</div>
+      </div>
+      <div class="fn-tile fn-teal" onclick="setFunction('trade',this)" data-fn="trade">
+        <span class="fn-icon">🔧</span>
+        <div class="fn-label">Trade services</div>
+        <div class="fn-count" id="fn-c-trade">— tradespeople</div>
+      </div>
+      <div class="fn-tile fn-purple" onclick="setFunction('learn',this)" data-fn="learn">
+        <span class="fn-icon">📚</span>
+        <div class="fn-label">Learn & train</div>
+        <div class="fn-count" id="fn-c-learn">— programs</div>
+      </div>
+      <div class="fn-tile fn-mentor" onclick="setFunction('mentor',this)" data-fn="mentor">
+        <span class="fn-icon">⭐</span>
+        <div class="fn-label">Find a mentor</div>
+        <div class="fn-count" id="fn-c-mentor">— mentors</div>
+      </div>
+      <div class="fn-tile fn-orange" onclick="setFunction('food',this)" data-fn="food">
+        <span class="fn-icon">🥦</span>
+        <div class="fn-label">Food relief</div>
+        <div class="fn-count" id="fn-c-food">— services</div>
+      </div>
+      <div class="fn-tile fn-teal" onclick="setFunction('pet',this)" data-fn="pet">
+        <span class="fn-icon">🐾</span>
+        <div class="fn-label">Pet services</div>
+        <div class="fn-count" id="fn-c-pet">— listings</div>
+      </div>
+      <div class="fn-tile fn-blue" onclick="setFunction('legal',this)" data-fn="legal">
+        <span class="fn-icon">⚖️</span>
+        <div class="fn-label">Legal & migration</div>
+        <div class="fn-count" id="fn-c-legal">— services</div>
+      </div>
+      <div class="fn-tile fn-green" onclick="setFunction('community',this)" data-fn="community">
+        <span class="fn-icon">🌏</span>
+        <div class="fn-label">Community groups</div>
+        <div class="fn-count" id="fn-c-community">— groups</div>
+      </div>
+      <div class="fn-tile fn-purple" onclick="setFunction('career',this)" data-fn="career">
+        <span class="fn-icon">🎯</span>
+        <div class="fn-label">Career & jobs</div>
+        <div class="fn-count" id="fn-c-career">— listings</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Results -->
+<main id="main-content">
+<section class="results-section">
+  <div class="container">
+    <div class="results-header">
+      <div>
+        <h2 class="results-title" id="results-title">All listings</h2>
+        <p class="results-count" id="results-count"></p>
+      </div>
+      <div class="results-tabs">
+        <button class="rtab active" onclick="setResultTab('all',this)">All</button>
+        <button class="rtab" onclick="setResultTab('business',this)"><i class="fa-solid fa-building"></i> Businesses</button>
+        <button class="rtab" onclick="setResultTab('opportunity',this)"><i class="fa-solid fa-briefcase"></i> Opportunities</button>
+        <button class="rtab" onclick="setResultTab('mentor',this)"><i class="fa-solid fa-star"></i> Mentors</button>
+      </div>
+    </div>
+    <div id="results-list" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div class="pagination" id="search-pagination"></div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="logo-icon sm"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div>
+        <span class="logo-word sm">l<span class="li">i</span>st<span class="li">i</span>ly</span><span class="logo-suffix sm">.au</span>
+      </div>
+      <p>Your local community directory — businesses, opportunities, mentors, charities and support.</p>
+    </div>
+    <div class="footer-col"><h4>Search</h4><a href="search.html">Speciality search</a><a href="directory.html">Business directory</a><a href="opportunities.html">Opportunities</a><a href="mentors.html">Mentors</a></div>
+    <div class="footer-col"><h4>Support</h4><a href="nfp.html">Give &amp; Receive</a><a href="directory.html?industry=Emergency+%26+Support">Emergency &amp; Support</a></div>
+    <div class="footer-col"><h4>Company</h4><a href="about.html">About</a><a href="about.html#contact">Contact</a><a href="admin.html">Admin</a></div>
+  </div>
+  <div class="footer-bottom"><div class="container"><p>© 2026 Listily.au — Australian Community Directory</p></div></div>
+</footer>
+
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal-box"><button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button><div id="modal-body"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="js/analytics.js"></script>
+<script src="js/data.js"></script>
+<script src="js/utils.js"></script>
+<script>
+// ── Function → search keywords mapping ──────────────────────────
+const FN_MAP = {
+  volunteer:  { kw: ['volunteer','cfa','ses','lions','rotary','ngo','charity','community','nfp'], industries: ['Community & Culture','NFP & Charities','Emergency & Support'] },
+  donate:     { kw: ['donation','donate','hamper','food bank','clothing','givit','foodbank','ozharvest'], industries: ['NFP & Charities'] },
+  'get help': { kw: ['support','helpline','crisis','shelter','housing','mental health','disability','counselling','welfare'], industries: ['Emergency & Support','NFP & Charities'] },
+  emergency:  { kw: ['ses','cfa','ambulance','fire','flood','storm','000','132500','emergency'], industries: ['Emergency & Support'] },
+  trade:      { kw: ['electrician','plumber','builder','carpenter','solar','handyman','cleaner','tiler','roofer','air con'], industries: ['Home & Trade Services'] },
+  learn:      { kw: ['tutor','school','tafe','english','language','driving','music','art','training','apprenticeship','course'], industries: ['Education & Childcare','Driving Schools','Career & Student Support'] },
+  mentor:     { kw: [], industries: [], mentorsOnly: true },
+  food:       { kw: ['food','hamper','meal','hunger','foodbank','ozharvest','second bite','relief'], industries: ['NFP & Charities','Hospitality & Food'] },
+  pet:        { kw: ['dog','cat','pet','groom','vet','walk','boarding','sitting','animal'], industries: ['Pet Services'] },
+  legal:      { kw: ['lawyer','legal','conveyancing','migration','visa','visa','notary','community legal'], industries: ['Legal & Migration'] },
+  community:  { kw: ['club','choir','arts','cultural','community','action group','library of things','multicultural'], industries: ['Community & Culture','Migrant & Multicultural'] },
+  career:     { kw: ['job','career','resume','internship','apprenticeship','graduate','employment','work'], industries: ['Career & Student Support'] }
+};
+
+const RESULTS_PER_PAGE = 15;
+let currentPage = 1;
+let activeFunction = null;
+let activeTab = 'all';
+let currentResults = [];
+
+function scoreItem(item, kw) {
+  const text = [
+    item.name || item.title, item.desc || item.bio,
+    item.industry, item.cat, item.specialty,
+    ...(item.tags||[]), ...(item.areas||[])
+  ].join(' ').toLowerCase();
+  if (!kw) return 1;
+  const terms = kw.toLowerCase().split(/\s+/).filter(Boolean);
+  return terms.filter(t => text.includes(t)).length;
+}
+
+function functionScore(item, fn) {
+  if (!fn) return 1;
+  const cfg = FN_MAP[fn];
+  if (!cfg) return 0;
+  const text = [item.name||item.title, item.desc||item.bio, item.industry, item.cat, item.specialty, ...(item.tags||[]), ...(item.areas||[])].join(' ').toLowerCase();
+  const kwMatch = cfg.kw.some(k => text.includes(k));
+  const indMatch = cfg.industries.some(i => item.industry === i);
+  return (kwMatch ? 2 : 0) + (indMatch ? 3 : 0);
+}
+
+function doSearch() {
+  const kw = document.getElementById('spec-keyword').value.trim().toLowerCase();
+  const state = document.getElementById('spec-state').value;
+
+  // Collect all sources
+  let businesses = DB.filter(b => b.status === 'approved');
+  let opps = OPPORTUNITIES.filter(o => o.status === 'approved');
+  let mentors = (typeof MENTORS !== 'undefined') ? MENTORS.filter(m => m.status === 'approved') : [];
+
+  // Apply state filter
+  if (state) {
+    businesses = businesses.filter(b => b.state === state);
+    opps = opps.filter(o => o.state === state);
+    mentors = mentors.filter(m => m.state === state);
+  }
+
+  // Function filter
+  if (activeFunction) {
+    const cfg = FN_MAP[activeFunction];
+    if (cfg?.mentorsOnly) {
+      businesses = []; opps = [];
+    } else {
+      businesses = businesses.filter(b => functionScore(b, activeFunction) > 0);
+      opps = opps.filter(o => functionScore(o, activeFunction) > 0);
+      if (!cfg?.mentorsOnly) mentors = mentors.filter(m => functionScore(m, activeFunction) > 0);
+    }
+  }
+
+  // Keyword filter + scoring
+  const scored = [];
+  if (kw) {
+    businesses.forEach(b => { const s = scoreItem(b, kw); if (s > 0) scored.push({item:b, score:s+functionScore(b,activeFunction), kind:'business'}); });
+    opps.forEach(o => { const s = scoreItem(o, kw); if (s > 0) scored.push({item:o, score:s+functionScore(o,activeFunction), kind:'opportunity'}); });
+    mentors.forEach(m => { const s = scoreItem(m, kw); if (s > 0) scored.push({item:m, score:s, kind:'mentor'}); });
+    scored.sort((a,b) => b.score - a.score);
+  } else {
+    businesses.forEach(b => scored.push({item:b, score:functionScore(b,activeFunction)||1, kind:'business'}));
+    opps.forEach(o => scored.push({item:o, score:functionScore(o,activeFunction)||1, kind:'opportunity'}));
+    mentors.forEach(m => scored.push({item:m, score:1, kind:'mentor'}));
+  }
+
+  // Tab filter
+  let filtered = activeTab === 'all' ? scored : scored.filter(r => r.kind === activeTab);
+
+  // Update title
+  const titleEl = document.getElementById('results-title');
+  const countEl = document.getElementById('results-count');
+  let titleStr = kw ? `Results for "${kw}"` : activeFunction ? (activeFunction.charAt(0).toUpperCase()+activeFunction.slice(1)) + ' listings' : 'All listings';
+  titleEl.textContent = titleStr;
+  countEl.textContent = `${filtered.length} result${filtered.length !== 1 ? 's' : ''} across businesses, opportunities and mentors`;
+
+  currentResults = filtered;
+  currentPage = 1;
+  renderResults();
+  renderPagination();
+
+  // Track in analytics
+  if (kw && window.Listily) window.Listily.track('spec_search', { q: kw, fn: activeFunction, tab: activeTab });
+}
+
+function renderResults() {
+  const list = document.getElementById('results-list');
+  const page = currentResults.slice((currentPage-1)*RESULTS_PER_PAGE, currentPage*RESULTS_PER_PAGE);
+
+  if (!page.length) {
+    list.innerHTML = `<div class="no-results-search"><i class="fa-solid fa-magnifying-glass"></i><p>No results found. Try a different keyword or function.</p></div>`;
+    return;
+  }
+
+  list.innerHTML = page.map(({item, kind}) => {
+    const isOpp = kind === 'opportunity';
+    const isMentor = kind === 'mentor';
+    const isNFP = item.industry === 'NFP & Charities';
+    const isEmerg = item.industry === 'Emergency & Support';
+    const typeLabel = isMentor ? 'Mentor' : isOpp ? (item.type||'Opportunity') : isNFP ? 'NFP / Charity' : isEmerg ? 'Emergency & Support' : 'Business';
+    const typeCls = isMentor ? 'type-mentor' : isOpp ? 'type-opportunity' : isNFP ? 'type-nfp' : isEmerg ? 'type-emergency' : 'type-business';
+    const icon = item.icon || (isMentor ? '⭐' : '🏢');
+    const name = item.name || item.title;
+    const desc = item.desc || item.bio || '';
+    const loc = item.suburb && item.state ? `${item.suburb}, ${item.state}` : (item.state || '');
+    const tags = isMentor ? (item.areas||[]).slice(0,3) : (item.tags||[]).slice(0,3);
+    const extra = isMentor ? (item.specialty || '') : (item.industry || '');
+    const openModal = isMentor ? `openMentorModal(${item.id})` : isOpp ? `openOppDetail(${item.id})` : `openBizModal(${item.id})`;
+
+    return `<div class="result-card" onclick="${openModal}" tabindex="0" onkeydown="if(event.key==='Enter')${openModal}" role="listitem">
+      <div class="rc-icon" aria-hidden="true">${icon}</div>
+      <div class="rc-body">
+        <div class="rc-name">${escHtml(name)}</div>
+        <div class="rc-meta">
+          ${loc ? `<span><i class="fa-solid fa-location-dot" style="font-size:10px"></i> ${escHtml(loc)}</span>` : ''}
+          ${extra ? `<span style="color:var(--text-3)">·</span><span>${escHtml(extra)}</span>` : ''}
+        </div>
+        <div class="rc-desc">${escHtml(desc)}</div>
+        <div class="rc-tags">${tags.map(t => `<span class="tag tag-green" style="font-size:10px">${escHtml(t)}</span>`).join('')}</div>
+      </div>
+      <div class="rc-right">
+        <span class="rc-type ${typeCls}">${escHtml(typeLabel)}</span>
+        ${item.featured ? '<span style="font-size:10px;color:var(--amber-t)"><i class="fa-solid fa-star"></i> Featured</span>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPagination() {
+  const total = Math.ceil(currentResults.length / RESULTS_PER_PAGE);
+  const pg = document.getElementById('search-pagination');
+  if (!pg || total <= 1) { if(pg) pg.innerHTML=''; return; }
+  let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''} aria-label="Previous"><i class="fa-solid fa-chevron-left"></i></button>`;
+  for (let i=1; i<=total; i++) html += `<button class="page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`;
+  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''} aria-label="Next"><i class="fa-solid fa-chevron-right"></i></button>`;
+  pg.innerHTML = html;
+}
+function goPage(n) { currentPage=n; renderResults(); renderPagination(); window.scrollTo({top:400,behavior:'smooth'}); }
+
+function setFunction(fn, el) {
+  const tiles = document.querySelectorAll('.fn-tile');
+  tiles.forEach(t => t.classList.remove('active'));
+  if (activeFunction === fn) {
+    activeFunction = null;
+  } else {
+    activeFunction = fn;
+    if (el) el.classList.add('active');
+    document.getElementById('spec-keyword').value = '';
+  }
+  doSearch();
+}
+
+function setResultTab(tab, btn) {
+  activeTab = tab;
+  document.querySelectorAll('.rtab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  currentPage = 1;
+  renderResults();
+  renderPagination();
+}
+
+function quickSearch(q) {
+  document.getElementById('spec-keyword').value = q;
+  activeFunction = null;
+  document.querySelectorAll('.fn-tile').forEach(t => t.classList.remove('active'));
+  doSearch();
+}
+
+function updateFunctionCounts() {
+  const all = [...DB.filter(b=>b.status==='approved'), ...OPPORTUNITIES.filter(o=>o.status==='approved')];
+  const mentorCount = typeof MENTORS !== 'undefined' ? MENTORS.filter(m=>m.status==='approved').length : 0;
+  Object.entries(FN_MAP).forEach(([fn, cfg]) => {
+    const el = document.getElementById('fn-c-' + fn);
+    if (!el) return;
+    if (cfg.mentorsOnly) { el.textContent = mentorCount + ' mentors'; return; }
+    const n = all.filter(item => functionScore(item, fn) > 0).length;
+    el.textContent = n + ' listing' + (n !== 1 ? 's' : '');
+  });
+}
+
+// Mentor modal function (simplified for search page)
+function openMentorModal(id) {
+  if (typeof MENTORS === 'undefined') return;
+  const m = MENTORS.find(x => x.id === id);
+  if (!m) return;
+  document.getElementById('modal-body').innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:1rem">
+      <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#A89CFF,#5B4CF5);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-weight:700;font-size:22px;color:#fff;flex-shrink:0">${escHtml(m.avatar||m.name.charAt(0))}</div>
+      <div><div style="font-family:var(--font-d);font-size:20px;font-weight:700">${escHtml(m.name)}</div>
+      <div style="font-size:13px;color:var(--mentor);font-weight:500;margin-top:3px"><i class="fa-solid fa-star" style="font-size:11px"></i> ${escHtml(m.specialty)}</div>
+      <div style="font-size:12px;color:var(--text-3);margin-top:3px">${escHtml(m.suburb)}, ${escHtml(m.state)} · ${escHtml(m.experience)} experience</div></div>
+    </div>
+    <p style="font-size:14px;color:var(--text-2);line-height:1.7;margin-bottom:1rem">${escHtml(m.bio)}</p>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem">${(m.areas||[]).map(a=>`<span style="font-size:12px;padding:3px 10px;border-radius:999px;background:var(--mentor-bg);color:var(--mentor-dark);font-weight:500">${escHtml(a)}</span>`).join('')}</div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:1rem 0">
+    ${m.email ? `<div style="font-size:13px;margin-bottom:6px"><i class="fa-solid fa-envelope" style="color:var(--brand);margin-right:8px"></i><a href="mailto:${escHtml(m.email)}">${escHtml(m.email)}</a></div>` : ''}
+    ${m.whitelistPhone && m.phone ? `<div style="font-size:13px;margin-bottom:6px"><i class="fa-solid fa-phone" style="color:var(--brand);margin-right:8px"></i><a href="tel:${escHtml(m.phone)}">${escHtml(m.phone)}</a></div>` : ''}
+    <a href="mentors.html" class="btn btn-mentor" style="width:100%;justify-content:center;margin-top:1rem">View all mentors</a>`;
+  openModal();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  updateFunctionCounts();
+  // Handle URL params
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('q')) { document.getElementById('spec-keyword').value = p.get('q'); }
+  if (p.get('fn')) { activeFunction = p.get('fn'); document.querySelector(`[data-fn="${p.get('fn')}"]`)?.classList.add('active'); }
+  if (p.get('state')) { document.getElementById('spec-state').value = p.get('state'); }
+  doSearch();
+});
+</script>
+</body>
+</html>

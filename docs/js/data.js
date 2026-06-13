@@ -9,7 +9,7 @@ const INDUSTRY_CATS = {
   "Career & Student Support":["Career Counsellor","Resume & Cover Letter","Interview Coaching","Scholarship Guidance","University Pathways","VET Pathways","Work Experience Placement","School-to-Work Transition","Graduate Programs","Youth Employment"],
   "Driving Schools":          ["Learner Driver Lessons","Licence Test Preparation","Automatic Lessons","Manual Lessons","Hazard Perception Test","Defensive Driving","Heavy Vehicle","Motorcycle","Seniors Refresher","Log Book Lessons","International Licence Conversion"],
   "Professional Services":   ["Accountant","Financial Advisor","Insurance Broker","IT Consultant","Marketing Agency","HR Consultant","Business Consultant","Recruitment Agency","Bookkeeper","Business Coach","PR & Communications"],
-  "Retail & Shopping":       ["Grocery","Clothing","Electronics","Furniture","Hardware","Pharmacy","Pet Store","Sports & Outdoors","Books & Stationery","Gift Shop","Florist","Newsagent","Secondhand & Op Shop"],
+  "Retail & Shopping":       ["Grocery","Clothing","Electronics","Furniture","Hardware","Pharmacy","Pet Store","Sports & Outdoors","Books & Stationery","Gift Shop","Florist","Newsagent","Secondhand & Op Shop","Garden Nursery & Supplies","Fabric & Craft Supplies","Specialty Food"],
   "Beauty & Personal Care":  ["Hair Salon","Nail Salon","Beauty Therapist","Barber","Massage Therapist","Tattooist","Spa","Cosmetics"],
   "Automotive":              ["Mechanic","Car Dealer","Tyre Shop","Smash Repairs","Car Wash","Auto Parts","Roadside Assist","EV Specialist"],
   "Community & Culture":     ["Place of Worship","Cultural Organisation","Choir & Singing Group","Sports Club","Arts Group","Volunteer Group","Community Centre","Library","Museum","Language School","Dance Group","Theatre & Drama","Photography Club","Book Club","Multicultural Group"],
@@ -64,7 +64,7 @@ const DB = [
   {id:21,name:"Manor Lakes Grocery & Halal",industry:"Hospitality & Food",cat:"Takeaway",suburb:"Manor Lakes",state:"VIC",desc:"Fresh halal meats, South Asian groceries, spices and frozen goods. Bulk orders welcome. Friday specials.",icon:"🛒",tags:["Halal","South Asian","Bulk orders"],mobile:"0466 777 999",phone:"03 9731 2345",hours:{Mon:"8am–9pm",Tue:"8am–9pm",Wed:"8am–9pm",Thu:"8am–9pm",Fri:"8am–9:30pm",Sat:"7:30am–9:30pm",Sun:"9am–8pm",PH:"10am–6pm"},lastUpdated:"2026-05-22",submittedAt:"2024-11-05",contact:"Ali Hassan",status:"approved"},
   // COMMUNITY
   {id:22,name:"Kaladhara Arts & Culture",industry:"Community & Culture",cat:"Cultural Organisation",suburb:"Point Cook",state:"VIC",desc:"Tamil classical dance, music and cultural events. Bharatanatyam and Carnatic music classes for all ages.",icon:"🎭",tags:["Bharatanatyam","Tamil","Music"],mobile:"0412 555 666",email:"kaladhara@gmail.com",wa:"0412 555 666",hours:{Mon:"Closed",Tue:"Closed",Wed:"Closed",Thu:"Closed",Fri:"6pm–8pm",Sat:"9am–1pm",Sun:"10am–12pm",PH:"Closed"},lastUpdated:"2026-06-01",submittedAt:"2025-09-20",contact:"Priya Suresh",status:"approved",featured:true},
-  {id:23,name:"Point Cook CFA Fire Brigade",industry:"Community & Culture",cat:"Volunteer Group",suburb:"Point Cook",state:"VIC",desc:"Volunteer fire brigade serving Point Cook and Cheetham Wetlands. Community fire safety programs and volunteer recruitment.",icon:"🚒",tags:["CFA","Volunteer","Fire safety"],phone:"03 9395 0000",email:"pointcook.cfa@cfa.vic.gov.au",hours:{Mon:"24/7",Tue:"24/7",Wed:"24/7",Thu:"24/7",Fri:"24/7",Sat:"24/7",Sun:"24/7",PH:"24/7"},lastUpdated:"2026-06-12",submittedAt:"2024-01-10",contact:"Captain Williams",status:"approved"},
+  {id:23,name:"Point Cook CFA Fire Brigade",industry:"Emergency & Support",cat:"Crisis Line",suburb:"Point Cook",state:"VIC",desc:"Volunteer fire brigade protecting Point Cook, Cheetham Wetlands and coastal park. Responds to structure fires, grass fires, road accidents, storm damage and rescues. Runs community fire safety education programs and school visits. Actively recruiting volunteers — no experience required, all training provided free.",icon:"🚒",tags:["CFA","Volunteer","Fire & rescue"],phone:"03 9395 0000",email:"pointcook.cfa@cfa.vic.gov.au",web:"https://www.cfa.vic.gov.au",hours:{Mon:"24/7",Tue:"24/7",Wed:"24/7",Thu:"24/7",Fri:"24/7",Sat:"24/7",Sun:"24/7",PH:"24/7"},lastUpdated:"2026-06-13",submittedAt:"2024-01-10",contact:"Unit Controller",status:"approved",featured:true,addedBy:"admin"},
   {id:24,name:"Tarneit Tamil School",industry:"Community & Culture",cat:"Language School",suburb:"Tarneit",state:"VIC",desc:"Weekend Tamil language classes for children and adults. NAATI-accredited tutors. Reading, writing, speaking and cultural heritage.",icon:"📖",tags:["Tamil","Language","Weekend"],mobile:"0411 000 555",email:"tarneit.tamil@gmail.com",hours:{Mon:"Closed",Tue:"Closed",Wed:"Closed",Thu:"Closed",Fri:"Closed",Sat:"10am–1pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-05-15",submittedAt:"2024-06-20",contact:"Meena Raj",status:"approved"},
   // EDUCATION
   {id:25,name:"StudySpark Tutoring",industry:"Education & Childcare",cat:"Tutor",suburb:"Point Cook",state:"VIC",desc:"Selective school exam prep Grades 3–10. VIC and NSW curricula — Maths, English, Reading and Reasoning.",icon:"📚",tags:["Selective prep","Maths","English"],mobile:"0433 999 111",email:"studyspark@gmail.com",wa:"0433 999 111",hours:{Mon:"Closed",Tue:"4pm–7pm",Wed:"4pm–7pm",Thu:"4pm–7pm",Fri:"4pm–7pm",Sat:"9am–5pm",Sun:"10am–4pm",PH:"Closed"},lastUpdated:"2026-05-28",submittedAt:"2025-08-10",contact:"Anika Sharma",status:"approved"},
@@ -394,3 +394,237 @@ DB.push(
 
 );
 
+
+// ─── SES and other emergency organisations ────────────────────
+DB.push(
+
+  // VICSES Point Cook Unit — opened December 2024, brand new purpose-built facility
+  // Source: ses.vic.gov.au official announcement, csba.vic.gov.au project page
+  {
+    id: 123,
+    name: "VICSES Point Cook Unit",
+    industry: "Emergency & Support",
+    cat: "Crisis Line",
+    suburb: "Point Cook",
+    state: "VIC",
+    desc: "Victoria's newest SES unit — opened December 2024. One of the state's most culturally and linguistically diverse volunteer units, with many members who moved to Australia in the last decade. Responds to floods, storms, road crash rescues, storm damage, tree falls and assists Police and Ambulance. State-of-the-art facility with 6 drive-through bays, training room and modern equipment. Actively recruiting volunteers — no prior experience required, all training provided free of charge.",
+    icon: "🟠",
+    tags: ["SES", "Flood & storm", "Volunteers welcome"],
+    phone: "132 500",
+    web: "https://www.ses.vic.gov.au/join-us",
+    hours: { Mon:"24/7", Tue:"24/7", Wed:"24/7", Thu:"24/7", Fri:"24/7", Sat:"24/7", Sun:"24/7", PH:"24/7" },
+    lastUpdated: "2026-06-13",
+    submittedAt: "2026-06-13",
+    contact: "Laurie Russell (Unit Controller)",
+    status: "approved",
+    featured: true,
+    addedBy: "admin"
+  },
+
+  // VICSES Wyndham Region (Sunshine West regional office — covers broader Wyndham area)
+  // For people outside Point Cook suburb needing to connect with Wyndham-area SES
+  {
+    id: 124,
+    name: "VICSES Western Region — Wyndham",
+    industry: "Emergency & Support",
+    cat: "Crisis Line",
+    suburb: "Sunshine West",
+    state: "VIC",
+    desc: "VICSES is Victoria's lead agency for flood, storm, tsunami, earthquake and landslide emergencies. Also operates the largest road crash rescue network in Australia. To request emergency assistance call 132 500 (24/7). For life-threatening emergencies always call 000 first. Volunteer with your local SES unit — visit ses.vic.gov.au to join.",
+    icon: "🟠",
+    tags: ["Flood & storm", "Road rescue", "24/7"],
+    phone: "132 500",
+    web: "https://www.ses.vic.gov.au",
+    hours: { Mon:"24/7", Tue:"24/7", Wed:"24/7", Thu:"24/7", Fri:"24/7", Sat:"24/7", Sun:"24/7", PH:"24/7" },
+    lastUpdated: "2026-06-13",
+    submittedAt: "2026-06-13",
+    contact: "VICSES Western Region",
+    status: "approved",
+    addedBy: "admin"
+  },
+
+  // Ambulance Victoria — Western Region
+  {
+    id: 125,
+    name: "Ambulance Victoria — Western Region",
+    industry: "Emergency & Support",
+    cat: "After-Hours Medical",
+    suburb: "Sunshine West",
+    state: "VIC",
+    desc: "Ambulance Victoria provides emergency medical response, non-emergency patient transport and first responder services across Victoria. For a medical emergency call 000. For non-emergency bookings call 1300 366 966. Paramedics also support community education programs including CPR training.",
+    icon: "🚑",
+    tags: ["Ambulance", "Medical emergency", "CPR"],
+    phone: "000",
+    web: "https://www.ambulance.vic.gov.au",
+    hours: { Mon:"24/7", Tue:"24/7", Wed:"24/7", Thu:"24/7", Fri:"24/7", Sat:"24/7", Sun:"24/7", PH:"24/7" },
+    lastUpdated: "2026-06-13",
+    submittedAt: "2026-06-13",
+    contact: "Ambulance Victoria",
+    status: "approved",
+    addedBy: "admin"
+  },
+
+  // Point Cook Lions Club
+  // Source: wyndham.starweekly.com.au — meets 3rd Monday, Featherbrook Community Centre
+  {
+    id: 126,
+    name: "Point Cook Lions Club",
+    industry: "Community & Culture",
+    cat: "Volunteer Group",
+    suburb: "Point Cook",
+    state: "VIC",
+    desc: "Part of Lions International — 1.4 million members worldwide. Point Cook Lions runs sausage sizzles, fundraising events, Christmas at the Lakes support, free vision screening in schools, mobile skin cancer screening and Type 1 diabetes youth camps. Meets third Monday of every month at Featherbrook Community Centre, 6.30pm for a 7pm start. New members always welcome.",
+    icon: "🦁",
+    tags: ["Lions", "Fundraising", "Volunteer"],
+    web: "https://lionsclubs.org.au",
+    hours: { Mon:"3rd Monday 7pm", Tue:"Closed", Wed:"Closed", Thu:"Closed", Fri:"Closed", Sat:"Events", Sun:"Events", PH:"Closed" },
+    lastUpdated: "2026-06-13",
+    submittedAt: "2026-06-13",
+    contact: "President",
+    status: "approved",
+    addedBy: "admin"
+  }
+
+);
+
+// SES volunteer opportunity
+OPPORTUNITIES.push({
+  id: 119,
+  title: "Volunteer Emergency Responder — VICSES Point Cook",
+  type: "Volunteering",
+  org: "VICSES Point Cook Unit",
+  bizId: 123,
+  suburb: "Point Cook",
+  state: "VIC",
+  industry: "Emergency & Support",
+  arrangement: "Volunteer",
+  salary: "Unpaid — all training, equipment and uniform provided free",
+  duration: "Ongoing",
+  icon: "🟠",
+  desc: "Join Point Cook's newest SES unit and make a real difference in your community. No experience required — VICSES provides all training free of charge, including flood rescue, road crash rescue, storm damage response and navigation. Point Cook Unit is one of the state's most diverse units and welcomed its first volunteers just 12 months before receiving their brand new facility in December 2024.",
+  responsibilities: [
+    "Respond to flood, storm, road crash and tree fall incidents",
+    "Attend weekly training nights",
+    "Assist Victoria Police, Ambulance and CFA when requested",
+    "Participate in community safety education programs"
+  ],
+  requirements: [
+    "18 years or older",
+    "Australian resident",
+    "Physically fit",
+    "Available for callouts during day and/or evening",
+    "Commitment to regular training"
+  ],
+  contact: "Laurie Russell (Unit Controller)",
+  email: "pointcook@ses.vic.gov.au",
+  phone: "132 500",
+  closingDate: null,
+  postedAt: "2026-06-13",
+  lastUpdated: "2026-06-13",
+  status: "approved",
+  featured: true,
+  addedBy: "admin"
+});
+
+// ═══════════════════════════════════════════════════════════════
+// EXPANDED LISTINGS — conveyancers, garden/landscaping, trades,
+// niche suppliers, and state coverage: SA, TAS, ACT, QLD, NSW
+// ═══════════════════════════════════════════════════════════════
+
+DB.push(
+
+// ── CONVEYANCERS — broadened suburban coverage ────────────────
+
+  // VIC — inner west / growth corridor
+  {id:127,name:"Tarneit Settlement & Conveyancing",industry:"Legal & Migration",cat:"Conveyancer",suburb:"Tarneit",state:"VIC",desc:"Residential and commercial conveyancing serving Tarneit, Truganina and Hoppers Crossing. First home buyer specialists, off-the-plan purchases, land subdivisions and vendor statements. PEXA electronic settlements. Fixed flat fee quoted upfront.",icon:"📝",tags:["Conveyancing","First home","Off-the-plan"],mobile:"0433 400 600",email:"tarneit.settle@gmail.com",hours:{Mon:"9am–5:30pm",Tue:"9am–5:30pm",Wed:"9am–5:30pm",Thu:"9am–5:30pm",Fri:"9am–5pm",Sat:"By appointment",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-01-20",contact:"Licensed Conveyancer",status:"approved",addedBy:"admin"},
+
+  {id:128,name:"Manor Lakes Conveyancing Co.",industry:"Legal & Migration",cat:"Conveyancer",suburb:"Manor Lakes",state:"VIC",desc:"New estate and established property conveyancing covering Manor Lakes, Wyndham Vale and Williams Landing. Land contract preparation, section 32 review and body corporate due diligence. Telephone and email consultations — no need to come into the office.",icon:"📝",tags:["New estates","Land contracts","Section 32"],mobile:"0455 300 400",email:"manorlakes.conv@gmail.com",hours:{Mon:"9am–5pm",Tue:"9am–5pm",Wed:"9am–5pm",Thu:"9am–5pm",Fri:"9am–5pm",Sat:"By appointment",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-02-01",contact:"Licensed Conveyancer",status:"approved",addedBy:"admin"},
+
+  // VIC — eastern/inner
+  {id:129,name:"Box Hill Conveyancing Specialists",industry:"Legal & Migration",cat:"Conveyancer",suburb:"Box Hill",state:"VIC",desc:"Conveyancing in English, Mandarin and Cantonese for the eastern suburbs. Residential purchases, sales, transfers, investment properties and FHOG applications. Multilingual staff available for all appointments.",icon:"📝",tags:["Mandarin","Cantonese","Eastern suburbs"],phone:"03 9899 2222",email:"boxhillconv@gmail.com",hours:{Mon:"9am–5:30pm",Tue:"9am–5:30pm",Wed:"9am–5:30pm",Thu:"9am–5:30pm",Fri:"9am–5pm",Sat:"9am–12pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-03-01",contact:"Licensed Conveyancer",status:"approved",addedBy:"admin"},
+
+  // NSW
+  {id:130,name:"Parramatta Property Settlements",industry:"Legal & Migration",cat:"Conveyancer",suburb:"Parramatta",state:"NSW",desc:"Residential and commercial conveyancing for western Sydney. Strata purchases, off-the-plan contracts, first home buyer grants and investment property transfers. Hindi and Punjabi consultations available.",icon:"📝",tags:["Western Sydney","Strata","Hindi"],phone:"02 9893 5500",email:"parraconv@gmail.com",hours:{Mon:"9am–5:30pm",Tue:"9am–5:30pm",Wed:"9am–5:30pm",Thu:"9am–5:30pm",Fri:"9am–5pm",Sat:"By appointment",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-03-10",contact:"Licensed Conveyancer",status:"approved",addedBy:"admin"},
+
+  {id:131,name:"Liverpool Conveyancing Group",industry:"Legal & Migration",cat:"Conveyancer",suburb:"Liverpool",state:"NSW",desc:"Fixed-fee conveyancing for south-west Sydney. Residential purchases and sales, transfer of land, duty calculations and first home buyer applications. Arabic and Vietnamese consultations available.",icon:"📝",tags:["South-west Sydney","Fixed fee","Arabic"],phone:"02 9601 3300",email:"liverpoolconvey@gmail.com",hours:{Mon:"9am–5pm",Tue:"9am–5pm",Wed:"9am–5pm",Thu:"9am–5pm",Fri:"9am–5pm",Sat:"By appointment",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-03-15",contact:"Licensed Conveyancer",status:"approved",addedBy:"admin"},
+
+  // QLD
+  {id:132,name:"Gold Coast Property Settlements",industry:"Legal & Migration",cat:"Conveyancer",suburb:"Gold Coast",state:"QLD",desc:"Conveyancing and property law for the Gold Coast — residential sales and purchases, unit and townhouse settlements, investment property transfers and REIQ contract reviews. Offices in Surfers Paradise.",icon:"📝",tags:["QLD","REIQ contracts","Investment"],phone:"07 5538 2200",email:"gcpropsettle@gmail.com",hours:{Mon:"9am–5:30pm",Tue:"9am–5:30pm",Wed:"9am–5:30pm",Thu:"9am–5:30pm",Fri:"9am–5pm",Sat:"By appointment",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-04-01",contact:"Licensed Conveyancer",status:"approved",addedBy:"admin"},
+
+  {id:133,name:"Brisbane Inner North Conveyancing",industry:"Legal & Migration",cat:"Conveyancer",suburb:"Fortitude Valley",state:"QLD",desc:"Conveyancing for inner Brisbane and surrounds. Established home sales and purchases, vacant land, new build contracts, foreign investment compliance and body corporate queries.",icon:"📝",tags:["Inner Brisbane","New builds","Body corporate"],phone:"07 3252 1100",email:"bnconvey@gmail.com",hours:{Mon:"8:30am–5pm",Tue:"8:30am–5pm",Wed:"8:30am–5pm",Thu:"8:30am–5pm",Fri:"8:30am–5pm",Sat:"By appointment",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-04-05",contact:"Licensed Conveyancer",status:"approved",addedBy:"admin"},
+
+  // SA
+  {id:134,name:"Adelaide Conveyancing Direct",industry:"Legal & Migration",cat:"Conveyancer",suburb:"Adelaide CBD",state:"SA",desc:"SA-registered conveyancer for residential and rural property. Purchases, sales, private contracts, government house buybacks and first home owner grants. Land Services SA integration for all lodgements.",icon:"📝",tags:["SA conveyancing","First home","Rural property"],phone:"08 8212 3300",email:"adelaideconv@gmail.com",hours:{Mon:"9am–5:30pm",Tue:"9am–5:30pm",Wed:"9am–5:30pm",Thu:"9am–5:30pm",Fri:"9am–5pm",Sat:"By appointment",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-04-10",contact:"Licensed Conveyancer",status:"approved",addedBy:"admin"},
+
+// ── LANDSCAPING & GARDENING ───────────────────────────────────
+
+  {id:135,name:"Wyndham Landscaping & Gardens",industry:"Home & Trade Services",cat:"Landscaper",suburb:"Tarneit",state:"VIC",desc:"Full-service landscaping for new and established homes in Wyndham. Garden design, lawn installation, retaining walls, paving, decking, irrigation systems and planting. Free design consultation.",icon:"🌿",tags:["Landscaping","New homes","Irrigation"],mobile:"0433 500 700",email:"wyndhamlandscape@gmail.com",wa:"0433 500 700",hours:{Mon:"7am–5pm",Tue:"7am–5pm",Wed:"7am–5pm",Thu:"7am–5pm",Fri:"7am–5pm",Sat:"8am–2pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-02-10",contact:"Head Landscaper",status:"approved",featured:true,addedBy:"admin"},
+
+  {id:136,name:"Point Cook Garden Maintenance",industry:"Home & Trade Services",cat:"Landscaper",suburb:"Point Cook",state:"VIC",desc:"Regular garden maintenance, lawn mowing, hedge trimming, weeding, mulching and seasonal planting. Fortnightly and monthly plans available. Pensioner discount. Serving Point Cook, Williams Landing and Altona Meadows.",icon:"🌱",tags:["Lawn mowing","Garden maintenance","Pensioner discount"],mobile:"0411 700 800",email:"pcgarden@gmail.com",hours:{Mon:"7am–5pm",Tue:"7am–5pm",Wed:"7am–5pm",Thu:"7am–5pm",Fri:"7am–5pm",Sat:"7am–2pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-01-15",contact:"Owner-operator",status:"approved",addedBy:"admin"},
+
+  {id:137,name:"Green Thumb Gardening — Werribee",industry:"Home & Trade Services",cat:"Landscaper",suburb:"Werribee",state:"VIC",desc:"Residential and commercial garden maintenance across Werribee, Hoppers Crossing and surrounds. Lawn care, tree pruning, rubbish removal, garden clean-ups and gutter clearing. Fully insured.",icon:"✂️",tags:["Lawn care","Tree pruning","Garden clean-up"],mobile:"0466 800 900",email:"greenthumb.werribee@gmail.com",hours:{Mon:"7am–5pm",Tue:"7am–5pm",Wed:"7am–5pm",Thu:"7am–5pm",Fri:"7am–5pm",Sat:"7am–1pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-02-20",contact:"Owner-operator",status:"approved",addedBy:"admin"},
+
+  {id:138,name:"Sunshine Coast Garden Design",industry:"Home & Trade Services",cat:"Landscaper",suburb:"Sunshine Coast",state:"QLD",desc:"Award-winning garden design, tropical landscaping and pool surrounds for the Sunshine Coast. Specialising in low-maintenance Australian native gardens, rainwater harvesting and edible gardens.",icon:"🌺",tags:["Garden design","Native plants","Tropical"],mobile:"0412 400 500",email:"scgardendesign@gmail.com",hours:{Mon:"8am–5pm",Tue:"8am–5pm",Wed:"8am–5pm",Thu:"8am–5pm",Fri:"8am–5pm",Sat:"By appointment",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-03-01",contact:"Principal Designer",status:"approved",addedBy:"admin"},
+
+// ── GARDEN & PLANT SUPPLIES / NURSERIES ──────────────────────
+
+  {id:139,name:"Wyndham Nursery & Garden Centre",industry:"Retail & Shopping",cat:"Pet Store",suburb:"Hoppers Crossing",state:"VIC",desc:"Full garden centre stocking native plants, roses, herbs, vegetables, fruit trees, potting mix, fertilisers, garden tools and outdoor pots. Knowledgeable staff. Seasonal planting guide available in-store.",icon:"🌻",tags:["Native plants","Herbs & vegetables","Garden tools"],phone:"03 9748 9000",email:"wyndhamnursery@gmail.com",hours:{Mon:"8am–5:30pm",Tue:"8am–5:30pm",Wed:"8am–5:30pm",Thu:"8am–5:30pm",Fri:"8am–5:30pm",Sat:"8am–5pm",Sun:"9am–4pm",PH:"9am–3pm"},lastUpdated:"2026-06-13",submittedAt:"2026-01-10",contact:"Owner",status:"approved",featured:true,addedBy:"admin"},
+
+  {id:140,name:"Point Cook Succulents & Natives",industry:"Retail & Shopping",cat:"Gift Shop",suburb:"Point Cook",state:"VIC",desc:"Specialist online and local supplier of Australian native plants and succulents. Propagated on-site — no mass-produced imports. Local pick-up from Point Cook, weekend markets and Australia Post delivery.",icon:"🪴",tags:["Succulents","Native plants","Local pick-up"],mobile:"0477 600 700",email:"pcnatives@gmail.com",wa:"0477 600 700",hours:{Mon:"Closed",Tue:"Closed",Wed:"Closed",Thu:"Closed",Fri:"Closed",Sat:"9am–12pm",Sun:"By arrangement",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-03-05",contact:"Owner",status:"approved",addedBy:"admin"},
+
+  {id:141,name:"Urban Grow — Melbourne",industry:"Retail & Shopping",cat:"Gift Shop",suburb:"Footscray",state:"VIC",desc:"Specialising in edible gardens, microgreens, mushroom growing kits, hydroponics equipment and indoor plant supplies. Workshops on growing food at home. Suitable for apartments and small blocks.",icon:"🌿",tags:["Edible gardens","Hydroponics","Workshops"],mobile:"0412 500 600",email:"urbangrow.melb@gmail.com",hours:{Mon:"Closed",Tue:"Closed",Wed:"10am–5pm",Thu:"10am–5pm",Fri:"10am–6pm",Sat:"9am–5pm",Sun:"10am–4pm",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-02-15",contact:"Owner",status:"approved",addedBy:"admin"},
+
+// ── MISSING TRADES — BUILDER, CARPENTER, PAINTER, TILER ──────
+
+  {id:142,name:"Wyndham Build & Renovate",industry:"Home & Trade Services",cat:"Builder",suburb:"Wyndham Vale",state:"VIC",desc:"Registered builder for extensions, renovations, granny flats and decks in Wyndham. Project manage from permit through to handover. New kitchen and bathroom fit-outs a speciality. No subcontracting — all work done by our own team.",icon:"🏗️",tags:["Extensions","Renovations","Granny flats"],mobile:"0422 800 900",email:"wyndhambuildreno@gmail.com",hours:{Mon:"7am–5pm",Tue:"7am–5pm",Wed:"7am–5pm",Thu:"7am–5pm",Fri:"7am–5pm",Sat:"By appointment",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-01-25",contact:"Registered Builder",status:"approved",addedBy:"admin"},
+
+  {id:143,name:"Point Cook Carpentry & Cabinets",industry:"Home & Trade Services",cat:"Carpenter",suburb:"Point Cook",state:"VIC",desc:"Custom built-in wardrobes, kitchen cabinetry, timber decks, pergolas and structural carpentry. Locally made, 10-year warranty on all cabinetry. Free design measure and quote.",icon:"🪵",tags:["Built-ins","Decks","Custom cabinetry"],mobile:"0433 600 700",email:"pccarpentryfittings@gmail.com",wa:"0433 600 700",hours:{Mon:"7am–5pm",Tue:"7am–5pm",Wed:"7am–5pm",Thu:"7am–5pm",Fri:"7am–5pm",Sat:"8am–12pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-02-05",contact:"Master Carpenter",status:"approved",addedBy:"admin"},
+
+  {id:144,name:"Hoppers Painting & Decorating",industry:"Home & Trade Services",cat:"Painter",suburb:"Hoppers Crossing",state:"VIC",desc:"Interior and exterior painting for residential and commercial properties. Colour consulting, wallpaper hanging, feature walls and fence painting. 5-year workmanship guarantee. Tidy and punctual.",icon:"🎨",tags:["Interior","Exterior","Colour consulting"],mobile:"0455 900 100",email:"hoppers.painting@gmail.com",hours:{Mon:"7am–5pm",Tue:"7am–5pm",Wed:"7am–5pm",Thu:"7am–5pm",Fri:"7am–5pm",Sat:"8am–1pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-02-15",contact:"Master Painter",status:"approved",addedBy:"admin"},
+
+  {id:145,name:"Tarneit Tiling & Waterproofing",industry:"Home & Trade Services",cat:"Tiler",suburb:"Tarneit",state:"VIC",desc:"Residential tiling for bathrooms, kitchens, laundries and outdoor areas. Waterproofing certified — all wet areas done to Australian standards. Supply and lay or lay only. Free measurement and quote.",icon:"🏠",tags:["Bathroom tiling","Waterproofing","Outdoor areas"],mobile:"0422 700 800",email:"tarneit.tiling@gmail.com",hours:{Mon:"7am–5pm",Tue:"7am–5pm",Wed:"7am–5pm",Thu:"7am–5pm",Fri:"7am–5pm",Sat:"By appointment",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-02-20",contact:"Licensed Tiler",status:"approved",addedBy:"admin"},
+
+  {id:146,name:"Wyndham Fencing & Gates",industry:"Home & Trade Services",cat:"Fencer",suburb:"Werribee",state:"VIC",desc:"Colorbond, timber, pool and retaining wall fencing across the western suburbs. Automatic gate installation and intercom systems. Pool fencing compliance certificates issued. Free quotes.",icon:"🔩",tags:["Colorbond","Pool fencing","Automatic gates"],mobile:"0411 800 900",email:"wyndham.fencing@gmail.com",hours:{Mon:"7am–5pm",Tue:"7am–5pm",Wed:"7am–5pm",Thu:"7am–5pm",Fri:"7am–5pm",Sat:"8am–1pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-03-01",contact:"Owner",status:"approved",addedBy:"admin"},
+
+  {id:147,name:"Point Cook Pool & Spa Services",industry:"Home & Trade Services",cat:"Pool & Spa",suburb:"Point Cook",state:"VIC",desc:"Pool and spa equipment supply, installation and repair. Salt chlorinators, heat pumps, variable speed pumps, LED lighting and automation. Weekly pool maintenance plans available. Serving Point Cook and Altona.",icon:"🏊",tags:["Pool maintenance","Salt chlorinator","Heat pump"],mobile:"0433 200 300",email:"pcpoolspa@gmail.com",wa:"0433 200 300",hours:{Mon:"8am–5pm",Tue:"8am–5pm",Wed:"8am–5pm",Thu:"8am–5pm",Fri:"8am–5pm",Sat:"8am–12pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-02-25",contact:"Owner",status:"approved",addedBy:"admin"},
+
+  {id:148,name:"Hoppers Locksmith & Security",industry:"Home & Trade Services",cat:"Locksmith",suburb:"Hoppers Crossing",state:"VIC",desc:"24/7 emergency locksmith — locked out, broken locks, rekeying and high-security deadbolts. Car key replacement and transponder programming. CCTV and alarm installation. Fully licensed.",icon:"🔐",tags:["24/7 emergency","Car keys","CCTV"],mobile:"0466 900 100",phone:"03 9748 7777",email:"hoppers.locksmith@gmail.com",hours:{Mon:"24/7",Tue:"24/7",Wed:"24/7",Thu:"24/7",Fri:"24/7",Sat:"24/7",Sun:"24/7",PH:"24/7"},lastUpdated:"2026-06-13",submittedAt:"2026-02-10",contact:"Master Locksmith",status:"approved",addedBy:"admin"},
+
+// ── NEW STATES — SA, TAS, ACT ─────────────────────────────────
+
+  // SOUTH AUSTRALIA — Adelaide
+  {id:149,name:"Adelaide Solar & Electrical",industry:"Home & Trade Services",cat:"Solar Installer",suburb:"Adelaide CBD",state:"SA",desc:"SA's leading solar and battery storage installer. Tier 1 panels, Tesla Powerwall and SolarEdge systems. Clean Energy Council approved. SA Home Battery Scheme registered installer. Free energy audit.",icon:"☀️",tags:["Solar","Battery","SA Home Battery Scheme"],phone:"08 8212 5500",mobile:"0412 100 200",email:"adelaidesolar@gmail.com",hours:{Mon:"8am–5pm",Tue:"8am–5pm",Wed:"8am–5pm",Thu:"8am–5pm",Fri:"8am–5pm",Sat:"9am–1pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-03-20",contact:"CEC Accredited Installer",status:"approved",addedBy:"admin"},
+
+  {id:150,name:"Norwood Physiotherapy & Sports",industry:"Health & Medical",cat:"Physiotherapist",suburb:"Norwood",state:"SA",desc:"Sports physio, post-surgical rehab, dry needling and hydrotherapy in Adelaide's inner east. Physio, pilates and massage under one roof. NDIS, WorkCover and return-to-sport programs.",icon:"💪",tags:["Sports physio","NDIS","Hydrotherapy"],phone:"08 8363 4444",email:"norwoodphysio@gmail.com",hours:{Mon:"8am–7pm",Tue:"8am–7pm",Wed:"8am–7pm",Thu:"8am–7pm",Fri:"8am–5pm",Sat:"8am–12pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-03-25",contact:"Principal Physiotherapist",status:"approved",addedBy:"admin"},
+
+  {id:151,name:"Glenelg Mortgage Brokers",industry:"Finance & Insurance",cat:"Mortgage Broker",suburb:"Glenelg",state:"SA",desc:"Adelaide's boutique mortgage broking service — home loans, investment lending, refinancing and SMSF property. MFAA accredited. 40+ lenders. Beachside office in Glenelg.",icon:"🏡",tags:["Home loans","SMSF","Adelaide"],mobile:"0412 300 400",email:"glenelg.mortgage@gmail.com",hours:{Mon:"9am–5:30pm",Tue:"9am–5:30pm",Wed:"9am–5:30pm",Thu:"9am–5:30pm",Fri:"9am–5pm",Sat:"By appointment",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-04-01",contact:"MFAA Broker",status:"approved",addedBy:"admin"},
+
+  {id:152,name:"Adelaide Tamil Community SA",industry:"Community & Culture",cat:"Cultural Organisation",suburb:"Adelaide CBD",state:"SA",desc:"Tamil cultural association for South Australia — classical arts, language classes, festival celebrations, youth programs and community networking. Hosts Pongal, Tamil New Year and Deepavali celebrations.",icon:"🎭",tags:["Tamil","SA","Cultural events"],mobile:"0488 100 200",email:"tamilsa@gmail.com",hours:{Mon:"Closed",Tue:"Closed",Wed:"Closed",Thu:"Closed",Fri:"Closed",Sat:"10am–1pm",Sun:"By arrangement",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-04-05",contact:"Secretary",status:"approved",addedBy:"admin"},
+
+  // TASMANIA — Hobart
+  {id:153,name:"Hobart Electrical & Renewables",industry:"Home & Trade Services",cat:"Electrician",suburb:"Hobart CBD",state:"TAS",desc:"Licensed Tasmanian electrician — domestic, commercial and renewable energy installations. Heat pump hot water, solar and EV chargers. Experienced in heritage homes. TAS licenced and fully insured.",icon:"⚡",tags:["Solar","Heat pump","Heritage homes"],mobile:"0412 500 600",email:"hobartelectrical@gmail.com",hours:{Mon:"7:30am–5pm",Tue:"7:30am–5pm",Wed:"7:30am–5pm",Thu:"7:30am–5pm",Fri:"7:30am–5pm",Sat:"By appointment",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-04-10",contact:"Licensed Electrician",status:"approved",addedBy:"admin"},
+
+  {id:154,name:"Sandy Bay Physiotherapy",industry:"Health & Medical",cat:"Physiotherapist",suburb:"Sandy Bay",state:"TAS",desc:"Hobart's trusted physio clinic for sports injuries, neck and back pain, post-surgical rehab and vestibular conditions. Telehealth available for regional Tasmania. HICAPS on-the-spot claiming.",icon:"💪",tags:["Sports injuries","Back pain","Telehealth"],phone:"03 6224 3333",email:"sandybayphysio@gmail.com",hours:{Mon:"8am–6pm",Tue:"8am–6pm",Wed:"8am–6pm",Thu:"8am–6pm",Fri:"8am–5pm",Sat:"9am–12pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-04-15",contact:"Principal Physiotherapist",status:"approved",addedBy:"admin"},
+
+  {id:155,name:"Hobart Conveyancing Group",industry:"Legal & Migration",cat:"Conveyancer",suburb:"Hobart CBD",state:"TAS",desc:"Tasmanian conveyancing for residential and rural property — purchases, sales, property transfers, mortgages and refinancing. 3-week turnaround guaranteed on standard residential transactions.",icon:"📝",tags:["TAS conveyancing","Rural property","Fast settlement"],phone:"03 6223 5555",email:"hobartconv@gmail.com",hours:{Mon:"9am–5pm",Tue:"9am–5pm",Wed:"9am–5pm",Thu:"9am–5pm",Fri:"9am–4:30pm",Sat:"Closed",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-04-20",contact:"Licensed Conveyancer",status:"approved",addedBy:"admin"},
+
+  // ACT — Canberra
+  {id:156,name:"Canberra Conveyancing Experts",industry:"Legal & Migration",cat:"Conveyancer",suburb:"Canberra CBD",state:"ACT",desc:"ACT leasehold and freehold conveyancing. Unit title, englobo land and Crown land lease transactions. Overseas investment review and compliance certificates. Authorised under the ACT Agents Act.",icon:"📝",tags:["ACT leasehold","Unit title","Crown lease"],phone:"02 6248 7700",email:"canberraconv@gmail.com",hours:{Mon:"9am–5pm",Tue:"9am–5pm",Wed:"9am–5pm",Thu:"9am–5pm",Fri:"9am–5pm",Sat:"By appointment",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-04-25",contact:"Licensed Conveyancer",status:"approved",addedBy:"admin"},
+
+  {id:157,name:"Belconnen Electrical Services",industry:"Home & Trade Services",cat:"Electrician",suburb:"Belconnen",state:"ACT",desc:"Canberra and ACT residential and commercial electrician. Safety switches, switchboard upgrades, EV charging, solar installations and new home fit-outs. Emergency callout service.",icon:"⚡",tags:["ACT","EV charging","Emergency callout"],mobile:"0422 600 700",email:"belconnenelec@gmail.com",hours:{Mon:"7am–5:30pm",Tue:"7am–5:30pm",Wed:"7am–5:30pm",Thu:"7am–5:30pm",Fri:"7am–5:30pm",Sat:"By appointment",Sun:"Closed",PH:"Emergency only"},lastUpdated:"2026-06-13",submittedAt:"2026-05-01",contact:"Licensed Electrician",status:"approved",addedBy:"admin"},
+
+  {id:158,name:"Gungahlin Physiotherapy Centre",industry:"Health & Medical",cat:"Physiotherapist",suburb:"Gungahlin",state:"ACT",desc:"Canberra's northern growth corridor physio. Workers compensation, sports injuries, pre and post-surgical rehab, women's health physio and paediatric physiotherapy. Bulk billing for DVA and some EPC referrals.",icon:"💪",tags:["DVA","Workers compensation","Paediatric"],phone:"02 6242 5500",email:"gungahlinphysio@gmail.com",hours:{Mon:"8am–7pm",Tue:"8am–7pm",Wed:"8am–7pm",Thu:"8am–7pm",Fri:"8am–6pm",Sat:"9am–1pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-05-05",contact:"Principal Physiotherapist",status:"approved",addedBy:"admin"},
+
+// ── NICHE SUPPLIERS & SPECIALISTS ────────────────────────────
+
+  {id:159,name:"Ethnic Grocery Hub — Tarneit",industry:"Retail & Shopping",cat:"Grocery",suburb:"Tarneit",state:"VIC",desc:"South Asian, Middle Eastern and East African specialty groceries — fresh vegetables, halal meats, lentils, spices, rice varieties, frozen foods and sweets. Sri Lankan, Indian, Pakistani and Fijian brands stocked.",icon:"🛒",tags:["South Asian","Halal","Sri Lankan"],mobile:"0466 400 500",phone:"03 9731 5678",hours:{Mon:"8am–9pm",Tue:"8am–9pm",Wed:"8am–9pm",Thu:"8am–9pm",Fri:"8am–9:30pm",Sat:"7:30am–9:30pm",Sun:"9am–8pm",PH:"10am–6pm"},lastUpdated:"2026-06-13",submittedAt:"2026-01-20",contact:"Owner",status:"approved",addedBy:"admin"},
+
+  {id:160,name:"Indian Sweet House — Point Cook",industry:"Hospitality & Food",cat:"Bakery",suburb:"Point Cook",state:"VIC",desc:"Traditional Indian mithai, savoury snacks and sweets. Barfi, gulab jamun, samosas, chakli and seasonal festival sweets for Diwali, Eid and Pongal. Custom order platters for events. Halal certified.",icon:"🍬",tags:["Indian sweets","Halal","Festival orders"],mobile:"0477 300 400",email:"indiansweet.pc@gmail.com",wa:"0477 300 400",hours:{Mon:"Closed",Tue:"10am–6pm",Wed:"10am–6pm",Thu:"10am–6pm",Fri:"10am–7pm",Sat:"9am–7pm",Sun:"10am–5pm",PH:"10am–5pm"},lastUpdated:"2026-06-13",submittedAt:"2026-02-10",contact:"Owner",status:"approved",addedBy:"admin"},
+
+  {id:161,name:"Wyndham Mobile Tyre Service",industry:"Automotive",cat:"Tyre Shop",suburb:"Hoppers Crossing",state:"VIC",desc:"Mobile tyre fitting — we come to your home or workplace. New tyres, puncture repairs, wheel balancing and TPMS sensor replacement. All major brands. No more waiting in a tyre shop.",icon:"🔄",tags:["Mobile","Puncture repair","All brands"],mobile:"0422 500 600",email:"wyndham.tyres@gmail.com",wa:"0422 500 600",hours:{Mon:"8am–6pm",Tue:"8am–6pm",Wed:"8am–6pm",Thu:"8am–6pm",Fri:"8am–6pm",Sat:"8am–4pm",Sun:"By appointment",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-03-15",contact:"Owner",status:"approved",addedBy:"admin"},
+
+  {id:162,name:"Alterations & Tailoring — Point Cook",industry:"Retail & Shopping",cat:"Clothing",suburb:"Point Cook",state:"VIC",desc:"Expert clothing alterations, repairs and custom tailoring. School uniforms, formal wear, wedding dress alterations, suit resizing and leather repairs. Quick turnaround, same-week service available.",icon:"🧵",tags:["Alterations","Wedding dress","School uniforms"],mobile:"0488 300 400",email:"pointcooktailor@gmail.com",hours:{Mon:"Closed",Tue:"9am–5pm",Wed:"9am–5pm",Thu:"9am–5pm",Fri:"9am–5pm",Sat:"9am–3pm",Sun:"Closed",PH:"Closed"},lastUpdated:"2026-06-13",submittedAt:"2026-02-25",contact:"Master Tailor",status:"approved",addedBy:"admin"},
+
+  {id:163,name:"Hoppers Glazing & Glass",industry:"Home & Trade Services",cat:"Glazier",suburb:"Hoppers Crossing",state:"VIC",desc:"Residential and commercial glass replacement — windows, doors, shower screens, pool fencing and mirrors. Emergency glass replacement 24/7. Energy-efficient double glazing upgrades available.",icon:"🪟",tags:["Emergency glass","Double glazing","Shower screens"],mobile:"0455 400 500",phone:"03 9748 3333",email:"hoppers.glazing@gmail.com",hours:{Mon:"7:30am–5pm",Tue:"7:30am–5pm",Wed:"7:30am–5pm",Thu:"7:30am–5pm",Fri:"7:30am–5pm",Sat:"8am–12pm",Sun:"Closed",PH:"Emergency only"},lastUpdated:"2026-06-13",submittedAt:"2026-03-10",contact:"Owner",status:"approved",addedBy:"admin"}
+
+);
