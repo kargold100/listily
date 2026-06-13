@@ -8,7 +8,7 @@
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self';">
-  <title>Opportunities — Listily.au</title>
+  <title>Job, Volunteering &amp; Training Opportunities — Listily.au</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -23,12 +23,12 @@
       <div class="logo-icon-wrap"><div class="logo-l-vert"></div><div class="logo-l-horiz"></div><div class="logo-dot"></div></div>
       <span class="logo-wordmark">listly</span><span class="logo-au">.au</span>
     </a>
-    <div class="nav-links" id="nav-links">
+        <div class="nav-links" id="nav-links">
       <a href="index.html" class="nav-link">Home</a>
-      <a href="mentors.html" class="nav-link">Mentors</a>
-      <a href="about.html" class="nav-link">About</a>
       <a href="directory.html" class="nav-link">Businesses</a>
       <a href="opportunities.html" class="nav-link active">Opportunities</a>
+      <a href="mentors.html" class="nav-link">Mentors</a>
+      <a href="nfp.html" class="nav-link">Give &amp; Receive</a>
       <a href="register.html" class="nav-link">Add listing</a>
       <a href="about.html" class="nav-link">About</a>
     </div>
@@ -44,8 +44,8 @@
 <div class="opp-hero">
   <div class="container opp-hero-inner">
     <div>
-      <h1 class="opp-hero-title">Local opportunities</h1>
-      <p class="opp-hero-sub">Jobs, apprenticeships, traineeships, internships, volunteering and work experience — all from local Australian businesses.</p>
+      <h1 class="opp-hero-title">Job, Volunteering &amp;<br>Training Opportunities</h1>
+      <p class="opp-hero-sub">Jobs, apprenticeships, traineeships, internships, volunteering, work experience and career exploration opportunities from local Australian businesses and organisations.</p>
     </div>
     <a href="register.html#opportunity" class="btn btn-cta-white"><i class="fa-solid fa-plus"></i> Post an opportunity</a>
   </div>
@@ -98,19 +98,24 @@
         <option>Hospitality &amp; Food</option>
         <option>Home &amp; Trade Services</option>
         <option>Health &amp; Medical</option>
+        <option>Legal &amp; Migration</option>
         <option>Real Estate &amp; Property</option>
         <option>Education &amp; Childcare</option>
+        <option>Career &amp; Student Support</option>
         <option>Professional Services</option>
         <option>Retail &amp; Shopping</option>
         <option>Beauty &amp; Personal Care</option>
         <option>Automotive</option>
         <option>Community &amp; Culture</option>
+        <option>Migrant &amp; Multicultural</option>
         <option>Technology &amp; IT</option>
         <option>Finance &amp; Insurance</option>
         <option>Fitness &amp; Sport</option>
         <option>Events &amp; Entertainment</option>
         <option>Home Business</option>
-      <option>Emergency &amp; Support</option>
+        <option>Emergency &amp; Support</option>
+        <option>Pet Services</option>
+        <option>NFP &amp; Charities</option>
       </select>
     </div>
     <div class="filter-group">
@@ -133,6 +138,14 @@
         <option value="closing">Closing soon</option>
         <option value="alpha">A–Z</option>
       </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Include expired</label>
+      <label class="toggle-row">
+        <input type="checkbox" id="of-show-expired" onchange="applyOppFilters()">
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        <span class="toggle-lbl" style="font-size:12px">Show expired listings too</span>
+      </label>
     </div>
     <button class="btn btn-primary full-btn" onclick="applyOppFilters()"><i class="fa-solid fa-sliders"></i> Apply filters</button>
     <button class="btn btn-ghost full-btn sidebar-close" id="opp-sidebar-close" onclick="toggleOppSidebar(false)" style="margin-top:8px">Close filters</button>

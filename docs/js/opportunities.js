@@ -52,8 +52,9 @@ function renderStatPills(){
   const el=document.getElementById("opp-stat-pills");if(!el)return;
   const approved=OPPORTUNITIES.filter(o=>o.status==="approved");
   const total=approved.length;
+  const expired=OPPORTUNITIES.filter(o=>o.status==='expired').length;
   const cols=OPP_HERO_COLORS;
-  el.innerHTML=`<a href="#" class="osp" onclick="clearOppFilters();return false" style="background:rgba(255,255,255,.15);color:#fff">${total} total</a>`
+  el.innerHTML=`<a href="#" class="osp" onclick="clearOppFilters();return false" style="background:rgba(255,255,255,.15);color:#fff">${total} active</a><a href="#" class="osp" onclick="document.getElementById('of-show-expired').checked=true;applyOppFilters();return false" style="background:#FEE8E8;color:#9E1616">${expired} expired</a>`
     +OPP_TYPES.map(t=>{
       const n=approved.filter(o=>o.type===t).length;
       const [bg,tc]=cols[t]||["#eee","#333"];
@@ -77,7 +78,8 @@ function applyOppFilters(){
   const arrange=document.getElementById("of-arrange").value;
   const sort=document.getElementById("of-sort").value;
 
-  let list=OPPORTUNITIES.filter(o=>o.status==="approved");
+  const showExpired = document.getElementById('of-show-expired')?.checked || false;
+  let list=OPPORTUNITIES.filter(o=>showExpired ? (o.status==='approved'||o.status==='expired') : o.status==="approved");
   if(kw)        list=list.filter(o=>(o.title+" "+o.org+" "+o.desc+" "+(o.requirements||[]).join(" ")).toLowerCase().includes(kw));
   if(state)     list=list.filter(o=>o.state===state);
   if(suburb)    list=list.filter(o=>o.suburb===suburb);
@@ -133,7 +135,7 @@ function renderOppList(list){
           ${o.salary?`<span class="tag tag-green" style="font-size:10px">${escHtml(o.salary)}</span>`:""}
         </div>
         <div>
-          <span class="olc-posted">${relPosted(o.postedAt)}</span>
+          <span class="olc-posted">${relPosted(o.postedAt)}${o.addedBy==='admin'?' · <span style="font-size:10px;color:var(--brand-dark);font-weight:600">✓ Admin</span>':''}</span>
           ${closing&&closing!=="Closed"?`<span style="font-size:11px;color:var(--amber-t);margin-left:6px">· ${escHtml(closing)}</span>`:""}
         </div>
       </div>

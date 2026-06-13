@@ -16,7 +16,15 @@
   <a href="#main-content" class="skip-link">Skip to main content</a>
 <nav class="navbar" id="navbar"><div class="nav-inner container">
   <a href="index.html" class="nav-logo"><div class="logo-icon"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div><span class="logo-word">l<span class="li">i</span>st<span class="li">i</span>ly</span><span class="logo-suffix">.au</span></a>
-  <div class="nav-links" id="nav-links"><a href="index.html" class="nav-link">Home</a><a href="directory.html" class="nav-link">Businesses</a><a href="opportunities.html" class="nav-link">Opportunities</a><a href="register.html" class="nav-link active">Add listing</a></div>
+      <div class="nav-links" id="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="directory.html" class="nav-link">Businesses</a>
+      <a href="opportunities.html" class="nav-link">Opportunities</a>
+      <a href="mentors.html" class="nav-link">Mentors</a>
+      <a href="nfp.html" class="nav-link">Give &amp; Receive</a>
+      <a href="register.html" class="nav-link active">Add listing</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
   <div class="nav-actions"><a href="admin.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-shield-halved"></i> Admin</a><button class="nav-burger" id="nav-burger" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button></div>
 </div></nav>
 
@@ -45,8 +53,29 @@
         <h2 class="step-title"><i class="fa-solid fa-building-user"></i> Business details</h2>
         <div class="form-grid">
           <div class="form-group full"><label>Business name <span class="req">*</span></label><input type="text" id="r-name" placeholder="Your trading name" autocomplete="organization"></div>
-          <div class="form-group"><label>Industry <span class="req">*</span></label><select id="r-industry"><option value="">Select…</option><option>Hospitality &amp; Food</option><option>Home &amp; Trade Services</option><option>Health &amp; Medical</option><option>Real Estate &amp; Property</option><option>Education &amp; Childcare</option><option>Professional Services</option><option>Retail &amp; Shopping</option><option>Beauty &amp; Personal Care</option><option>Automotive</option><option>Community &amp; Culture</option><option>Technology &amp; IT</option><option>Finance &amp; Insurance</option><option>Fitness &amp; Sport</option><option>Events &amp; Entertainment</option><option>Home Business</option>
-        <option>Emergency &amp; Support</option></select></div>
+          <div class="form-group"><label>Industry <span class="req">*</span></label><select id="r-industry"><option value="">Select…</option>
+            <option>Hospitality &amp; Food</option>
+            <option>Home &amp; Trade Services</option>
+            <option>Health &amp; Medical</option>
+            <option>Legal &amp; Migration</option>
+            <option>Real Estate &amp; Property</option>
+            <option>Education &amp; Childcare</option>
+            <option>Career &amp; Student Support</option>
+            <option>Professional Services</option>
+            <option>Retail &amp; Shopping</option>
+            <option>Beauty &amp; Personal Care</option>
+            <option>Automotive</option>
+            <option>Community &amp; Culture</option>
+            <option>Migrant &amp; Multicultural</option>
+            <option>Technology &amp; IT</option>
+            <option>Finance &amp; Insurance</option>
+            <option>Fitness &amp; Sport</option>
+            <option>Events &amp; Entertainment</option>
+            <option>Home Business</option>
+            <option>Emergency &amp; Support</option>
+            <option>Pet Services</option>
+            <option>NFP &amp; Charities</option>
+          </select></div>
           <div class="form-group" id="r-cat-wrap">
             <label for="r-cat">Category <span class="req">*</span></label>
             <select id="r-cat"><option value="">Select industry first…</option></select>
@@ -130,11 +159,54 @@
           <div class="form-group"><label>Opportunity type <span class="req">*</span></label>
             <select id="ro-type"><option value="">Select type…</option><option value="Job">Job</option><option value="Apprenticeship">Apprenticeship</option><option value="Traineeship">Traineeship</option><option value="Internship">Internship</option><option value="Volunteering">Volunteering</option><option value="Work Experience">Work Experience</option></select></div>
           <div class="form-group"><label>Organisation / business name <span class="req">*</span></label><input type="text" id="ro-org" placeholder="Your business name"></div>
-          <div class="form-group"><label>Industry</label><select id="ro-industry"><option value="">Select…</option><option>Hospitality &amp; Food</option><option>Home &amp; Trade Services</option><option>Health &amp; Medical</option><option>Real Estate &amp; Property</option><option>Education &amp; Childcare</option><option>Professional Services</option><option>Retail &amp; Shopping</option><option>Beauty &amp; Personal Care</option><option>Automotive</option><option>Community &amp; Culture</option><option>Technology &amp; IT</option><option>Finance &amp; Insurance</option><option>Fitness &amp; Sport</option><option>Events &amp; Entertainment</option><option>Home Business</option>
-        <option>Emergency &amp; Support</option></select></div>
+          <div class="form-group"><label>Industry</label><select id="ro-industry"><option value="">Select…</option>
+            <option>Hospitality &amp; Food</option>
+            <option>Home &amp; Trade Services</option>
+            <option>Health &amp; Medical</option>
+            <option>Legal &amp; Migration</option>
+            <option>Real Estate &amp; Property</option>
+            <option>Education &amp; Childcare</option>
+            <option>Career &amp; Student Support</option>
+            <option>Professional Services</option>
+            <option>Retail &amp; Shopping</option>
+            <option>Beauty &amp; Personal Care</option>
+            <option>Automotive</option>
+            <option>Community &amp; Culture</option>
+            <option>Migrant &amp; Multicultural</option>
+            <option>Technology &amp; IT</option>
+            <option>Finance &amp; Insurance</option>
+            <option>Fitness &amp; Sport</option>
+            <option>Events &amp; Entertainment</option>
+            <option>Home Business</option>
+            <option>Emergency &amp; Support</option>
+            <option>Pet Services</option>
+            <option>NFP &amp; Charities</option>
+          </select></div>
           <div class="form-group"><label>State <span class="req">*</span></label><select id="ro-state"><option value="">Select…</option><option value="VIC">Victoria</option><option value="NSW">New South Wales</option><option value="QLD">Queensland</option><option value="WA">Western Australia</option><option value="SA">South Australia</option><option value="TAS">Tasmania</option><option value="ACT">ACT</option><option value="NT">Northern Territory</option></select></div>
           <div class="form-group"><label>Suburb</label><input type="text" id="ro-suburb" placeholder="e.g. Point Cook"></div>
-          <div class="form-group"><label>Work arrangement</label><select id="ro-arrange"><option value="">Select…</option><option>Full-time</option><option>Part-time</option><option>Casual</option><option>Contract</option><option>Remote</option><option>Hybrid</option><option>On-site</option><option>Volunteer</option></select></div>
+          <div class="form-group"><label>Work arrangement</label><select id="ro-arrange"><option value="">Select…</option>
+            <option>Hospitality &amp; Food</option>
+            <option>Home &amp; Trade Services</option>
+            <option>Health &amp; Medical</option>
+            <option>Legal &amp; Migration</option>
+            <option>Real Estate &amp; Property</option>
+            <option>Education &amp; Childcare</option>
+            <option>Career &amp; Student Support</option>
+            <option>Professional Services</option>
+            <option>Retail &amp; Shopping</option>
+            <option>Beauty &amp; Personal Care</option>
+            <option>Automotive</option>
+            <option>Community &amp; Culture</option>
+            <option>Migrant &amp; Multicultural</option>
+            <option>Technology &amp; IT</option>
+            <option>Finance &amp; Insurance</option>
+            <option>Fitness &amp; Sport</option>
+            <option>Events &amp; Entertainment</option>
+            <option>Home Business</option>
+            <option>Emergency &amp; Support</option>
+            <option>Pet Services</option>
+            <option>NFP &amp; Charities</option>
+          </select></div>
           <div class="form-group"><label>Salary / remuneration</label><input type="text" id="ro-salary" placeholder="e.g. $25/hr, Award wage, Unpaid…"></div>
           <div class="form-group"><label>Duration</label><input type="text" id="ro-duration" placeholder="e.g. 3 months, 4 years, Ongoing…"></div>
           <div class="form-group"><label>Closing date</label><input type="date" id="ro-closing"></div>
@@ -187,9 +259,28 @@
           <div class="form-group"><label>Suburb <span class="req">*</span></label><input type="text" id="rm-suburb" placeholder="Your suburb"></div>
           <div class="form-group"><label>Years of experience <span class="req">*</span></label>
             <select id="rm-exp"><option value="">Select…</option>
-              <option>1–3 years</option><option>3–5 years</option><option>5–10 years</option>
-              <option>10–15 years</option><option>15+ years</option><option>20+ years</option>
-            </select></div>
+            <option>Hospitality &amp; Food</option>
+            <option>Home &amp; Trade Services</option>
+            <option>Health &amp; Medical</option>
+            <option>Legal &amp; Migration</option>
+            <option>Real Estate &amp; Property</option>
+            <option>Education &amp; Childcare</option>
+            <option>Career &amp; Student Support</option>
+            <option>Professional Services</option>
+            <option>Retail &amp; Shopping</option>
+            <option>Beauty &amp; Personal Care</option>
+            <option>Automotive</option>
+            <option>Community &amp; Culture</option>
+            <option>Migrant &amp; Multicultural</option>
+            <option>Technology &amp; IT</option>
+            <option>Finance &amp; Insurance</option>
+            <option>Fitness &amp; Sport</option>
+            <option>Events &amp; Entertainment</option>
+            <option>Home Business</option>
+            <option>Emergency &amp; Support</option>
+            <option>Pet Services</option>
+            <option>NFP &amp; Charities</option>
+          </select></div>
         </div>
       </div>
 

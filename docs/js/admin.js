@@ -45,16 +45,19 @@ function updateStats() {
   document.getElementById('st-ao').textContent = ao;
   document.getElementById('st-po').textContent = po;
   document.getElementById('st-total').textContent = DB.length + OPPORTUNITIES.length + (typeof MENTORS!=='undefined'?MENTORS.length:0);
+  const ae = OPPORTUNITIES.filter(o => o.status === 'expired').length;
+  const stEx = document.getElementById('st-expired');
+  if (stEx) stEx.textContent = ae;
   const badge = document.getElementById('atab-pending');
   const tot = pb + po + pm;
   if (badge) { badge.textContent = tot; badge.style.display = tot > 0 ? 'inline-flex' : 'none'; }
 }
 
-function renderAdminDash() { updateStats(); renderPending(); renderApproved(); renderRejected(); renderOppPending(); renderOppApproved(); renderAnalytics(); }
+function renderAdminDash() { updateStats(); renderPending(); renderApproved(); renderRejected(); renderOppPending(); renderOppApproved(); renderExpired(); renderBulkUpload(); renderAnalytics(); }
 
 function switchAdminTab(t, btn) {
   document.querySelectorAll('.atab').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-  ['pending','approved','rejected','opp-pending','opp-approved','analytics'].forEach(tab => {
+  ['pending','approved','rejected','opp-pending','opp-approved','expired','bulk-upload','analytics'].forEach(tab => {
     document.getElementById('admin-pane-' + tab).style.display = tab === t ? 'block' : 'none';
   });
 }
@@ -358,3 +361,253 @@ function renderAnalytics() {
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('a-pass')?.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 });
+
+// ─── Expired opportunities queue ────────────────────────────────
+function renderExpired() {
+  const el = document.getElementById('admin-pane-expired');
+  if (!el) return;
+  const bl = DB.filter(b => b.status === 'rejected');
+  const ol = OPPORTUNITIES.filter(o => o.status === 'expired');
+
+  let html = '';
+  if (ol.length) {
+    html += `<div style="margin-bottom:1rem">
+      <h3 style="font-size:15px;font-weight:600;margin-bottom:4px;color:var(--text-2)">Expired opportunities <span style="font-size:12px;font-weight:400;color:var(--text-3)">(${ol.length} total — kept for historical reference)</span></h3>
+      <p style="font-size:13px;color:var(--text-3);margin-bottom:1rem">Opportunities past their closing date are automatically moved here. They are hidden from the public directory but preserved for records.</p>
+    </div>
+    <div class="list-table" style="margin-bottom:1.5rem">
+      ${ol.map(o => {
+        const idx = OPPORTUNITIES.indexOf(o);
+        return `<div class="list-row"><span style="font-size:18px">${o.icon}</span>
+          <div style="flex:1;min-width:0">
+            <div class="list-name">${escHtml(o.title)}</div>
+            <div class="list-sub">${escHtml(o.org)} · ${escHtml(o.suburb)}, ${escHtml(o.state)} · Closed ${escHtml(o.closingDate||'unknown')} · Added by: <strong>${escHtml(o.addedBy||'public')}</strong></div>
+          </div>
+          <span class="status-badge" style="background:var(--red-bg);color:var(--red-t)">Expired</span>
+          <div class="list-actions">
+            <button class="btn-icon btn-icon-green" onclick="reinstateOpp(${idx})" title="Re-activate (extend closing date)"><i class="fa-solid fa-rotate-left"></i></button>
+            <button class="btn-icon btn-icon-red" onclick="purgeOpp(${idx})" title="Permanently delete"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  if (bl.length) {
+    html += `<h3 style="font-size:15px;font-weight:600;margin-bottom:8px;color:var(--text-2)">Rejected business listings</h3>
+    <div class="list-table">
+      ${bl.map(b => {
+        const idx = DB.indexOf(b);
+        return `<div class="list-row"><span style="font-size:20px">${b.icon}</span>
+          <div style="flex:1;min-width:0">
+            <div class="list-name">${escHtml(b.name)}</div>
+            <div class="list-sub">${escHtml((b.rejectReason||'').substring(0,60))} · Added by: <strong>${escHtml(b.addedBy||'public')}</strong></div>
+          </div>
+          <span class="status-badge sb-rejected">Rejected</span>
+          <button class="btn-icon btn-icon-green" onclick="reinstateB(${idx})" title="Reinstate"><i class="fa-solid fa-rotate-left"></i></button>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  if (!ol.length && !bl.length) {
+    html = `<div class="no-results"><i class="fa-solid fa-clock-rotate-left"></i><h3>No expired or rejected items.</h3></div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function reinstateOpp(idx) {
+  const o = OPPORTUNITIES[idx];
+  // Set new closing date 90 days from today
+  const d = new Date(); d.setDate(d.getDate() + 90);
+  o.closingDate = d.toISOString().slice(0,10);
+  o.status = 'approved';
+  delete o.expiredAt;
+  showToast('✓ Opportunity re-activated (closes ' + o.closingDate + ')');
+  renderAdminDash();
+}
+function purgeOpp(idx) {
+  if (!confirm('Permanently delete "' + OPPORTUNITIES[idx].title + '"? This cannot be undone.')) return;
+  OPPORTUNITIES.splice(idx, 1);
+  showToast('Opportunity deleted', 'var(--red-t)');
+  renderAdminDash();
+}
+
+// ─── Bulk upload ────────────────────────────────────────────────
+function renderBulkUpload() {
+  const el = document.getElementById('admin-pane-bulk-upload');
+  if (!el) return;
+  el.innerHTML = `
+  <h2 style="font-size:18px;font-weight:600;margin-bottom:.5rem">Bulk upload listings</h2>
+  <p style="font-size:13px;color:var(--text-3);margin-bottom:1.5rem">Upload multiple businesses or opportunities at once using a CSV file or paste JSON. Admin-uploaded listings are tagged as <strong>Added by: admin</strong>.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+    <!-- CSV Upload -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.375rem">
+      <h3 style="font-size:15px;font-weight:600;margin-bottom:.5rem"><i class="fa-solid fa-file-csv" style="color:var(--brand)"></i> CSV upload</h3>
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;line-height:1.6">Upload a CSV with the columns below. First row must be headers.</p>
+      <div style="background:var(--bg-tint);border-radius:var(--r-md);padding:.875rem;font-size:12px;font-family:monospace;color:var(--text-2);margin-bottom:1rem;overflow-x:auto;white-space:nowrap">
+        name, industry, cat, suburb, state, desc, phone, mobile, email, web, tags
+      </div>
+      <div style="margin-bottom:1rem">
+        <button class="btn btn-ghost btn-sm" onclick="downloadCSVTemplate()"><i class="fa-solid fa-download"></i> Download template</button>
+      </div>
+      <label style="display:block">
+        <input type="file" id="bulk-csv-file" accept=".csv" style="display:none" onchange="previewCSV(this)">
+        <div style="border:2px dashed var(--border);border-radius:var(--r-lg);padding:2rem;text-align:center;cursor:pointer;transition:all .15s" onclick="document.getElementById('bulk-csv-file').click()" id="csv-drop-zone">
+          <i class="fa-solid fa-cloud-arrow-up" style="font-size:28px;color:var(--text-3);display:block;margin-bottom:.75rem"></i>
+          <p style="font-size:13px;font-weight:500;color:var(--text-2)">Click to upload CSV</p>
+          <p style="font-size:12px;color:var(--text-3);margin-top:4px">businesses or opportunities</p>
+        </div>
+      </label>
+      <div id="csv-preview" style="margin-top:1rem"></div>
+      <div id="csv-actions" style="margin-top:1rem;display:none">
+        <button class="btn btn-primary full-btn" onclick="importCSV()"><i class="fa-solid fa-check"></i> Import all as pending</button>
+        <button class="btn btn-ghost full-btn" onclick="importCSV(true)" style="margin-top:6px"><i class="fa-solid fa-rocket"></i> Import and auto-approve</button>
+      </div>
+    </div>
+
+    <!-- JSON paste -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.375rem">
+      <h3 style="font-size:15px;font-weight:600;margin-bottom:.5rem"><i class="fa-solid fa-code" style="color:var(--brand)"></i> JSON paste</h3>
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;line-height:1.6">Paste an array of listing objects. Useful for developer imports or migrating data.</p>
+      <div style="background:var(--bg-tint);border-radius:var(--r-md);padding:.875rem;font-size:11.5px;font-family:monospace;color:var(--text-2);margin-bottom:1rem;line-height:1.5">
+[{<br>
+&nbsp;"name":"My Business",<br>
+&nbsp;"industry":"Home &amp; Trade Services",<br>
+&nbsp;"cat":"Electrician",<br>
+&nbsp;"suburb":"Point Cook",<br>
+&nbsp;"state":"VIC",<br>
+&nbsp;"desc":"Description here",<br>
+&nbsp;"phone":"03 xxxx xxxx",<br>
+&nbsp;"email":"info@example.com.au"<br>
+}]
+      </div>
+      <textarea id="json-paste" rows="8" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:12px;font-family:monospace;background:var(--bg-card);color:var(--text);resize:vertical" placeholder="Paste JSON array here…"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-primary" style="flex:1" onclick="importJSON()"><i class="fa-solid fa-check"></i> Import as pending</button>
+        <button class="btn btn-ghost" style="flex:1" onclick="importJSON(true)"><i class="fa-solid fa-rocket"></i> Import &amp; approve</button>
+      </div>
+      <div id="json-result" style="margin-top:10px;font-size:13px"></div>
+    </div>
+  </div>
+
+  <!-- Recent admin uploads -->
+  <div style="margin-top:1.5rem">
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:.875rem">Admin-uploaded listings</h3>
+    <div class="list-table">
+      ${[...DB.filter(b=>b.addedBy==='admin'), ...OPPORTUNITIES.filter(o=>o.addedBy==='admin')]
+        .sort((a,b)=>new Date(b.submittedAt||b.postedAt||0)-new Date(a.submittedAt||a.postedAt||0))
+        .slice(0,20)
+        .map(item=>{
+          const isOpp = !!item.type;
+          return `<div class="list-row">
+            <span style="font-size:18px">${item.icon||'📋'}</span>
+            <div style="flex:1;min-width:0">
+              <div class="list-name">${escHtml(item.name||item.title)}</div>
+              <div class="list-sub">${isOpp?escHtml(item.type)+' · ':''} ${escHtml(item.suburb||'')}, ${escHtml(item.state||'')} · ${escHtml(item.submittedAt||item.postedAt||'')}</div>
+            </div>
+            <span class="status-badge ${item.status==='approved'?'sb-approved':item.status==='expired'?'':'sb-pending'}">${escHtml(item.status)}</span>
+            <span style="font-size:11px;color:var(--brand-dark);font-weight:600;padding:0 8px"><i class="fa-solid fa-shield-halved"></i> Admin</span>
+          </div>`;
+        }).join('') || '<div style="padding:1rem;color:var(--text-3);font-size:13px">No admin uploads yet.</div>'}
+    </div>
+  </div>`;
+}
+
+let _csvParsed = [];
+
+function downloadCSVTemplate() {
+  const csv = 'name,industry,cat,suburb,state,desc,phone,mobile,email,web,tags\n"Example Business","Home & Trade Services","Electrician","Point Cook","VIC","Description of your business","03 9000 0000","0411 000 000","info@example.com.au","https://example.com.au","Tag1,Tag2,Tag3"';
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'listily-bulk-upload-template.csv'; a.click();
+}
+
+function previewCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l => l.trim());
+    if (lines.length < 2) { document.getElementById('csv-preview').innerHTML = '<p style="color:var(--red-t);font-size:13px">No data rows found.</p>'; return; }
+    const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g,'').trim().toLowerCase());
+    _csvParsed = lines.slice(1).map(line => {
+      const vals = line.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
+      const obj = {};
+      headers.forEach((h,i) => { obj[h] = (vals[i]||'').replace(/^"|"$/g,'').trim(); });
+      return obj;
+    }).filter(o => o.name);
+    const preview = document.getElementById('csv-preview');
+    preview.innerHTML = `<p style="font-size:13px;color:var(--green-t);margin-bottom:.5rem"><i class="fa-solid fa-circle-check"></i> Found <strong>${_csvParsed.length}</strong> valid rows.</p>
+      <div style="max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r-md)">
+        ${_csvParsed.slice(0,5).map(r=>`<div style="padding:6px 12px;border-bottom:1px solid var(--border);font-size:12px"><strong>${escHtml(r.name)}</strong> — ${escHtml(r.suburb||'')}, ${escHtml(r.state||'')} · ${escHtml(r.industry||'')}</div>`).join('')}
+        ${_csvParsed.length>5?`<div style="padding:6px 12px;font-size:12px;color:var(--text-3)">+ ${_csvParsed.length-5} more rows…</div>`:''}
+      </div>`;
+    document.getElementById('csv-actions').style.display = 'block';
+  };
+  reader.readAsText(file);
+}
+
+function importCSV(autoApprove=false) {
+  if (!_csvParsed.length) { showToast('No rows to import','var(--red-t)'); return; }
+  const today = new Date().toISOString().slice(0,10);
+  let count = 0;
+  _csvParsed.forEach(row => {
+    if (!row.name || !row.industry) return;
+    DB.push({
+      id: Date.now() + Math.random(),
+      name: row.name, industry: row.industry, cat: row.cat||'',
+      suburb: row.suburb||'', state: row.state||'',
+      desc: row.desc||'', phone: row.phone||'', mobile: row.mobile||'',
+      email: row.email||'', web: row.web||'',
+      tags: (row.tags||'').split(',').map(t=>t.trim()).filter(Boolean).slice(0,3),
+      icon: '🏢', hours: {},
+      lastUpdated: today, submittedAt: today,
+      status: autoApprove ? 'approved' : 'pending',
+      addedBy: 'admin'
+    });
+    count++;
+  });
+  showToast(`✓ ${count} listings imported${autoApprove?' and approved':' as pending'}`);
+  _csvParsed = [];
+  document.getElementById('csv-preview').innerHTML = '';
+  document.getElementById('csv-actions').style.display = 'none';
+  document.getElementById('bulk-csv-file').value = '';
+  renderAdminDash();
+}
+
+function importJSON(autoApprove=false) {
+  const raw = document.getElementById('json-paste')?.value.trim();
+  const result = document.getElementById('json-result');
+  if (!raw) { result.innerHTML = '<span style="color:var(--red-t)">Please paste JSON first.</span>'; return; }
+  let data;
+  try { data = JSON.parse(raw); } catch(e) {
+    result.innerHTML = `<span style="color:var(--red-t)"><i class="fa-solid fa-xmark"></i> Invalid JSON: ${escHtml(e.message)}</span>`;
+    return;
+  }
+  if (!Array.isArray(data)) { result.innerHTML = '<span style="color:var(--red-t)">Expected a JSON array [ ... ]</span>'; return; }
+  const today = new Date().toISOString().slice(0,10);
+  let count = 0;
+  data.forEach(row => {
+    if (!row.name) return;
+    DB.push({
+      id: Date.now() + Math.random(),
+      name: row.name, industry: row.industry||'', cat: row.cat||'',
+      suburb: row.suburb||'', state: row.state||'',
+      desc: row.desc||'', phone: row.phone||'', mobile: row.mobile||'',
+      email: row.email||'', web: row.web||'', wa: row.wa||'',
+      tags: Array.isArray(row.tags) ? row.tags.slice(0,3) : (row.tags||'').split(',').map(t=>t.trim()).filter(Boolean).slice(0,3),
+      icon: row.icon||'🏢', hours: row.hours||{},
+      lastUpdated: today, submittedAt: today,
+      status: autoApprove ? 'approved' : 'pending',
+      addedBy: 'admin'
+    });
+    count++;
+  });
+  result.innerHTML = `<span style="color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> ${count} listings imported${autoApprove?' and approved':' as pending'}.</span>`;
+  document.getElementById('json-paste').value = '';
+  renderAdminDash();
+}

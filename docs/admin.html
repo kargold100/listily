@@ -78,6 +78,7 @@
       <div class="stat-card stat-blue"><div class="stat-val" id="st-ao">0</div><div class="stat-lbl"><i class="fa-solid fa-briefcase"></i> Active opportunities</div></div>
       <div class="stat-card stat-purple"><div class="stat-val" id="st-po">0</div><div class="stat-lbl"><i class="fa-solid fa-clock"></i> Pending opportunities</div></div>
       <div class="stat-card stat-gray"><div class="stat-val" id="st-total">0</div><div class="stat-lbl"><i class="fa-solid fa-database"></i> Total submissions</div></div>
+      <div class="stat-card" style="background:var(--red-bg);border-color:var(--red-b)"><div class="stat-val" id="st-expired" style="color:var(--red-t)">0</div><div class="stat-lbl" style="color:var(--red-t)"><i class="fa-solid fa-clock-rotate-left"></i> Expired opps</div></div>
     </div>
 
     <div class="admin-tabs" role="tablist">
@@ -97,6 +98,12 @@
       <button class="atab" onclick="switchAdminTab('rejected',this)">
         <i class="fa-solid fa-xmark"></i> Rejected
       </button>
+      <button class="atab" onclick="switchAdminTab('expired',this)">
+        <i class="fa-solid fa-clock-rotate-left"></i> Expired / Rejected
+      </button>
+      <button class="atab" onclick="switchAdminTab('bulk-upload',this)">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Bulk upload
+      </button>
       <button class="atab" onclick="switchAdminTab('analytics',this)">
         <i class="fa-solid fa-chart-bar"></i> Analytics
       </button>
@@ -106,7 +113,8 @@
     <div id="admin-pane-opp-pending" style="display:none"></div>
     <div id="admin-pane-approved" style="display:none"></div>
     <div id="admin-pane-opp-approved" style="display:none"></div>
-    <div id="admin-pane-rejected" style="display:none"></div>
+    <div id="admin-pane-expired" style="display:none"></div>
+    <div id="admin-pane-bulk-upload" style="display:none"></div>
     <div id="admin-pane-analytics" style="display:none"></div>
   </div>
 
