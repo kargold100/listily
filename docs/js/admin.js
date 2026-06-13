@@ -33,6 +33,8 @@ function doLogout() {
 
 function updateStats() {
   const ab = DB.filter(b => b.status === 'approved').length;
+  const am = (typeof MENTORS !== 'undefined') ? MENTORS.filter(m => m.status === 'approved').length : 0;
+  const pm = (typeof MENTORS !== 'undefined') ? MENTORS.filter(m => m.status === 'pending').length : 0;
   const pb = DB.filter(b => b.status === 'pending').length;
   const rb = DB.filter(b => b.status === 'rejected').length;
   const ao = OPPORTUNITIES.filter(o => o.status === 'approved').length;
@@ -42,9 +44,9 @@ function updateStats() {
   document.getElementById('st-rb').textContent = rb;
   document.getElementById('st-ao').textContent = ao;
   document.getElementById('st-po').textContent = po;
-  document.getElementById('st-total').textContent = DB.length + OPPORTUNITIES.length;
+  document.getElementById('st-total').textContent = DB.length + OPPORTUNITIES.length + (typeof MENTORS!=='undefined'?MENTORS.length:0);
   const badge = document.getElementById('atab-pending');
-  const tot = pb + po;
+  const tot = pb + po + pm;
   if (badge) { badge.textContent = tot; badge.style.display = tot > 0 ? 'inline-flex' : 'none'; }
 }
 

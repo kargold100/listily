@@ -123,6 +123,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   renderOppStrip();
   renderFeatured();
   renderRecent();
+  renderHomeMentors();
 
   const sb=document.getElementById("stat-biz"),so=document.getElementById("stat-opp");
   if(sb)sb.textContent=DB.filter(b=>b.status==="approved").length+"+";
@@ -151,3 +152,25 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   document.getElementById("hs-kw-opp")?.addEventListener("keydown",e=>{if(e.key==="Enter")heroSearch("opp");});
 });
+
+// ── Mentor strip on homepage ─────────────────────────────────────
+function renderHomeMentors() {
+  const grid = document.getElementById('home-mentor-grid');
+  if (!grid || typeof MENTORS === 'undefined') return;
+  const featured = MENTORS.filter(m => m.status === 'approved' && m.featured).slice(0, 3);
+  grid.innerHTML = featured.map(m => `
+    <div class="mentor-card" onclick="location.href='mentors.html'" tabindex="0" style="cursor:pointer">
+      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px">
+        <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#A89CFF,#5B4CF5);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-weight:700;font-size:19px;color:#fff;flex-shrink:0">${escHtml(m.avatar||m.name.charAt(0))}</div>
+        <div>
+          <div style="font-weight:600;font-size:14px;color:#fff">${escHtml(m.name)}</div>
+          <div style="font-size:12px;color:#A89CFF;margin-top:2px"><i class="fa-solid fa-star" style="font-size:10px"></i> ${escHtml(m.specialty)}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:2px"><i class="fa-solid fa-location-dot" style="font-size:9px"></i> ${escHtml(m.suburb)}, ${escHtml(m.state)}</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:rgba(255,255,255,.55);line-height:1.55;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${escHtml(m.bio)}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">
+        ${(m.areas||[]).slice(0,3).map(a=>`<span style="font-size:11px;font-weight:500;padding:2px 9px;border-radius:999px;background:rgba(168,156,255,.15);color:#C4BCFF;border:1px solid rgba(168,156,255,.2)">${escHtml(a)}</span>`).join('')}
+      </div>
+    </div>`).join('') || '<p style="color:rgba(255,255,255,.4);font-size:14px">Mentors coming soon — <a href="register.html#mentor" style="color:#A89CFF">be the first to register</a>.</p>';
+}

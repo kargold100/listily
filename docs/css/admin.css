@@ -4,8 +4,6 @@
 .login-card h1{font-family:var(--font-d);font-size:22px;font-weight:700;margin-bottom:4px}
 .login-card p{font-size:14px;color:var(--text-2);margin-bottom:1.5rem}
 .login-err{font-size:13px;color:var(--red-t);margin-top:8px;min-height:18px}
-.demo-hint{font-size:11px;color:var(--text-3);text-align:center;margin-top:12px}
-.demo-hint code{background:var(--bg-tint);padding:1px 6px;border-radius:var(--r-xs)}
 .admin-topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem}
 .admin-title{font-family:var(--font-d);font-size:24px;font-weight:700;display:flex;align-items:center;gap:10px}
 .admin-sub{font-size:13px;color:var(--text-3);margin-top:4px}

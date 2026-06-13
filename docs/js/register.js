@@ -175,3 +175,56 @@ document.addEventListener("DOMContentLoaded",()=>{
     document.getElementById("opp-form-section")?.style.setProperty("display","block");
   }
 });
+
+function submitMentor() {
+  const name    = document.getElementById('rm-name')?.value.trim();
+  const state   = document.getElementById('rm-state')?.value;
+  const suburb  = document.getElementById('rm-suburb')?.value.trim();
+  const exp     = document.getElementById('rm-exp')?.value;
+  const spec    = document.getElementById('rm-specialty')?.value.trim();
+  const areas   = document.getElementById('rm-areas')?.value.trim();
+  const bio     = document.getElementById('rm-bio')?.value.trim();
+  const email   = document.getElementById('rm-email')?.value.trim();
+  const avail   = document.getElementById('rm-avail')?.value;
+
+  if (!name||!state||!suburb||!exp||!spec||!areas||!bio||!email||!avail) {
+    alert('Please fill in all required fields marked with *.'); return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert('Please enter a valid email address.'); return;
+  }
+
+  const phone     = document.getElementById('rm-phone')?.value.trim();
+  const wa        = document.getElementById('rm-wa')?.value.trim();
+  const whitelist = document.getElementById('rm-whitelist')?.checked || false;
+  const modes     = [...document.querySelectorAll('.rm-mode:checked')].map(el => el.value);
+  const notes     = document.getElementById('rm-notes')?.value.trim();
+  const today     = new Date().toISOString().slice(0,10);
+  const areaList  = areas.split(',').map(s => s.trim()).filter(Boolean);
+
+  if (typeof MENTORS !== 'undefined') {
+    MENTORS.push({
+      id: Date.now(),
+      name, state, suburb,
+      specialty: spec,
+      areas: areaList,
+      bio,
+      avatar: name.charAt(0).toUpperCase(),
+      experience: exp,
+      email, phone, wa,
+      whitelistPhone: whitelist,
+      mode: modes.length ? modes : ['Video call'],
+      available: avail,
+      notes,
+      tags: areaList.slice(0,4),
+      lastUpdated: today,
+      submittedAt: today,
+      status: 'pending'
+    });
+  }
+
+  document.getElementById('mentor-success-msg').textContent =
+    `"${name}" has been submitted for review and will appear on the mentors page within 24 hours.`;
+  document.getElementById('mentor-form').style.display = 'none';
+  document.getElementById('mentor-success').style.display = 'block';
+}

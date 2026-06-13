@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Find a local mentor on Listily.au — business, trades, finance, arts, wellness and more across Australia.">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self';">
+  <title>Find a Mentor — Listily.au</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/base.css">
+  <style>
+    /* ── Mentor hero ────────────────────────────── */
+    .mentor-hero{
+      background:linear-gradient(140deg,#12103A 0%,#1E1854 50%,#2D2480 100%);
+      padding:5rem 0 4rem;position:relative;overflow:hidden;
+    }
+    .mentor-hero::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 70% 50%,rgba(91,76,245,.15) 0%,transparent 70%);pointer-events:none}
+    .mentor-hero .hero-grid-bg{background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.08) 1px,transparent 0);background-size:36px 36px}
+    .mh-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#A89CFF;margin-bottom:1.25rem;background:rgba(91,76,245,.15);border:1px solid rgba(91,76,245,.25);padding:5px 14px;border-radius:var(--r-full)}
+    .mh-title{font-family:var(--font-d);font-size:clamp(30px,5vw,50px);font-weight:800;line-height:1.1;color:#fff;margin-bottom:1rem;letter-spacing:-.02em}
+    .mh-accent{background:linear-gradient(135deg,#A89CFF 0%,#D4CEFF 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .mh-sub{font-size:16px;color:rgba(255,255,255,.6);line-height:1.65;max-width:500px;margin-bottom:2rem}
+    .mh-stats{display:flex;gap:2rem;flex-wrap:wrap}
+    .mh-stat strong{font-family:var(--font-d);font-size:24px;font-weight:700;color:#fff;display:block}
+    .mh-stat span{font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.05em}
+
+    /* ── Mentor layout ──────────────────────────── */
+    .mentor-layout{display:grid;grid-template-columns:270px 1fr;gap:24px;padding:2rem 0 4rem;align-items:start}
+
+    /* Sidebar */
+    .mentor-sidebar{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.375rem;position:sticky;top:calc(var(--nav-h) + 16px)}
+
+    /* Cards */
+    .mentor-results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+
+    /* Full mentor card */
+    .mcard{
+      background:var(--bg-card);border:1px solid var(--border);
+      border-radius:var(--r-xl);padding:1.375rem;cursor:pointer;
+      transition:all .18s;display:flex;flex-direction:column;
+    }
+    .mcard:hover{border-color:var(--mentor-border);box-shadow:var(--sh-md);transform:translateY(-2px)}
+    .mcard-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+    .mavatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#A89CFF,#5B4CF5);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-weight:700;font-size:20px;color:#fff;flex-shrink:0}
+    .mname{font-weight:700;font-size:15px;line-height:1.2}
+    .mspecialty{font-size:12px;color:var(--mentor);font-weight:500;margin-top:3px}
+    .mloc{font-size:11px;color:var(--text-3);margin-top:3px;display:flex;align-items:center;gap:3px}
+    .mbio{font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .mareas{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+    .marea{font-size:11px;font-weight:500;padding:3px 9px;border-radius:var(--r-full);background:var(--mentor-bg);color:var(--mentor-dark)}
+    .mfooter{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-top:auto}
+    .mavail{font-size:11px;font-weight:600;padding:3px 10px;border-radius:var(--r-full);white-space:nowrap}
+    .mavail.open{background:var(--green-bg);color:var(--green-t)}
+    .mavail.limited{background:var(--amber-bg);color:var(--amber-t)}
+    .mavail.full{background:var(--red-bg);color:var(--red-t)}
+    .mcontact{display:flex;gap:5px}
+    .mmode{font-size:10px;color:var(--text-3);margin-top:6px;display:flex;align-items:center;gap:4px;border-top:1px solid var(--border);padding-top:6px}
+
+    /* Modal */
+    .modal-mentor-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:1rem}
+    .modal-mavatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#A89CFF,#5B4CF5);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-weight:700;font-size:26px;color:#fff;flex-shrink:0}
+    .modal-mname{font-family:var(--font-d);font-size:22px;font-weight:700;margin-bottom:4px}
+    .modal-mspec{font-size:14px;color:var(--mentor);font-weight:600;margin-bottom:6px}
+
+    /* Sidebar close btn */
+    .sidebar-close{display:none}
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:90}
+
+    @media(max-width:880px){
+      .mentor-layout{grid-template-columns:1fr}
+      .mentor-sidebar{position:fixed;left:0;top:0;bottom:0;width:290px;overflow-y:auto;z-index:95;transform:translateX(-100%);transition:transform .25s;border-radius:0}
+      .mentor-sidebar.open{transform:translateX(0)}
+      .sidebar-overlay.open{display:block}
+      .sidebar-close{display:block}
+      .filter-toggle-btn{display:inline-flex}
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-icon"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div>
+      <span class="logo-word">l<span class="li">i</span>st<span class="li">i</span>ly</span>
+      <span class="logo-suffix">.au</span>
+    </a>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="directory.html" class="nav-link">Businesses</a>
+      <a href="opportunities.html" class="nav-link">Opportunities</a>
+      <a href="mentors.html" class="nav-link active">Mentors</a>
+      <a href="register.html" class="nav-link">Add listing</a>
+      <a href="about.html" class="nav-link">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="admin.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-shield-halved"></i> Admin</a>
+      <a href="register.html#mentor" class="btn btn-mentor btn-sm"><i class="fa-solid fa-star"></i> Become a mentor</a>
+      <button class="nav-burger" id="nav-burger" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="mentor-hero">
+  <div class="hero-grid-bg" aria-hidden="true"></div>
+  <div class="container" style="position:relative;z-index:1">
+    <div class="mh-eyebrow"><i class="fa-solid fa-star"></i> Community mentors</div>
+    <h1 class="mh-title">Find a mentor<br><span class="mh-accent">in your community</span></h1>
+    <p class="mh-sub">Connect with experienced local professionals who volunteer their time to guide, inspire and support your journey — across trades, business, arts, wellness and more.</p>
+    <div class="mh-stats">
+      <div class="mh-stat"><strong id="mentor-count">8</strong><span>Active mentors</span></div>
+      <div class="mh-stat"><strong>8+</strong><span>Specialities</span></div>
+      <div class="mh-stat"><strong>Free</strong><span>To connect</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="container mentor-layout">
+  <!-- Sidebar -->
+  <aside class="mentor-sidebar" id="mentor-sidebar">
+    <div class="sidebar-header">
+      <h2>Filter mentors</h2>
+      <button class="btn-text" onclick="clearMentorFilters()">Clear</button>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Search</label>
+      <div class="filter-search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="mf-keyword" placeholder="Name, area, skill…" oninput="applyMentorFilters()">
+      </div>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">State</label>
+      <select id="mf-state" onchange="onMentorStateChange()">
+        <option value="">All states</option>
+        <option value="VIC">Victoria</option>
+        <option value="NSW">New South Wales</option>
+        <option value="QLD">Queensland</option>
+        <option value="WA">Western Australia</option>
+        <option value="SA">South Australia</option>
+        <option value="TAS">Tasmania</option>
+        <option value="ACT">ACT</option>
+        <option value="NT">Northern Territory</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Suburb</label>
+      <select id="mf-suburb" onchange="applyMentorFilters()">
+        <option value="">All suburbs</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Availability</label>
+      <div class="check-group">
+        <label class="check-item"><input type="checkbox" value="Open to new mentees" onchange="applyMentorFilters()"> <span>Open to new mentees</span></label>
+        <label class="check-item"><input type="checkbox" value="Limited availability" onchange="applyMentorFilters()"> <span>Limited availability</span></label>
+      </div>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Mode</label>
+      <div class="check-group">
+        <label class="check-item"><input type="checkbox" value="In-person" onchange="applyMentorFilters()"> <span>In-person</span></label>
+        <label class="check-item"><input type="checkbox" value="Video call" onchange="applyMentorFilters()"> <span>Video call</span></label>
+        <label class="check-item"><input type="checkbox" value="Phone" onchange="applyMentorFilters()"> <span>Phone</span></label>
+      </div>
+    </div>
+    <button class="btn btn-mentor full-btn" onclick="applyMentorFilters()"><i class="fa-solid fa-sliders"></i> Apply</button>
+    <button class="btn btn-ghost full-btn sidebar-close" onclick="toggleMentorSidebar(false)" style="margin-top:8px">Close</button>
+  </aside>
+
+  <!-- Main -->
+  <main>
+    <div class="dir-topbar">
+      <div>
+        <h2 class="dir-title" id="mentor-title">All mentors</h2>
+        <p class="dir-count" id="mentor-results-count"></p>
+      </div>
+      <div class="dir-topbar-right">
+        <button class="btn btn-ghost btn-sm filter-toggle-btn" onclick="toggleMentorSidebar(true)">
+          <i class="fa-solid fa-sliders"></i> Filters
+        </button>
+        <a href="register.html#mentor" class="btn btn-mentor btn-sm"><i class="fa-solid fa-plus"></i> Become a mentor</a>
+      </div>
+    </div>
+
+    <!-- Speciality pills -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem" id="specialty-pills"></div>
+
+    <div class="mentor-results-grid" id="mentor-grid"></div>
+    <div class="pagination" id="mentor-pagination"></div>
+  </main>
+</div>
+
+<!-- CTA -->
+<section style="background:linear-gradient(135deg,#1E1854,#2D2480);padding:3.5rem 0">
+  <div class="container" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:2rem">
+    <div>
+      <p style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#A89CFF;margin-bottom:6px">Share your expertise</p>
+      <h2 style="font-family:var(--font-d);font-size:24px;font-weight:700;color:#fff;margin-bottom:6px">Become a Listily mentor</h2>
+      <p style="font-size:14px;color:rgba(255,255,255,.6)">Give back to your community. Help someone take their next step. It's free and flexible.</p>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <a href="register.html#mentor" class="btn btn-cta-white"><i class="fa-solid fa-star"></i> Register as a mentor</a>
+      <a href="about.html#mentors" class="btn btn-cta-outline">Learn more</a>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="logo-icon sm"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div>
+        <span class="logo-word sm">l<span class="li">i</span>st<span class="li">i</span>ly</span>
+        <span class="logo-suffix sm">.au</span>
+      </div>
+      <p>Your local community directory and opportunities board.</p>
+    </div>
+    <div class="footer-col"><h4>Directory</h4><a href="directory.html">Businesses</a><a href="opportunities.html">Opportunities</a><a href="mentors.html">Mentors</a></div>
+    <div class="footer-col"><h4>Join</h4><a href="register.html">Add business</a><a href="register.html#opportunity">Post opportunity</a><a href="register.html#mentor">Become a mentor</a></div>
+    <div class="footer-col"><h4>Company</h4><a href="about.html">About</a><a href="about.html#contact">Contact</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div>
+    <div class="footer-col"><h4>Support</h4><a href="directory.html?industry=Emergency+%26+Support">Emergency & Support</a><a href="admin.html">Admin</a></div>
+  </div>
+  <div class="footer-bottom"><div class="container"><p>© 2026 Listily.au — Australian Community Directory</p></div></div>
+</footer>
+
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal-box"><button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button><div id="modal-body"></div></div>
+</div>
+<div class="sidebar-overlay" id="mentor-sidebar-overlay" onclick="toggleMentorSidebar(false)"></div>
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/mentors.js"></script>
+</body>
+</html>
