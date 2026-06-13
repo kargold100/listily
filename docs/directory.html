@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Browse Australian local businesses — Listily.au">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self';">
+  <title>Directory — Listily.au</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/directory.css">
+</head>
+<body>
+<nav class="navbar" id="navbar"><div class="nav-inner container">
+  <a href="index.html" class="nav-logo"><div class="logo-icon"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div><span class="logo-word">l<span class="li">i</span>st<span class="li">i</span>ly</span><span class="logo-suffix">.au</span></a>
+  <div class="nav-links" id="nav-links">
+    <a href="index.html" class="nav-link">Home</a><a href="directory.html" class="nav-link active">Businesses</a>
+    <a href="opportunities.html" class="nav-link">Opportunities</a><a href="register.html" class="nav-link">Add listing</a>
+  </div>
+  <div class="nav-actions">
+    <a href="admin.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-shield-halved"></i> Admin</a>
+    <a href="register.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Add your business</a>
+    <button class="nav-burger" id="nav-burger" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
+  </div>
+</div></nav>
+<div class="dir-layout container">
+  <aside class="dir-sidebar" id="dir-sidebar">
+    <div class="sidebar-header"><h2>Filters</h2><button class="btn-text" onclick="clearFilters()">Clear all</button></div>
+    <div class="filter-group"><label class="filter-label">Keyword</label><div class="filter-search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="f-keyword" placeholder="Business or service…" oninput="applyFilters()"></div></div>
+    <div class="filter-group"><label class="filter-label">State</label><select id="f-state" onchange="onStateChange()"><option value="">All states</option><option value="VIC">Victoria</option><option value="NSW">New South Wales</option><option value="QLD">Queensland</option><option value="WA">Western Australia</option><option value="SA">South Australia</option><option value="TAS">Tasmania</option><option value="ACT">ACT</option><option value="NT">Northern Territory</option></select></div>
+    <div class="filter-group"><label class="filter-label">Suburb</label><select id="f-suburb" onchange="applyFilters()"><option value="">All suburbs</option></select></div>
+    <div class="filter-group"><label class="filter-label">Industry</label><select id="f-industry" onchange="applyFilters()"><option value="">All industries</option><option>Hospitality &amp; Food</option><option>Home &amp; Trade Services</option><option>Health &amp; Medical</option><option>Real Estate &amp; Property</option><option>Education &amp; Childcare</option><option>Professional Services</option><option>Retail &amp; Shopping</option><option>Beauty &amp; Personal Care</option><option>Automotive</option><option>Community &amp; Culture</option><option>Technology &amp; IT</option><option>Finance &amp; Insurance</option><option>Fitness &amp; Sport</option><option>Events &amp; Entertainment</option><option>Home Business</option>
+        <option>Emergency &amp; Support</option></select></div>
+    <div class="filter-group"><label class="filter-label">Category</label><select id="f-cat" onchange="applyFilters()"><option value="">All categories</option></select></div>
+    <div class="filter-group"><label class="filter-label">Open now</label><label class="toggle-row"><input type="checkbox" id="f-open" onchange="applyFilters()"><span class="toggle-track"><span class="toggle-thumb"></span></span><span class="toggle-lbl">Open businesses only</span></label></div>
+    <div class="filter-group"><label class="filter-label">Sort by</label><select id="f-sort" onchange="applyFilters()"><option value="name">Name A–Z</option><option value="newest">Newest first</option><option value="updated">Recently updated</option></select></div>
+    <button class="btn btn-primary full-btn" onclick="applyFilters()"><i class="fa-solid fa-sliders"></i> Apply</button>
+    <button class="btn btn-ghost full-btn sidebar-close" id="sidebar-close" onclick="toggleSidebar(false)" style="margin-top:8px">Close</button>
+  </aside>
+  <main class="dir-main">
+    <div class="dir-topbar">
+      <div><h1 class="dir-title" id="dir-title">All businesses</h1><p class="dir-count" id="dir-count"></p></div>
+      <div class="dir-topbar-right">
+        <div class="view-toggle">
+          <button class="view-btn active" id="vbtn-grid" onclick="setView('grid')" title="Grid"><i class="fa-solid fa-grip"></i></button>
+          <button class="view-btn" id="vbtn-list" onclick="setView('list')" title="List"><i class="fa-solid fa-list"></i></button>
+        </div>
+        <button class="btn btn-ghost btn-sm filter-toggle-btn" onclick="toggleSidebar(true)"><i class="fa-solid fa-sliders"></i> Filters <span id="active-filter-count" class="active-filter-badge" style="display:none">0</span></button>
+      </div>
+    </div>
+    <div class="cat-pills-row" id="cat-pills-row"></div>
+    <div id="results-container"></div>
+    <div class="pagination" id="pagination"></div>
+  </main>
+</div>
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true"><div class="modal-box"><button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button><div id="modal-body"></div></div></div>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+<footer class="site-footer"><div class="footer-bottom"><div class="container"><p>© 2026 Listily.au</p></div></div></footer>
+<div class="toast" id="toast"></div>
+<script src="js/data.js"></script><script src="js/utils.js"></script><script src="js/directory.js"></script>
+</body></html>

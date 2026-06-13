@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Listily.au — Australia's community business directory and local opportunities board. Find businesses, jobs, apprenticeships and volunteering near you.">
+  <meta name="theme-color" content="#1D9E75">
+  <meta property="og:title" content="Listily.au — Find Local. Support Local.">
+  <meta property="og:description" content="Australia's community business directory and local opportunities board.">
+  <meta property="og:type" content="website">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=()">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self';">
+  <title>Listily.au — Find Local. Support Local.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="index.html" class="nav-logo" aria-label="Listily home">
+      <div class="logo-icon">
+        <div class="logo-l-v"></div><div class="logo-l-h"></div>
+        <div class="logo-dot-1"></div><div class="logo-dot-2"></div>
+      </div>
+      <span class="logo-word">l<span class="li">i</span>st<span class="li">i</span>ly</span>
+      <span class="logo-suffix">.au</span>
+    </a>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="directory.html" class="nav-link">Businesses</a>
+      <a href="opportunities.html" class="nav-link">Opportunities</a>
+      <a href="register.html" class="nav-link">Add listing</a>
+    </div>
+    <div class="nav-actions">
+      <a href="admin.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-shield-halved"></i> Admin</a>
+      <a href="register.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Add your business</a>
+      <button class="nav-burger" id="nav-burger" aria-label="Toggle menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid-bg" aria-hidden="true"></div>
+  <div class="container hero-content">
+    <div class="hero-eyebrow"><span class="flag">🇦🇺</span> Your local community directory</div>
+    <h1 class="hero-title">Find local businesses<br><span class="hero-accent">and opportunities</span></h1>
+    <p class="hero-sub">Discover trusted local businesses, jobs, apprenticeships, internships and volunteering — all in your suburb.</p>
+
+    <div class="hero-search-wrap">
+      <div class="search-tabs">
+        <button class="stab active" id="stab-biz" onclick="setSearchTab('biz')"><i class="fa-solid fa-building"></i> Businesses</button>
+        <button class="stab" id="stab-opp" onclick="setSearchTab('opp')"><i class="fa-solid fa-briefcase"></i> Opportunities</button>
+      </div>
+      <div class="hero-search-box" id="hsb-biz">
+        <div class="hsb-row">
+          <div class="hsb-field hsb-kw">
+            <i class="fa-solid fa-magnifying-glass hsb-icon"></i>
+            <input type="text" id="hs-kw-biz" placeholder="Business name or service…" autocomplete="off" aria-label="Search business">
+            <div class="ac-dropdown" id="ac-biz"></div>
+          </div>
+          <div class="hsb-field hsb-loc">
+            <i class="fa-solid fa-location-dot hsb-icon"></i>
+            <input type="text" id="hs-loc-biz" placeholder="Suburb or postcode…" list="suburb-ac-biz" aria-label="Location">
+            <datalist id="suburb-ac-biz"></datalist>
+          </div>
+          <div class="hsb-field hsb-state">
+            <i class="fa-solid fa-map hsb-icon"></i>
+            <select id="hs-state-biz" aria-label="State">
+              <option value="">All states</option>
+              <option value="VIC">VIC</option><option value="NSW">NSW</option>
+              <option value="QLD">QLD</option><option value="WA">WA</option>
+              <option value="SA">SA</option><option value="TAS">TAS</option>
+              <option value="ACT">ACT</option><option value="NT">NT</option>
+            </select>
+          </div>
+          <button class="btn-search" onclick="heroSearch('biz')"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+        </div>
+      </div>
+      <div class="hero-search-box" id="hsb-opp" style="display:none">
+        <div class="hsb-row">
+          <div class="hsb-field hsb-kw">
+            <i class="fa-solid fa-magnifying-glass hsb-icon"></i>
+            <input type="text" id="hs-kw-opp" placeholder="Role, skill or organisation…" autocomplete="off" aria-label="Search opportunity">
+          </div>
+          <div class="hsb-field hsb-loc">
+            <i class="fa-solid fa-location-dot hsb-icon"></i>
+            <input type="text" id="hs-loc-opp" placeholder="Suburb or postcode…" aria-label="Location">
+          </div>
+          <div class="hsb-field hsb-state">
+            <i class="fa-solid fa-briefcase hsb-icon"></i>
+            <select id="hs-type-opp" aria-label="Opportunity type">
+              <option value="">All types</option>
+              <option value="Job">Job</option>
+              <option value="Apprenticeship">Apprenticeship</option>
+              <option value="Traineeship">Traineeship</option>
+              <option value="Internship">Internship</option>
+              <option value="Volunteering">Volunteering</option>
+              <option value="Work Experience">Work Experience</option>
+            </select>
+          </div>
+          <button class="btn-search" onclick="heroSearch('opp')"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-tags">
+      <span class="tags-label">Popular:</span>
+      <a href="directory.html?industry=Hospitality+%26+Food" class="htag">Restaurants</a>
+      <a href="directory.html?industry=Real+Estate+%26+Property" class="htag">Real Estate</a>
+      <a href="directory.html?industry=Home+%26+Trade+Services" class="htag">Plumbers</a>
+      <a href="opportunities.html?type=Apprenticeship" class="htag">Apprenticeships</a>
+      <a href="opportunities.html?type=Volunteering" class="htag">Volunteering</a>
+      <a href="directory.html?industry=Health+%26+Medical" class="htag">Doctors</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hs-item"><strong id="stat-biz">29+</strong><span>Businesses</span></div>
+      <div class="hs-div"></div>
+      <div class="hs-item"><strong id="stat-opp">12+</strong><span>Opportunities</span></div>
+      <div class="hs-div"></div>
+      <div class="hs-item"><strong>380+</strong><span>Suburbs</span></div>
+      <div class="hs-div"></div>
+      <div class="hs-item"><strong>8</strong><span>States</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATE STRIP -->
+<section class="section-states">
+  <div class="container">
+    <div class="states-row">
+      <a href="directory.html?state=VIC" class="state-chip">VIC — Victoria</a>
+      <a href="directory.html?state=NSW" class="state-chip">NSW — New South Wales</a>
+      <a href="directory.html?state=QLD" class="state-chip">QLD — Queensland</a>
+      <a href="directory.html?state=WA"  class="state-chip">WA — Western Australia</a>
+      <a href="directory.html?state=SA"  class="state-chip">SA — South Australia</a>
+      <a href="directory.html?state=TAS" class="state-chip">TAS — Tasmania</a>
+      <a href="directory.html?state=ACT" class="state-chip">ACT</a>
+      <a href="directory.html?state=NT"  class="state-chip">NT — Northern Territory</a>
+    </div>
+  </div>
+</section>
+
+<!-- BROWSE BY INDUSTRY -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div><p class="eyebrow">Browse by industry</p><h2 class="section-title">What are you looking for?</h2></div>
+      <a href="directory.html" class="btn btn-ghost">View all <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="industry-grid" id="industry-grid"></div>
+  </div>
+</section>
+
+
+<!-- EMERGENCY & SUPPORT -->
+<section class="section-emergency">
+  <div class="container emerg-inner">
+    <div class="emerg-text">
+      <h2><i class="fa-solid fa-phone-volume"></i> Emergency &amp; support services</h2>
+      <p>Immediate help available — free, confidential, 24/7</p>
+    </div>
+    <div class="emerg-pills">
+      <a href="tel:000" class="emerg-pill"><i class="fa-solid fa-truck-medical"></i> 000 — Emergency</a>
+      <a href="tel:131114" class="emerg-pill"><i class="fa-solid fa-heart"></i> Lifeline 13 11 14</a>
+      <a href="tel:1300224636" class="emerg-pill"><i class="fa-solid fa-brain"></i> Beyond Blue</a>
+      <a href="tel:180055 1800" class="emerg-pill"><i class="fa-solid fa-child"></i> Kids Helpline</a>
+      <a href="directory.html?industry=Emergency+%26+Support" class="emerg-pill"><i class="fa-solid fa-list"></i> All support services</a>
+    </div>
+  </div>
+</section>
+
+<!-- OPPORTUNITIES STRIP -->
+<section class="section opp-section">
+  <div class="container">
+    <div class="section-head">
+      <div><p class="eyebrow">Local opportunities</p><h2 class="section-title">Jobs, apprenticeships &amp; more</h2></div>
+      <a href="opportunities.html" class="btn btn-ghost">Browse all <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="opp-type-pills">
+      <button class="otp active" onclick="filterOppStrip('',this)">All</button>
+      <button class="otp" onclick="filterOppStrip('Job',this)"><i class="fa-solid fa-briefcase"></i> Jobs</button>
+      <button class="otp" onclick="filterOppStrip('Apprenticeship',this)"><i class="fa-solid fa-hammer"></i> Apprenticeships</button>
+      <button class="otp" onclick="filterOppStrip('Traineeship',this)"><i class="fa-solid fa-graduation-cap"></i> Traineeships</button>
+      <button class="otp" onclick="filterOppStrip('Internship',this)"><i class="fa-solid fa-laptop"></i> Internships</button>
+      <button class="otp" onclick="filterOppStrip('Volunteering',this)"><i class="fa-solid fa-heart"></i> Volunteering</button>
+      <button class="otp" onclick="filterOppStrip('Work Experience',this)"><i class="fa-solid fa-seedling"></i> Work experience</button>
+    </div>
+    <div class="opp-grid" id="opp-strip"></div>
+    <div style="text-align:center;margin-top:1.5rem">
+      <a href="register.html#opportunity" class="btn btn-ghost" style="border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.8)"><i class="fa-solid fa-plus"></i> Post an opportunity — free</a>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED BUSINESSES -->
+<section class="section bg-tint">
+  <div class="container">
+    <div class="section-head">
+      <div><p class="eyebrow">Spotlight</p><h2 class="section-title">Featured businesses</h2></div>
+      <a href="directory.html" class="btn btn-ghost">Browse all <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="biz-grid" id="featured-grid"></div>
+  </div>
+</section>
+
+<!-- RECENTLY ADDED -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div><p class="eyebrow">New to Listily</p><h2 class="section-title">Recently added</h2></div>
+      <a href="directory.html?sort=newest" class="btn btn-ghost">See more <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="recent-list" id="recent-list"></div>
+  </div>
+</section>
+
+<!-- WHY LISTILY -->
+<section class="section why-section">
+  <div class="container">
+    <div class="section-head center">
+      <div><p class="eyebrow">Why Listily</p><h2 class="section-title">Built for Australians</h2></div>
+    </div>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-icon wi-green"><i class="fa-solid fa-shield-check"></i></div>
+        <h3>Admin-verified</h3>
+        <p>Every listing is reviewed before it goes live. No spam, no fake businesses.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon wi-blue"><i class="fa-solid fa-clock"></i></div>
+        <h3>Live open/closed</h3>
+        <p>See whether a business is open right now based on their actual trading hours.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon wi-amber"><i class="fa-solid fa-map-location-dot"></i></div>
+        <h3>Suburb-level search</h3>
+        <p>Filter by state, suburb or postcode — find exactly what you need nearby.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon wi-teal"><i class="fa-solid fa-briefcase"></i></div>
+        <h3>Local opportunities</h3>
+        <p>Jobs, apprenticeships, internships and volunteering from local businesses.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section-cta">
+  <div class="container cta-inner">
+    <div>
+      <h2>Ready to join Listily?</h2>
+      <p>Add your business and post opportunities — free, fast, and community-verified.</p>
+    </div>
+    <div class="cta-actions">
+      <a href="register.html" class="btn btn-cta-white"><i class="fa-solid fa-building-user"></i> Add your business</a>
+      <a href="register.html#opportunity" class="btn btn-cta-outline"><i class="fa-solid fa-briefcase"></i> Post an opportunity</a>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="logo-icon sm"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div>
+        <span class="logo-word sm">l<span class="li">i</span>st<span class="li">i</span>ly</span>
+        <span class="logo-suffix sm">.au</span>
+      </div>
+      <p>Australia's community-powered business directory and local opportunities board. Free to list. Easy to find.</p>
+      <div class="footer-social">
+        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Directory</h4>
+      <a href="directory.html">Browse all</a>
+      <a href="directory.html?state=VIC">Victoria</a>
+      <a href="directory.html?state=NSW">New South Wales</a>
+      <a href="directory.html?state=QLD">Queensland</a>
+      <a href="directory.html?state=WA">Western Australia</a>
+    </div>
+    <div class="footer-col">
+      <h4>Opportunities</h4>
+      <a href="opportunities.html">All opportunities</a>
+      <a href="opportunities.html?type=Job">Jobs</a>
+      <a href="opportunities.html?type=Apprenticeship">Apprenticeships</a>
+      <a href="opportunities.html?type=Internship">Internships</a>
+      <a href="opportunities.html?type=Volunteering">Volunteering</a>
+    </div>
+    <div class="footer-col">
+      <h4>Business</h4>
+      <a href="register.html">Add your listing</a>
+      <a href="register.html#opportunity">Post an opportunity</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy policy</a>
+      <a href="terms.html">Terms of use</a>
+      <a href="admin.html">Admin</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="container">
+      <p>© 2026 Listily.au — Australian Business Directory &amp; Opportunities Board. All listings are community-submitted and admin-verified.</p>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="js/data.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/home.js"></script>
+</body>
+</html>
