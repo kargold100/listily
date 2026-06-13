@@ -5,6 +5,12 @@ Find businesses, jobs, apprenticeships, internships and volunteering — all in 
 
 ---
 
+
+> **⚠️ GitHub Pages — repo page vs site URL**
+> When you visit your repo on GitHub (`github.com/YOUR-USERNAME/listily`), you see the **README** — that's normal.
+> Your **actual site** is at `https://YOUR-USERNAME.github.io/listily/` — a completely different URL.
+> After deploying, go to **Settings → Pages** to find the exact link, or check the **Actions** tab for the URL printed at the end of the deploy job.
+
 ## 📦 What's included
 
 | File | Purpose |

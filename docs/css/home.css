@@ -120,3 +120,24 @@
   .btn-search{width:100%;justify-content:center;border-radius:var(--r-md)}
   .hero-search-box{border-radius:0 0 12px 12px}
 }
+
+/* ── Emergency strip ──────────────────────────────────────────── */
+.section-emergency{background:linear-gradient(135deg,#7B0000 0%,#A32D2D 100%);padding:2rem 0}
+.emerg-inner{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}
+.emerg-text h2{font-family:var(--font-d);font-size:18px;font-weight:700;color:#fff;margin-bottom:4px}
+.emerg-text p{font-size:13px;color:rgba(255,255,255,.75)}
+.emerg-pills{display:flex;gap:8px;flex-wrap:wrap}
+.emerg-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r-full);background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;font-weight:500;text-decoration:none;transition:all .15s;white-space:nowrap}
+.emerg-pill:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.5)}
+.emerg-pill i{font-size:13px}
+
+/* ── Better card grid with hover lift ─────────────────────────── */
+.biz-grid .biz-card:hover{transform:translateY(-2px)}
+.biz-grid .biz-card{transition:border-color .15s,box-shadow .15s,transform .15s}
+
+/* ── Section spacing refinements ──────────────────────────────── */
+.section{padding:3.5rem 0}
+.section+.section{padding-top:0}
+
+/* ── Featured badge on biz cards ──────────────────────────────── */
+.featured-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;background:var(--amber-bg);color:var(--amber-t);padding:2px 8px;border-radius:var(--r-full);margin-left:6px}

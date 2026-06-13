@@ -14,6 +14,7 @@ const INDUSTRIES=[
   {name:"Fitness & Sport",icon:"fa-dumbbell",col:"red"},
   {name:"Events & Entertainment",icon:"fa-star",col:"purple"},
   {name:"Home Business",icon:"fa-house-laptop",col:"amber"},
+  {name:"Emergency & Support",icon:"fa-phone-volume",col:"red"},
 ];
 
 const COL={green:"background:var(--green-bg);color:var(--green-t)",blue:"background:var(--blue-bg);color:var(--blue-t)",amber:"background:var(--amber-bg);color:var(--amber-t)",red:"background:var(--red-bg);color:var(--red-t)",purple:"background:var(--purple-bg);color:var(--purple-t)"};
