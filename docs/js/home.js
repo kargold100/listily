@@ -20,6 +20,7 @@ const INDUSTRIES=[
   {name:"Emergency & Support",     icon:"fa-phone-volume",       col:"red"},
   {name:"Pet Services",            icon:"fa-paw",                col:"amber"},
   {name:"NFP & Charities",         icon:"fa-hand-holding-heart", col:"green"},
+  {name:"Driving Schools",          icon:"fa-car-side",             col:"blue"},
 ];
 
 const COL={green:"background:var(--green-bg);color:var(--green-t)",blue:"background:var(--blue-bg);color:var(--blue-t)",amber:"background:var(--amber-bg);color:var(--amber-t)",red:"background:var(--red-bg);color:var(--red-t)",purple:"background:var(--purple-bg);color:var(--purple-t)"};
