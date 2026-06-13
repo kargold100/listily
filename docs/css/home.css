@@ -54,17 +54,28 @@
 .stab.active{background:#fff;color:var(--brand-dark);border-color:#fff}
 .stab:not(.active):hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.8)}
 .hero-search-box{
-  background:#fff;border-radius:0 16px 16px 16px;
+  background:#ffffff;border-radius:0 16px 16px 16px;
   padding:7px;box-shadow:0 20px 60px rgba(0,0,0,.35);
+  /* Always white regardless of dark mode */
+  color-scheme:light;
 }
 .hsb-row{display:flex;align-items:center;gap:0}
 .hsb-field{display:flex;align-items:center;flex:1;position:relative}
-.hsb-field+.hsb-field{border-left:1.5px solid #F0F0EC}
-.hsb-icon{position:absolute;left:15px;color:var(--text-3);font-size:13px;z-index:1;pointer-events:none}
+.hsb-field+.hsb-field{border-left:1.5px solid #E8E8E4}
+/* icon always dark grey against white box */
+.hsb-icon{position:absolute;left:15px;color:#6B7280;font-size:13px;z-index:1;pointer-events:none}
 .hsb-field input,.hsb-field select{
   width:100%;padding:14px 15px 14px 40px;
   border:none;outline:none;font-size:14px;
-  background:transparent;color:var(--text);font-family:var(--font);
+  /* hardcoded dark text — always readable on white box */
+  background:transparent;color:#111827;font-family:var(--font);
+}
+.hsb-field input::placeholder{color:#9CA3AF}
+.hsb-field select{color:#111827;cursor:pointer}
+/* Focus ring inside search box */
+.hsb-field input:focus,.hsb-field select:focus{
+  outline:none;box-shadow:inset 0 0 0 2px rgba(26,158,114,.35);
+  border-radius:10px;background:rgba(26,158,114,.03);
 }
 .hsb-kw{flex:2.2}.hsb-loc{flex:1.6}.hsb-state{flex:1.1}
 .btn-search{
@@ -104,9 +115,9 @@
 }
 .states-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .state-chip{
-  padding:6px 16px;border:1px solid var(--border);border-radius:var(--r-full);
-  text-decoration:none;font-size:12.5px;font-weight:500;color:var(--text-2);
-  background:transparent;transition:all .15s;
+  padding:6px 16px;border:1.5px solid var(--border);border-radius:var(--r-full);
+  text-decoration:none;font-size:12.5px;font-weight:600;color:var(--text-2);
+  background:var(--bg-card);transition:all .18s;
 }
 .state-chip:hover{background:var(--brand-bg);border-color:var(--brand-border);color:var(--brand-dark);transform:translateY(-1px)}
 
@@ -252,7 +263,7 @@
 
 @media(max-width:640px){
   .hsb-row{flex-direction:column}
-  .hsb-field+.hsb-field{border-left:none;border-top:1.5px solid #F0F0EC}
+  .hsb-field+.hsb-field{border-left:none;border-top:1.5px solid #E8E8E4}
   .btn-search{width:100%;justify-content:center;border-radius:var(--r-md)}
   .hero-search-box{border-radius:0 0 16px 16px}
   .hero{padding:4rem 0 3.5rem}

@@ -188,17 +188,171 @@ function renderRejected() {
 
 function renderAnalytics() {
   const el = document.getElementById('admin-pane-analytics');
+
+  // ── Directory stats ────────────────────────────────────────────
   const ab = DB.filter(b => b.status === 'approved');
   const ao = OPPORTUNITIES.filter(o => o.status === 'approved');
   const sc={}, ic={}, tc={};
   ab.forEach(b => { sc[b.state]=(sc[b.state]||0)+1; ic[b.industry]=(ic[b.industry]||0)+1; });
   ao.forEach(o => { tc[o.type]=(tc[o.type]||0)+1; });
   const mS=Math.max(...Object.values(sc),1), mI=Math.max(...Object.values(ic),1), mT=Math.max(...Object.values(tc),1);
-  el.innerHTML = `<div class="analytics-grid">
-    <div class="analytics-card"><h3>Businesses by state</h3>${Object.entries(sc).sort((a,b)=>b[1]-a[1]).map(([s,n])=>`<div class="bar-row"><span class="bar-lbl">${escHtml(s)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/mS*100)}%"></div></div><span class="bar-val">${n}</span></div>`).join('')}</div>
-    <div class="analytics-card"><h3>Top industries</h3>${Object.entries(ic).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([ind,n])=>`<div class="bar-row"><span class="bar-lbl" title="${escHtml(ind)}">${escHtml(ind)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/mI*100)}%"></div></div><span class="bar-val">${n}</span></div>`).join('')}</div>
-    <div class="analytics-card"><h3>Opportunities by type</h3>${Object.entries(tc).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`<div class="bar-row"><span class="bar-lbl">${escHtml(t)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/mT*100)}%"></div></div><span class="bar-val">${n}</span></div>`).join('')}</div>
-  </div>`;
+
+  // ── Usage analytics from localStorage ─────────────────────────
+  let usageHTML = '';
+  try {
+    const store = window.Listily?.getStore?.() || null;
+    if (store && store.events && store.events.length > 0) {
+      const events = store.events;
+      const sessions = store.session_count || 0;
+      const firstVisit = store.first_visit ? new Date(store.first_visit).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : 'Unknown';
+
+      // Page views
+      const pvs = events.filter(e => e.t === 'pageview');
+      const pvByPage = {};
+      pvs.forEach(e => { pvByPage[e.pg]=(pvByPage[e.pg]||0)+1; });
+      const maxPV = Math.max(...Object.values(pvByPage),1);
+
+      // Search terms
+      const searches = events.filter(e => e.t === 'search_biz' || e.t === 'search_opp' || e.t === 'filter_keyword');
+      const searchTerms = {};
+      searches.forEach(e => {
+        const q = (e.d?.q || '').toLowerCase().trim();
+        if (q) searchTerms[q]=(searchTerms[q]||0)+1;
+      });
+      const topSearches = Object.entries(searchTerms).sort((a,b)=>b[1]-a[1]).slice(0,10);
+
+      // Industry clicks
+      const indClicks = {};
+      events.filter(e => e.t === 'industry_click').forEach(e => {
+        const ind = e.d?.industry || 'Unknown';
+        indClicks[ind]=(indClicks[ind]||0)+1;
+      });
+      const maxIC = Math.max(...Object.values(indClicks),1);
+
+      // State filter usage
+      const stateUse = {};
+      events.filter(e => e.t === 'filter_state' || e.t === 'state_chip_click').forEach(e => {
+        const s = e.d?.state || 'Unknown';
+        stateUse[s]=(stateUse[s]||0)+1;
+      });
+
+      // CTA clicks
+      const ctaClicks = events.filter(e => e.t === 'cta_click').slice(-20).reverse();
+
+      // Activity by day (last 14 days)
+      const days = {};
+      const now = new Date();
+      for (let i=13;i>=0;i--) {
+        const d = new Date(now); d.setDate(d.getDate()-i);
+        days[d.toISOString().slice(0,10)] = 0;
+      }
+      pvs.forEach(e => {
+        const day = e.ts?.slice(0,10);
+        if (days[day] !== undefined) days[day]++;
+      });
+      const maxDay = Math.max(...Object.values(days),1);
+
+      usageHTML = `
+        <div style="margin-bottom:1.5rem">
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:.5rem">Usage overview</h3>
+          <p style="font-size:13px;color:var(--text-3)">Collected locally from this browser. Data resets when browser storage is cleared. <button onclick="if(confirm('Clear all usage data?')){window.Listily.clearAnalytics();renderAdminDash()}" style="font-size:12px;color:var(--red-t);background:none;border:none;cursor:pointer;padding:0;margin-left:6px">Clear data</button> <button onclick="window.Listily.exportCSV()" style="font-size:12px;color:var(--brand-dark);background:none;border:none;cursor:pointer;padding:0;margin-left:8px"><i class="fa-solid fa-download"></i> Export CSV</button></p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.5rem">
+          <div class="stat-card stat-green"><div class="stat-val">${pvs.length}</div><div class="stat-lbl">Page views</div></div>
+          <div class="stat-card stat-blue"><div class="stat-val">${sessions}</div><div class="stat-lbl">Sessions</div></div>
+          <div class="stat-card stat-amber"><div class="stat-val">${searches.length}</div><div class="stat-lbl">Searches</div></div>
+          <div class="stat-card stat-purple"><div class="stat-val">${events.filter(e=>e.t==='cta_click').length}</div><div class="stat-lbl">CTA clicks</div></div>
+          <div class="stat-card stat-gray"><div class="stat-val" style="font-size:16px">${firstVisit}</div><div class="stat-lbl">First visit</div></div>
+        </div>
+
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <h3>Activity — last 14 days</h3>
+            ${Object.entries(days).map(([day,n])=>`
+              <div class="bar-row" title="${day}">
+                <span class="bar-lbl" style="font-size:10px">${day.slice(5)}</span>
+                <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxDay*100)}%"></div></div>
+                <span class="bar-val">${n}</span>
+              </div>`).join('')}
+          </div>
+
+          <div class="analytics-card">
+            <h3>Page views by page</h3>
+            ${Object.entries(pvByPage).sort((a,b)=>b[1]-a[1]).map(([pg,n])=>`
+              <div class="bar-row">
+                <span class="bar-lbl">${escHtml(pg||'home')}</span>
+                <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxPV*100)}%"></div></div>
+                <span class="bar-val">${n}</span>
+              </div>`).join('')}
+          </div>
+
+          <div class="analytics-card">
+            <h3>Top search terms</h3>
+            ${topSearches.length ? topSearches.map(([q,n])=>`
+              <div class="bar-row">
+                <span class="bar-lbl" title="${escHtml(q)}">${escHtml(q)}</span>
+                <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/topSearches[0][1]*100)}%"></div></div>
+                <span class="bar-val">${n}</span>
+              </div>`).join('')
+            : '<p style="font-size:13px;color:var(--text-3)">No searches recorded yet.</p>'}
+          </div>
+
+          <div class="analytics-card">
+            <h3>Industry interest (clicks)</h3>
+            ${Object.keys(indClicks).length ? Object.entries(indClicks).sort((a,b)=>b[1]-a[1]).map(([ind,n])=>`
+              <div class="bar-row">
+                <span class="bar-lbl" title="${escHtml(ind)}">${escHtml(ind)}</span>
+                <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxIC*100)}%"></div></div>
+                <span class="bar-val">${n}</span>
+              </div>`).join('')
+            : '<p style="font-size:13px;color:var(--text-3)">No industry clicks yet.</p>'}
+          </div>
+
+          <div class="analytics-card">
+            <h3>State filter usage</h3>
+            ${Object.keys(stateUse).length ? Object.entries(stateUse).sort((a,b)=>b[1]-a[1]).map(([s,n])=>{
+              const mx = Math.max(...Object.values(stateUse));
+              return `<div class="bar-row"><span class="bar-lbl">${escHtml(s)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/mx*100)}%"></div></div><span class="bar-val">${n}</span></div>`;
+            }).join('')
+            : '<p style="font-size:13px;color:var(--text-3)">No state filters used yet.</p>'}
+          </div>
+
+          <div class="analytics-card">
+            <h3>Recent CTA clicks</h3>
+            ${ctaClicks.length ? ctaClicks.slice(0,8).map(e=>`
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px">
+                <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-2)">${escHtml(e.d?.label||'')}</span>
+                <span style="color:var(--text-3);font-size:10px;margin-left:8px;flex-shrink:0">${e.ts?.slice(0,10)||''}</span>
+              </div>`).join('')
+            : '<p style="font-size:13px;color:var(--text-3)">No CTA clicks recorded yet.</p>'}
+          </div>
+        </div>
+
+        <div style="margin-top:1.5rem;padding:1rem;background:var(--blue-bg);border:1px solid var(--blue-b);border-radius:var(--r-lg);font-size:13px;color:var(--blue-t)">
+          <i class="fa-solid fa-circle-info"></i>
+          <strong>Privacy note:</strong> This analytics data is stored only in <em>your browser's</em> localStorage. No data is sent to any external server. Each visitor's data is visible only to whoever opens the admin panel on that same device. For multi-device analytics, integrate a privacy-first service like Plausible or Fathom (see roadmap Phase 7).
+        </div>`;
+    } else {
+      usageHTML = `<div style="padding:2rem;text-align:center;color:var(--text-3)">
+        <i class="fa-solid fa-chart-bar" style="font-size:32px;display:block;margin-bottom:1rem;color:var(--border-2)"></i>
+        <p style="font-size:14px;">No usage data collected yet. Visit the site pages to start recording analytics.</p>
+      </div>`;
+    }
+  } catch(err) {
+    usageHTML = `<div style="padding:1rem;color:var(--text-3);font-size:13px">Analytics unavailable: ${escHtml(err.message)}</div>`;
+  }
+
+  el.innerHTML = `
+    <h2 style="font-size:18px;font-weight:600;margin-bottom:1.25rem">Analytics & directory health</h2>
+    ${usageHTML}
+    <hr style="border:none;border-top:1px solid var(--border);margin:2rem 0">
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:1rem">Directory breakdown</h3>
+    <div class="analytics-grid">
+      <div class="analytics-card"><h3>Listings by state</h3>${Object.entries(sc).sort((a,b)=>b[1]-a[1]).map(([s,n])=>`<div class="bar-row"><span class="bar-lbl">${escHtml(s)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/mS*100)}%"></div></div><span class="bar-val">${n}</span></div>`).join('')}</div>
+      <div class="analytics-card"><h3>Listings by industry</h3>${Object.entries(ic).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([ind,n])=>`<div class="bar-row"><span class="bar-lbl" title="${escHtml(ind)}">${escHtml(ind)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/mI*100)}%"></div></div><span class="bar-val">${n}</span></div>`).join('')}</div>
+      <div class="analytics-card"><h3>Opportunities by type</h3>${Object.entries(tc).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`<div class="bar-row"><span class="bar-lbl">${escHtml(t)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/mT*100)}%"></div></div><span class="bar-val">${n}</span></div>`).join('')}</div>
+    </div>`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {

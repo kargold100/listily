@@ -13,13 +13,14 @@
   <link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/register.css">
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 <nav class="navbar" id="navbar"><div class="nav-inner container">
   <a href="index.html" class="nav-logo"><div class="logo-icon"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div><span class="logo-word">l<span class="li">i</span>st<span class="li">i</span>ly</span><span class="logo-suffix">.au</span></a>
   <div class="nav-links" id="nav-links"><a href="index.html" class="nav-link">Home</a><a href="directory.html" class="nav-link">Businesses</a><a href="opportunities.html" class="nav-link">Opportunities</a><a href="register.html" class="nav-link active">Add listing</a></div>
   <div class="nav-actions"><a href="admin.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-shield-halved"></i> Admin</a><button class="nav-burger" id="nav-burger" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button></div>
 </div></nav>
 
-<div class="container" style="padding-top:2rem;padding-bottom:3rem;max-width:820px">
+<main id="main-content"><div class="container" style="padding-top:2rem;padding-bottom:3rem;max-width:820px">
   <div style="display:flex;gap:6px;margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1rem;flex-wrap:wrap">
     <button id="tab-biz" class="btn btn-primary" onclick="switchRegTab('biz')"><i class="fa-solid fa-building-user"></i> Register business</button>
     <button id="tab-opp" class="btn btn-ghost" onclick="switchRegTab('opp')"><i class="fa-solid fa-briefcase"></i> Post opportunity</button>
@@ -277,6 +278,7 @@
 
 <footer class="site-footer"><div class="footer-bottom"><div class="container"><p>© 2026 Listily.au</p></div></div></footer>
 <div class="toast" id="toast"></div>
+<script src="js/analytics.js"></script>
 <script src="js/data.js"></script><script src="js/utils.js"></script><script src="js/register.js"></script>
 <script>
 function switchRegTab(t){

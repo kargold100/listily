@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="css/directory.css">
 </head>
 <body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 <nav class="navbar" id="navbar"><div class="nav-inner container">
   <a href="index.html" class="nav-logo"><div class="logo-icon"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div><span class="logo-word">l<span class="li">i</span>st<span class="li">i</span>ly</span><span class="logo-suffix">.au</span></a>
   <div class="nav-links" id="nav-links">
@@ -41,7 +42,7 @@
     <button class="btn btn-primary full-btn" onclick="applyFilters()"><i class="fa-solid fa-sliders"></i> Apply</button>
     <button class="btn btn-ghost full-btn sidebar-close" id="sidebar-close" onclick="toggleSidebar(false)" style="margin-top:8px">Close</button>
   </aside>
-  <main class="dir-main">
+  <main id="main-content" class="dir-main">
     <div class="dir-topbar">
       <div><h1 class="dir-title" id="dir-title">All businesses</h1><p class="dir-count" id="dir-count"></p></div>
       <div class="dir-topbar-right">
@@ -61,5 +62,6 @@
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar(false)"></div>
 <footer class="site-footer"><div class="footer-bottom"><div class="container"><p>© 2026 Listily.au</p></div></div></footer>
 <div class="toast" id="toast"></div>
+<script src="js/analytics.js"></script>
 <script src="js/data.js"></script><script src="js/utils.js"></script><script src="js/directory.js"></script>
 </body></html>
