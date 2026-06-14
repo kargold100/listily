@@ -245,11 +245,11 @@
 <div class="sidebar-overlay" id="mentor-sidebar-overlay" onclick="toggleMentorSidebar(false)"></div>
 <div class="toast" id="toast"></div>
 
-<script src="js/analytics.js"></script>
-<script src="js/config.js"></script>
-<script src="js/reviews.js"></script>
-<script src="js/data.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/mentors.js"></script>
+<script src="js/analytics.js?v=10"></script>
+<script src="js/config.js?v=10"></script>
+<script src="js/reviews.js?v=10"></script>
+<script src="js/data.js?v=10"></script>
+<script src="js/utils.js?v=10"></script>
+<script src="js/mentors.js?v=10"></script>
 </body>
 </html>
