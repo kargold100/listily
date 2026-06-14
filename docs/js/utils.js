@@ -87,7 +87,10 @@ function renderBizCard(b){
     <div class="biz-card-header">
       <div class="biz-emoji" aria-hidden="true">${b.icon}</div>
       <div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
         <div class="biz-name">${escHtml(b.name)}</div>
+        ${(typeof Reviews !== 'undefined') ? (() => { const avg=Reviews.avgRating(b.id,'business'); const cnt=Reviews.getFor(b.id,'business').length; return avg ? `<span style="font-size:11px;color:#F59E0B;font-weight:600">${Reviews.starsHTML(avg,'sm')}</span><span style="font-size:11px;color:var(--text-3)">${avg} (${cnt})</span>` : ''; })() : ''}
+      </div>
         <div class="biz-loc"><i class="fa-solid fa-location-dot" style="font-size:10px"></i>${escHtml(b.suburb)}<span class="state-pill">${escHtml(b.state)}</span></div>
       </div>
     </div>
@@ -126,6 +129,12 @@ function openBizModal(id){
       ${oppTypeBadge(o.type)}
     </div>`).join("")}`:"";
 
+  const reviewsSection = `
+    <hr class="modal-divider">
+    <div class="modal-sec-lbl">Reviews</div>
+    <div id="biz-reviews-${b.id}"></div>
+    <div id="biz-review-form-${b.id}"></div>`;
+
   document.getElementById("modal-body").innerHTML=`
     <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:8px">
       <span style="font-size:36px" aria-hidden="true">${b.icon}</span>
@@ -142,7 +151,13 @@ function openBizModal(id){
     <div class="modal-sec-lbl">Trading hours</div>
     ${renderHoursTable(b.hours)}
     ${oppBlock}
-    <div class="modal-updated"><i class="fa-regular fa-calendar-check"></i>Last updated: <strong>${fmtDate(b.lastUpdated)||"Unknown"}</strong>${b.contact?` · Managed by ${escHtml(b.contact)}`:""}</div>`;
+    <div class="modal-updated"><i class="fa-regular fa-calendar-check"></i>Last updated: <strong>${fmtDate(b.lastUpdated)||"Unknown"}</strong>${b.contact?` · Managed by ${escHtml(b.contact)}`:""}</div>
+    ${reviewsSection}`;
+  // Mount reviews section
+  if (typeof Reviews !== 'undefined') {
+    Reviews.renderList('biz-reviews-' + b.id, b.id, 'business');
+    Reviews.renderForm('biz-review-form-' + b.id, b.id, 'business', b.name);
+  }
   openModal();
 }
 
@@ -190,7 +205,17 @@ function openOppDetail(id){
       ${o.email?`<a href="mailto:${escHtml(o.email)}?subject=${encodeURIComponent("Application: "+o.title)}" class="btn-apply"><i class="fa-solid fa-paper-plane"></i> Apply via email</a>`:""}
       ${o.phone?`<a href="tel:${escHtml(o.phone)}" class="btn-save"><i class="fa-solid fa-phone"></i> ${escHtml(o.phone)}</a>`:""}
     </div>
-    <div class="odd-posted"><i class="fa-regular fa-clock"></i>${relPosted(o.postedAt)}${o.contact?` · Contact: ${escHtml(o.contact)}`:""}</div>`;
+    <div class="odd-posted"><i class="fa-regular fa-clock"></i>${relPosted(o.postedAt)}${o.contact?` · Contact: ${escHtml(o.contact)}`:""}</div>
+    <div id="opp-reviews-${o.id}"></div>
+    <div id="opp-review-form-${o.id}"></div>`;
+
+  // Mount reviews
+  setTimeout(() => {
+    if (typeof Reviews !== 'undefined') {
+      Reviews.renderList('opp-reviews-' + o.id, o.id, 'opportunity');
+      Reviews.renderForm('opp-review-form-' + o.id, o.id, 'opportunity', o.title);
+    }
+  }, 50);
 
   // Use side panel if available, else modal
   const panel=document.getElementById("opp-detail-panel");

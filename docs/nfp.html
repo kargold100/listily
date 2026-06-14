@@ -249,6 +249,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="js/analytics.js"></script>
+<script src="js/reviews.js"></script>
 <script src="js/data.js"></script>
 <script src="js/utils.js"></script>
 <script>
@@ -332,7 +333,10 @@ function renderNFPGrid(list) {
       <div class="biz-card-header">
         <div class="biz-emoji" aria-hidden="true">${b.icon}</div>
         <div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
           <div class="biz-name">${escHtml(b.name)}</div>
+          ${(typeof Reviews!=='undefined')?(()=>{const avg=Reviews.avgRating(b.id,'business');const cnt=Reviews.getFor(b.id,'business').length;return avg?`<span style="font-size:11px;color:#F59E0B">${Reviews.starsHTML(avg,'sm')}</span><span style="font-size:10px;color:var(--text-3)">${avg} (${cnt})</span>`:'';})():''}
+        </div>
           <div class="biz-loc"><i class="fa-solid fa-location-dot" style="font-size:10px"></i>${escHtml(b.suburb)}, ${escHtml(b.state)}</div>
           <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
             ${isDonate ? '<span class="nfp-badge"><i class="fa-solid fa-box-open"></i>Accepts donations</span>' : ''}

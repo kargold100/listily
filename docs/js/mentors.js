@@ -43,6 +43,7 @@ function renderMentorCard(m) {
       <div class="mavatar">${escHtml(initials)}</div>
       <div>
         <div class="mname">${escHtml(m.name)}</div>
+      ${(typeof Reviews!=='undefined') ? (()=>{const avg=Reviews.avgRating(m.id,'mentor');const cnt=Reviews.getFor(m.id,'mentor').length;return avg?`<span style="font-size:11px;color:#F59E0B">${Reviews.starsHTML(avg,'sm')}</span><span style="font-size:10px;color:var(--text-3)"> ${avg} (${cnt})</span>`:''})():''}
         <div class="mspecialty"><i class="fa-solid fa-star" style="font-size:10px"></i> ${escHtml(m.specialty)}</div>
         <div class="mloc"><i class="fa-solid fa-location-dot" style="font-size:10px"></i> ${escHtml(m.suburb)}, ${escHtml(m.state)}</div>
       </div>
@@ -119,9 +120,18 @@ function openMentorModal(id) {
         <i class="fa-solid fa-circle-info" style="margin-right:5px"></i>
         Mentoring on Listily is free and community-driven. Please be respectful of mentors' time — reach out with a clear message about your goals and what you're hoping to get from the connection.
       </p>
-    </div>`;
+    </div>
+    <hr class="modal-divider">
+    <div class="modal-sec-lbl">Reviews</div>
+    <div id="mentor-reviews-${m.id}"></div>
+    <div id="mentor-review-form-${m.id}"></div>`;
 
   openModal();
+  // Mount reviews after modal is open
+  if (typeof Reviews !== 'undefined') {
+    Reviews.renderList('mentor-reviews-' + m.id, m.id, 'mentor');
+    Reviews.renderForm('mentor-review-form-' + m.id, m.id, 'mentor', m.name);
+  }
 }
 
 function applyMentorFilters() {

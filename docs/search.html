@@ -303,6 +303,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="js/analytics.js"></script>
+<script src="js/reviews.js"></script>
 <script src="js/data.js"></script>
 <script src="js/utils.js"></script>
 <script>
@@ -521,8 +522,14 @@ function openMentorModal(id) {
     <hr style="border:none;border-top:1px solid var(--border);margin:1rem 0">
     ${m.email ? `<div style="font-size:13px;margin-bottom:6px"><i class="fa-solid fa-envelope" style="color:var(--brand);margin-right:8px"></i><a href="mailto:${escHtml(m.email)}">${escHtml(m.email)}</a></div>` : ''}
     ${m.whitelistPhone && m.phone ? `<div style="font-size:13px;margin-bottom:6px"><i class="fa-solid fa-phone" style="color:var(--brand);margin-right:8px"></i><a href="tel:${escHtml(m.phone)}">${escHtml(m.phone)}</a></div>` : ''}
-    <a href="mentors.html" class="btn btn-mentor" style="width:100%;justify-content:center;margin-top:1rem">View all mentors</a>`;
+    <a href="mentors.html" class="btn btn-mentor" style="width:100%;justify-content:center;margin-top:1rem">View all mentors</a>
+    <div id="search-mentor-reviews-${m.id}"></div>
+    <div id="search-mentor-review-form-${m.id}"></div>`;
   openModal();
+  if (typeof Reviews !== 'undefined') {
+    Reviews.renderList('search-mentor-reviews-' + m.id, m.id, 'mentor');
+    Reviews.renderForm('search-mentor-review-form-' + m.id, m.id, 'mentor', m.name);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

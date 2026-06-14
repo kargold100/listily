@@ -53,11 +53,11 @@ function updateStats() {
   if (badge) { badge.textContent = tot; badge.style.display = tot > 0 ? 'inline-flex' : 'none'; }
 }
 
-function renderAdminDash() { updateStats(); renderPending(); renderApproved(); renderRejected(); renderOppPending(); renderOppApproved(); renderExpired(); renderBulkUpload(); renderAnalytics(); }
+function renderAdminDash() { updateStats(); renderPending(); renderApproved(); renderRejected(); renderOppPending(); renderOppApproved(); renderExpired(); renderBulkUpload(); renderReviews(); renderAnalytics(); }
 
 function switchAdminTab(t, btn) {
   document.querySelectorAll('.atab').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-  ['pending','approved','rejected','opp-pending','opp-approved','expired','bulk-upload','analytics'].forEach(tab => {
+  ['pending','approved','rejected','opp-pending','opp-approved','expired','bulk-upload','reviews','analytics'].forEach(tab => {
     document.getElementById('admin-pane-' + tab).style.display = tab === t ? 'block' : 'none';
   });
 }
@@ -610,4 +610,94 @@ function importJSON(autoApprove=false) {
   result.innerHTML = `<span style="color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> ${count} listings imported${autoApprove?' and approved':' as pending'}.</span>`;
   document.getElementById('json-paste').value = '';
   renderAdminDash();
+}
+
+// ─── Reviews admin panel ─────────────────────────────────────────
+function renderReviews() {
+  const el = document.getElementById('admin-pane-reviews');
+  if (!el || typeof Reviews === 'undefined') return;
+
+  const all = Reviews.getAll();
+  const pending  = all.filter(r => r.status === 'pending');
+  const approved = all.filter(r => r.status === 'approved');
+  const reported = all.filter(r => r.reported && r.status === 'approved');
+  const removed  = all.filter(r => r.status === 'removed');
+  const autoOn   = Reviews.getAutoApprove();
+
+  // Update pending badge
+  const badge = document.getElementById('atab-reviews');
+  if (badge) { badge.textContent = pending.length; badge.style.display = pending.length ? 'inline-flex' : 'none'; }
+
+  el.innerHTML = `
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
+    <div>
+      <h2 style="font-size:18px;font-weight:600;margin-bottom:4px">Reviews moderation</h2>
+      <p style="font-size:13px;color:var(--text-3)">${all.length} total · ${pending.length} pending · ${approved.length} approved · ${reported.length} flagged</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <label class="toggle-row" style="gap:8px">
+        <input type="checkbox" id="review-auto-approve" ${autoOn ? 'checked' : ''} onchange="Reviews.setAutoApprove(this.checked);showToast(this.checked?'Auto-approve ON':'Auto-approve OFF')">
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        <span class="toggle-lbl" style="font-size:13px">Auto-approve new reviews</span>
+      </label>
+      <button class="btn btn-ghost btn-sm" onclick="Reviews.exportCSV()"><i class="fa-solid fa-download"></i> Export CSV</button>
+      <button class="btn btn-ghost btn-sm" style="color:var(--red-t)" onclick="if(confirm('Delete ALL reviews permanently?')){Reviews.clearAll();renderAdminDash();}"><i class="fa-solid fa-trash"></i> Clear all</button>
+    </div>
+  </div>
+
+  ${pending.length ? `
+    <h3 style="font-size:14px;font-weight:600;color:var(--amber-t);margin-bottom:.75rem;display:flex;align-items:center;gap:6px">
+      <i class="fa-solid fa-clock"></i> Pending approval (${pending.length})
+    </h3>
+    <div class="list-table" style="margin-bottom:1.5rem">
+      ${pending.map(r => reviewAdminCard(r, true)).join('')}
+    </div>` : ''}
+
+  ${reported.length ? `
+    <h3 style="font-size:14px;font-weight:600;color:var(--red-t);margin-bottom:.75rem;display:flex;align-items:center;gap:6px">
+      <i class="fa-solid fa-flag"></i> Flagged by users (${reported.length})
+    </h3>
+    <div class="list-table" style="margin-bottom:1.5rem">
+      ${reported.map(r => reviewAdminCard(r, false)).join('')}
+    </div>` : ''}
+
+  ${approved.filter(r => !r.reported).length ? `
+    <h3 style="font-size:14px;font-weight:600;color:var(--green-t);margin-bottom:.75rem;display:flex;align-items:center;gap:6px">
+      <i class="fa-solid fa-circle-check"></i> Live reviews (${approved.filter(r=>!r.reported).length})
+    </h3>
+    <div class="list-table" style="margin-bottom:1.5rem">
+      ${approved.filter(r => !r.reported).map(r => reviewAdminCard(r, false)).join('')}
+    </div>` : `<div class="no-results" style="padding:2rem"><i class="fa-regular fa-star"></i><h3>No reviews yet</h3><p>Reviews will appear here as visitors submit them.</p></div>`}
+
+  ${removed.length ? `
+    <details style="margin-top:1rem">
+      <summary style="font-size:13px;color:var(--text-3);cursor:pointer;padding:.5rem 0">Removed reviews (${removed.length})</summary>
+      <div class="list-table" style="margin-top:.5rem">
+        ${removed.map(r => reviewAdminCard(r, false)).join('')}
+      </div>
+    </details>` : ''}`;
+}
+
+function reviewAdminCard(r, isPending) {
+  const stars = typeof Reviews !== 'undefined' ? Reviews.starsHTML(r.rating, 'sm') : '';
+  const date  = r.ts ? new Date(r.ts).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}) : '';
+  return `<div class="list-row" style="flex-direction:column;align-items:flex-start;gap:8px;padding:1rem">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;width:100%;gap:1rem;flex-wrap:wrap">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          ${stars}
+          <span style="font-size:13px;font-weight:600">${escHtml(r.title || '(no title)')}</span>
+          ${r.reported ? '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--red-bg);color:var(--red-t)">Flagged</span>' : ''}
+        </div>
+        <div style="font-size:12px;color:var(--text-3)">${escHtml(r.reviewer)} · ${escHtml(r.suburb||'')} · ${date} · <strong>${escHtml(r.listingName||r.listingId)}</strong> (${escHtml(r.listingType)})</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0">
+        ${isPending || r.status === 'removed' ? `<button class="btn-approve" onclick="Reviews.approve('${r.id}');renderAdminDash()"><i class="fa-solid fa-check"></i> Approve</button>` : ''}
+        ${r.status === 'approved' ? `<button class="btn-preview-sm" onclick="Reviews.remove('${r.id}');renderAdminDash()"><i class="fa-solid fa-eye-slash"></i> Remove</button>` : ''}
+        <button class="btn-reject-act" onclick="if(confirm('Permanently delete this review?')){Reviews.purge('${r.id}');renderAdminDash()}"><i class="fa-solid fa-trash"></i> Delete</button>
+      </div>
+    </div>
+    ${r.body ? `<p style="font-size:13px;color:var(--text-2);line-height:1.6;margin:0">${escHtml(r.body)}</p>` : ''}
+    <div style="font-size:11px;color:var(--text-3)">👍 ${r.helpful||0} helpful · Status: <strong>${r.status}</strong></div>
+  </div>`;
 }
