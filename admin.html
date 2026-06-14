@@ -1,0 +1,75 @@
+name: Deploy Listily to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+
+  security-scan:
+    name: Security scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Gitleaks secret detection
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          config-path: .gitleaks.toml
+
+      - name: Scan for unsafe JS patterns
+        run: |
+          echo "=== eval() ===" && (grep -rn "eval(" docs/js/ && echo "WARNING") || echo "OK"
+          echo "=== document.write ===" && (grep -rn "document\.write(" docs/ && echo "WARNING") || echo "OK"
+          echo "Scan complete"
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: security-scan
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload docs/ folder as GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './docs'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Print site URL
+        run: |
+          echo "════════════════════════════════════════"
+          echo " ✅ Listily is live at:"
+          echo " ${{ steps.deployment.outputs.page_url }}"
+          echo "════════════════════════════════════════"
+          echo ""
+          echo "NOTE: This is your SITE URL — different from your repo URL."
+          echo "Your repo page shows the README. Your site URL shows the app."
