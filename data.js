@@ -1,174 +1,117 @@
-// ─── Listily Analytics ────────────────────────────────────────────────────────
-// Lightweight client-side usage tracking using localStorage.
-// No external services, no cookies, no PII collected.
-// Tracks: page views, searches, filter usage, business/opp/mentor card clicks.
-// Admin can view and export from the Analytics tab.
+let currentView="grid",currentPage=1,activePillCat="";
+const PER_PAGE=12;
 
-(function() {
-  'use strict';
+document.addEventListener("DOMContentLoaded",()=>{
+  const p=new URLSearchParams(window.location.search);
+  if(p.get("state")){document.getElementById("f-state").value=p.get("state");onStateChange(false);}
+  if(p.get("suburb")){document.getElementById("f-suburb").value=p.get("suburb");}
+  if(p.get("industry")){document.getElementById("f-industry").value=p.get("industry");populateCatFilter();}
+  if(p.get("cat")){document.getElementById("f-cat").value=p.get("cat");activePillCat=p.get("cat");}
+  if(p.get("q")){document.getElementById("f-keyword").value=p.get("q");}
+  if(p.get("sort")){document.getElementById("f-sort").value=p.get("sort");}
+  populateCatFilter();applyFilters();
+});
 
-  const STORE_KEY = '_listily_analytics';
-  const MAX_EVENTS = 500; // cap storage to ~50KB
+function onStateChange(run=true){
+  const state=document.getElementById("f-state").value,sel=document.getElementById("f-suburb");
+  sel.innerHTML=`<option value="">All suburbs</option>`;
+  (STATE_SUBURBS[state]||[]).sort().forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;sel.appendChild(o);});
+  if(run)applyFilters();
+}
 
-  // ── Read / write ────────────────────────────────────────────────
-  function getStore() {
-    try {
-      const raw = localStorage.getItem(STORE_KEY);
-      return raw ? JSON.parse(raw) : { events: [], session_count: 0, first_visit: null };
-    } catch(e) { return { events: [], session_count: 0, first_visit: null }; }
+function populateCatFilter(){
+  const ind=document.getElementById("f-industry").value,sel=document.getElementById("f-cat");
+  sel.innerHTML=`<option value="">All categories</option>`;
+  const cats=ind?(INDUSTRY_CATS[ind]||[]):[...new Set(DB.map(b=>b.cat))].sort();
+  cats.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;sel.appendChild(o);});
+  const row=document.getElementById("cat-pills-row");
+  if(!ind){row.innerHTML="";return;}
+  row.innerHTML=`<button class="cat-pill${!activePillCat?" active":""}" onclick="setPillCat('')">All</button>`
+    +(INDUSTRY_CATS[ind]||[]).map(c=>`<button class="cat-pill${activePillCat===c?" active":""}" onclick="setPillCat('${escHtml(c)}')">${escHtml(c)}</button>`).join("");
+}
+
+function setPillCat(cat){
+  activePillCat=cat;document.getElementById("f-cat").value=cat;
+  document.querySelectorAll(".cat-pill").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".cat-pill").forEach(p=>{if((!cat&&p.textContent==="All")||p.textContent===cat)p.classList.add("active");});
+  applyFilters();
+}
+
+function applyFilters(){
+  const kw=document.getElementById("f-keyword").value.toLowerCase();
+  const state=document.getElementById("f-state").value;
+  const suburb=document.getElementById("f-suburb").value;
+  const ind=document.getElementById("f-industry").value;
+  const cat=document.getElementById("f-cat").value||activePillCat;
+  const openOnly=document.getElementById("f-open").checked;
+  const sort=document.getElementById("f-sort").value;
+
+  let list=DB.filter(b=>b.status==="approved");
+  if(kw) list=list.filter(b=>(b.name+" "+b.desc+" "+(b.tags||[]).join(" ")+" "+b.cat+" "+b.industry).toLowerCase().includes(kw));
+  if(state) list=list.filter(b=>b.state===state);
+  if(suburb) list=list.filter(b=>b.suburb===suburb);
+  if(ind) list=list.filter(b=>b.industry===ind);
+  if(cat) list=list.filter(b=>b.cat===cat);
+  if(openOnly) list=list.filter(b=>getOpenStatus(b).cls==="open");
+
+  if(sort==="newest") list.sort((a,b)=>new Date(b.submittedAt)-new Date(a.submittedAt));
+  else if(sort==="updated") list.sort((a,b)=>new Date(b.lastUpdated)-new Date(a.lastUpdated));
+  else list.sort((a,b)=>a.name.localeCompare(b.name));
+
+  const parts=[];
+  if(ind)parts.push(ind);if(cat&&cat!==ind)parts.push(cat);
+  if(suburb)parts.push(suburb);else if(state)parts.push(state);
+  document.getElementById("dir-title").textContent=parts.length?parts.join(" · "):"All businesses";
+  document.getElementById("dir-count").textContent=`${list.length} listing${list.length!==1?"s":""} found`;
+
+  const fc=[kw,state,suburb,ind,cat,openOnly&&"open"].filter(Boolean).length;
+  const badge=document.getElementById("active-filter-count");
+  badge.textContent=fc;badge.style.display=fc>0?"inline-flex":"none";
+
+  currentPage=1;window._filteredList=list;
+  renderResults(list);renderPagination(list);
+}
+
+function renderResults(list){
+  const c=document.getElementById("results-container");
+  const page=list.slice((currentPage-1)*PER_PAGE,currentPage*PER_PAGE);
+  if(!page.length){c.innerHTML=`<div class="no-results"><i class="fa-solid fa-magnifying-glass"></i><h3>No businesses found</h3><p>Try adjusting your search or filters.</p></div>`;return;}
+  if(currentView==="list"){
+    c.innerHTML=`<div class="results-list" role="list">${page.map(b=>{
+      const s=getOpenStatus(b);
+      return`<article class="biz-card" style="flex-direction:row;gap:14px" tabindex="0" onclick="openBizModal(${b.id})" role="listitem">
+        <div class="biz-emoji" aria-hidden="true">${b.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="biz-name">${escHtml(b.name)}</div>
+          <div class="biz-loc" style="margin-bottom:4px"><i class="fa-solid fa-location-dot" style="font-size:10px"></i>${escHtml(b.suburb)}, ${escHtml(b.state)} · ${escHtml(b.cat)}</div>
+          <p class="biz-desc">${escHtml(b.desc)}</p>
+          <div class="biz-tags">${renderTags(b.tags)}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+          <span class="open-badge ${s.cls}">${s.label}</span>
+          <div class="biz-contacts">${renderContacts(b)}</div>
+          <div class="biz-updated"><i class="fa-regular fa-clock"></i>${relDate(b.lastUpdated)}</div>
+        </div>
+      </article>`;
+    }).join("")}</div>`;
+  } else {
+    c.innerHTML=`<div class="results-grid" role="list">${page.map(renderBizCard).join("")}</div>`;
   }
+}
 
-  function saveStore(store) {
-    try {
-      // Keep only the most recent MAX_EVENTS
-      if (store.events.length > MAX_EVENTS) {
-        store.events = store.events.slice(-MAX_EVENTS);
-      }
-      localStorage.setItem(STORE_KEY, JSON.stringify(store));
-    } catch(e) {} // storage full — fail silently
+function renderPagination(list){
+  const total=Math.ceil(list.length/PER_PAGE),pg=document.getElementById("pagination");
+  if(total<=1){pg.innerHTML="";return;}
+  let html=`<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?"disabled":""} aria-label="Previous"><i class="fa-solid fa-chevron-left"></i></button>`;
+  for(let i=1;i<=total;i++){
+    if(i===1||i===total||Math.abs(i-currentPage)<=1) html+=`<button class="page-btn${i===currentPage?" active":""}" onclick="goPage(${i})">${i}</button>`;
+    else if(Math.abs(i-currentPage)===2) html+=`<span style="padding:0 4px;color:var(--text-3)">…</span>`;
   }
+  html+=`<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?"disabled":""} aria-label="Next"><i class="fa-solid fa-chevron-right"></i></button>`;
+  pg.innerHTML=html;
+}
 
-  // ── Track an event ──────────────────────────────────────────────
-  function track(type, data) {
-    const store = getStore();
-    const now = new Date();
-    store.events.push({
-      t: type,
-      d: data || {},
-      ts: now.toISOString(),
-      pg: window.location.pathname.split('/').pop() || 'index.html',
-      ss: getSessionId()
-    });
-    if (!store.first_visit) store.first_visit = now.toISOString();
-    saveStore(store);
-  }
-
-  // ── Session ID (reset after 30 min inactivity) ──────────────────
-  function getSessionId() {
-    const SESSION_KEY = '_listily_sid';
-    const SESSION_TTL = 30 * 60 * 1000; // 30 minutes
-    try {
-      const raw = sessionStorage.getItem(SESSION_KEY);
-      if (raw) {
-        const s = JSON.parse(raw);
-        if (Date.now() - s.ts < SESSION_TTL) {
-          s.ts = Date.now();
-          sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
-          return s.id;
-        }
-      }
-      // New session
-      const store = getStore();
-      store.session_count = (store.session_count || 0) + 1;
-      saveStore(store);
-      const id = Math.random().toString(36).slice(2, 10);
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ id, ts: Date.now() }));
-      return id;
-    } catch(e) { return 'unknown'; }
-  }
-
-  // ── Expose tracking API ─────────────────────────────────────────
-  window.Listily = window.Listily || {};
-  window.Listily.track = track;
-  window.Listily.getStore = getStore;
-  window.Listily.clearAnalytics = function() {
-    localStorage.removeItem(STORE_KEY);
-    sessionStorage.removeItem('_listily_sid');
-  };
-  window.Listily.exportCSV = function() {
-    const store = getStore();
-    const rows = [['Timestamp','Page','Event','Session','Details']];
-    store.events.forEach(e => {
-      rows.push([e.ts, e.pg, e.t, e.ss, JSON.stringify(e.d)]);
-    });
-    const csv = rows.map(r => r.map(c => '"' + String(c||'').replace(/"/g,'""') + '"').join(',')).join('\n');
-    const blob = new Blob([csv], {type:'text/csv'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'listily-analytics-' + new Date().toISOString().slice(0,10) + '.csv';
-    a.click(); URL.revokeObjectURL(url);
-  };
-
-  // ── Auto-track page view ────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', function() {
-    const page = window.location.pathname.split('/').pop() || 'index.html';
-    const params = Object.fromEntries(new URLSearchParams(window.location.search));
-    track('pageview', {
-      title: document.title,
-      referrer: document.referrer ? new URL(document.referrer).hostname : 'direct',
-      params: Object.keys(params).length ? params : undefined
-    });
-
-    // ── Track search box usage ──────────────────────────────────
-    const bizSearch = document.getElementById('hs-kw-biz');
-    if (bizSearch) {
-      bizSearch.addEventListener('change', function() {
-        if (this.value.trim()) track('search_biz', { q: this.value.trim().slice(0,60) });
-      });
-    }
-    const oppSearch = document.getElementById('hs-kw-opp');
-    if (oppSearch) {
-      oppSearch.addEventListener('change', function() {
-        if (this.value.trim()) track('search_opp', { q: this.value.trim().slice(0,60) });
-      });
-    }
-
-    // ── Track directory filters ─────────────────────────────────
-    const dirSearch = document.getElementById('f-keyword');
-    if (dirSearch) {
-      let filterTimer;
-      dirSearch.addEventListener('input', function() {
-        clearTimeout(filterTimer);
-        filterTimer = setTimeout(() => {
-          if (this.value.trim()) track('filter_keyword', { q: this.value.trim().slice(0,60) });
-        }, 1000);
-      });
-    }
-    const stateFilter = document.getElementById('f-state');
-    if (stateFilter) {
-      stateFilter.addEventListener('change', function() {
-        if (this.value) track('filter_state', { state: this.value });
-      });
-    }
-    const indFilter = document.getElementById('f-industry');
-    if (indFilter) {
-      indFilter.addEventListener('change', function() {
-        if (this.value) track('filter_industry', { industry: this.value });
-      });
-    }
-
-    // ── Track register form tab switches ───────────────────────
-    ['tab-biz','tab-opp','tab-mentor'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('click', function() {
-        track('register_tab', { tab: id.replace('tab-','') });
-      });
-    });
-
-    // ── Track CTA button clicks ─────────────────────────────────
-    document.querySelectorAll('.btn-primary, .btn-mentor, .btn-cta-white').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const label = (this.textContent || '').trim().slice(0,50);
-        const href = this.getAttribute('href') || '';
-        if (href) track('cta_click', { label, href });
-      });
-    });
-
-    // ── Track industry card clicks on homepage ──────────────────
-    document.getElementById('industry-grid')?.addEventListener('click', function(e) {
-      const card = e.target.closest('.ind-card');
-      if (card) {
-        const name = card.querySelector('.ind-name')?.textContent || '';
-        track('industry_click', { industry: name });
-      }
-    });
-
-    // ── Track state chip clicks ─────────────────────────────────
-    document.querySelectorAll('.state-chip').forEach(chip => {
-      chip.addEventListener('click', function() {
-        track('state_chip_click', { state: this.textContent.trim().split(' ')[0] });
-      });
-    });
-  });
-
-})();
+function goPage(n){currentPage=n;renderResults(window._filteredList||[]);renderPagination(window._filteredList||[]);window.scrollTo({top:0,behavior:"smooth"});}
+function setView(v){currentView=v;document.getElementById("vbtn-grid").classList.toggle("active",v==="grid");document.getElementById("vbtn-list").classList.toggle("active",v==="list");renderResults(window._filteredList||[]);}
+function clearFilters(){["f-keyword","f-suburb"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});["f-state","f-industry","f-cat","f-sort"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});document.getElementById("f-open").checked=false;activePillCat="";onStateChange(false);populateCatFilter();applyFilters();}
+function toggleSidebar(open){document.getElementById("dir-sidebar").classList.toggle("open",open);document.getElementById("sidebar-overlay").classList.toggle("open",open);}

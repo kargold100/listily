@@ -375,10 +375,11 @@
 
 <footer class="site-footer"><div class="footer-bottom"><div class="container"><p>© 2026 Listily.au</p></div></div></footer>
 <div class="toast" id="toast"></div>
-<script src="js/analytics.js?v=10"></script>
-<script src="js/config.js?v=10"></script>
-<script src="js/reviews.js?v=10"></script>
-<script src="js/data.js?v=10"></script><script src="js/utils.js?v=10"></script><script src="js/register.js?v=10"></script>
+<script src="js/analytics.js?v=12"></script>
+<script src="js/config.js?v=12"></script>
+<script src="js/reviews.js?v=12"></script>
+<script src="js/edits.js?v=12"></script>
+<script src="js/data.js?v=12"></script><script src="js/utils.js?v=12"></script><script src="js/register.js?v=12"></script>
 <script>
 function switchRegTab(t){
   ['biz','opp','mentor'].forEach(id=>{

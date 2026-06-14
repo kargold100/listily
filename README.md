@@ -1,182 +1,327 @@
-const INDUSTRIES=[
-  {name:"Hospitality & Food",      icon:"fa-utensils",           col:"green"},
-  {name:"Home & Trade Services",   icon:"fa-screwdriver-wrench", col:"amber"},
-  {name:"Health & Medical",        icon:"fa-heart-pulse",        col:"red"},
-  {name:"Legal & Migration",       icon:"fa-scale-balanced",     col:"blue"},
-  {name:"Real Estate & Property",  icon:"fa-house",              col:"blue"},
-  {name:"Education & Childcare",   icon:"fa-graduation-cap",     col:"purple"},
-  {name:"Career & Student Support",icon:"fa-compass",            col:"teal"},
-  {name:"Professional Services",   icon:"fa-briefcase",          col:"blue"},
-  {name:"Retail & Shopping",       icon:"fa-bag-shopping",       col:"amber"},
-  {name:"Beauty & Personal Care",  icon:"fa-spa",                col:"purple"},
-  {name:"Automotive",              icon:"fa-car",                col:"green"},
-  {name:"Community & Culture",     icon:"fa-people-group",       col:"amber"},
-  {name:"Migrant & Multicultural", icon:"fa-earth-asia",         col:"blue"},
-  {name:"Technology & IT",         icon:"fa-laptop-code",        col:"blue"},
-  {name:"Finance & Insurance",     icon:"fa-chart-line",         col:"green"},
-  {name:"Fitness & Sport",         icon:"fa-dumbbell",           col:"red"},
-  {name:"Events & Entertainment",  icon:"fa-star",               col:"purple"},
-  {name:"Home Business",           icon:"fa-house-laptop",       col:"amber"},
-  {name:"Emergency & Support",     icon:"fa-phone-volume",       col:"red"},
-  {name:"Pet Services",            icon:"fa-paw",                col:"amber"},
-  {name:"NFP & Charities",         icon:"fa-hand-holding-heart", col:"green"},
-  {name:"Driving Schools",          icon:"fa-car-side",             col:"blue"},
-];
+# 🌿 Listily.au — Australian Business Directory & Opportunities Board
 
-const COL={green:"background:var(--green-bg);color:var(--green-t)",blue:"background:var(--blue-bg);color:var(--blue-t)",amber:"background:var(--amber-bg);color:var(--amber-t)",red:"background:var(--red-bg);color:var(--red-t)",purple:"background:var(--purple-bg);color:var(--purple-t)"};
+Australia's community-powered local business directory and Seek-style opportunities board.
+Find businesses, jobs, apprenticeships, internships and volunteering — all in your suburb.
 
-function renderIndustries(){
-  const g=document.getElementById("industry-grid");if(!g)return;
-  const approved=DB.filter(b=>b.status==="approved");
-  g.innerHTML=INDUSTRIES.map(ind=>{
-    const n=approved.filter(b=>b.industry===ind.name).length;
-    const oc=approved.filter(b=>b.industry===ind.name).reduce((a,b)=>{return a+(OPPORTUNITIES.filter(o=>o.bizId===b.id&&o.status==="approved").length);},0);
-    return`<a href="directory.html?industry=${encodeURIComponent(ind.name)}" class="ind-card">
-      <div class="ind-icon" style="${COL[ind.col]}"><i class="fa-solid ${ind.icon}"></i></div>
-      <div class="ind-name">${ind.name}</div>
-      <div class="ind-count">${n} listing${n!==1?"s":""}${oc>0?` · ${oc} opp${oc!==1?"s":""}`:""}</div>
-    </a>`;
-  }).join("");
-}
+---
 
-let oppStripFilter="";
-function filterOppStrip(type,btn){
-  oppStripFilter=type;
-  document.querySelectorAll(".otp").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-  renderOppStrip();
-}
 
-function renderOppStrip(){
-  const g=document.getElementById("opp-strip");if(!g)return;
-  const list=OPPORTUNITIES.filter(o=>o.status==="approved"&&(!oppStripFilter||o.type===oppStripFilter)).slice(0,6);
-  if(!list.length){g.innerHTML=`<p style="color:rgba(255,255,255,.5);font-size:14px;padding:1rem 0">No ${oppStripFilter||""} opportunities listed yet.</p>`;return;}
-  g.innerHTML=list.map(o=>{
-    const closing=daysUntil(o.closingDate);
-    return`<div class="opp-card-dark" onclick="location.href='opportunities.html?id=${o.id}'" tabindex="0" onkeydown="if(event.key==='Enter')location.href='opportunities.html?id=${o.id}'">
-      <div class="ocd-header">
-        <div>
-          <div class="ocd-title">${escHtml(o.title)}</div>
-          <div class="ocd-org"><i class="fa-solid fa-building" style="font-size:10px"></i>${escHtml(o.org)}</div>
-          <div class="ocd-loc"><i class="fa-solid fa-location-dot" style="font-size:10px"></i>${escHtml(o.suburb)}, ${escHtml(o.state)}</div>
-        </div>
-        <span style="font-size:22px" aria-hidden="true">${o.icon}</span>
-      </div>
-      <div class="ocd-meta">
-        ${oppTypeBadge(o.type)}
-        <span class="ocd-tag">${escHtml(o.arrangement)}</span>
-        ${o.salary?`<span class="ocd-tag">${escHtml(o.salary)}</span>`:""}
-      </div>
-      <div class="ocd-posted">${relPosted(o.postedAt)}${closing?` · ${escHtml(closing)}`:""}</div>
-    </div>`;
-  }).join("");
-}
+> **⚠️ GitHub Pages — repo page vs site URL**
+> When you visit your repo on GitHub (`github.com/YOUR-USERNAME/listily`), you see the **README** — that's normal.
+> Your **actual site** is at `https://YOUR-USERNAME.github.io/listily/` — a completely different URL.
+> After deploying, go to **Settings → Pages** to find the exact link, or check the **Actions** tab for the URL printed at the end of the deploy job.
 
-function renderFeatured(){
-  const g=document.getElementById("featured-grid");if(!g)return;
-  const list=DB.filter(b=>b.status==="approved"&&b.featured).slice(0,6);
-  g.innerHTML=list.map(renderBizCard).join("")||"<p style='color:var(--text-3)'>No featured listings yet.</p>";
-}
+## 📦 What's included
 
-function renderRecent(){
-  const el=document.getElementById("recent-list");if(!el)return;
-  const list=DB.filter(b=>b.status==="approved").sort((a,b)=>new Date(b.submittedAt)-new Date(a.submittedAt)).slice(0,5);
-  el.innerHTML=list.map(b=>{
-    const s=getOpenStatus(b);
-    return`<div class="recent-item" onclick="openBizModal(${b.id})" tabindex="0">
-      <div class="recent-emoji">${b.icon}</div>
-      <div class="recent-body">
-        <div class="recent-name">${escHtml(b.name)}</div>
-        <div class="recent-meta"><i class="fa-solid fa-location-dot" style="font-size:10px"></i> ${escHtml(b.suburb)}, ${escHtml(b.state)} · ${escHtml(b.cat)}</div>
-      </div>
-      <div class="recent-right">
-        <span class="open-badge ${s.cls}" style="font-size:10px">${s.label}</span>
-        <span style="font-size:11px;color:var(--text-3)">${relDate(b.submittedAt)}</span>
-      </div>
-    </div>`;
-  }).join("");
-}
+| File | Purpose |
+|------|---------|
+| `docs/index.html` | Homepage — hero search, industry grid, opportunities strip |
+| `docs/directory.html` | Full business directory with sidebar filters |
+| `docs/opportunities.html` | Seek-style two-panel opportunities board |
+| `docs/register.html` | Business registration + opportunity posting form |
+| `docs/admin.html` | Admin dashboard — approve/reject/analytics |
+| `docs/css/base.css` | Concept B logo, design tokens, shared styles |
+| `docs/css/home.css` | Homepage-specific styles |
+| `docs/css/directory.css` | Directory layout |
+| `docs/css/opportunities.css` | Opportunities two-panel layout |
+| `docs/css/register.css` | Multi-step registration form |
+| `docs/css/admin.css` | Admin dashboard |
+| `docs/js/data.js` | Business + opportunity database |
+| `docs/js/utils.js` | Shared helpers (security, dates, modals) |
+| `docs/js/home.js` | Homepage logic |
+| `docs/js/directory.js` | Directory filters and pagination |
+| `docs/js/opportunities.js` | Opportunities filtering |
+| `docs/js/register.js` | Multi-step form logic |
+| `docs/js/admin.js` | Admin dashboard logic |
+| `docs/_headers` | Security headers (Netlify / Cloudflare Pages) |
+| `docs/robots.txt` | Search engine crawl rules |
+| `netlify.toml` | Netlify build + headers + redirect config |
+| `.github/workflows/deploy.yml` | GitHub Actions — security scan + Pages deploy |
 
-let currentSearchTab="biz";
-function setSearchTab(t){
-  currentSearchTab=t;
-  document.getElementById("stab-biz").classList.toggle("active",t==="biz");
-  document.getElementById("stab-opp").classList.toggle("active",t==="opp");
-  document.getElementById("hsb-biz").style.display=t==="biz"?"block":"none";
-  document.getElementById("hsb-opp").style.display=t==="opp"?"block":"none";
-}
+---
 
-function heroSearch(tab){
-  if(tab==="biz"){
-    const kw=document.getElementById("hs-kw-biz").value.trim();
-    const loc=document.getElementById("hs-loc-biz").value.trim();
-    const state=document.getElementById("hs-state-biz").value;
-    const p=new URLSearchParams();
-    if(kw)p.set("q",kw);if(loc)p.set("suburb",loc);if(state)p.set("state",state);
-    window.location.href="directory.html?"+p.toString();
-  } else {
-    const kw=document.getElementById("hs-kw-opp").value.trim();
-    const loc=document.getElementById("hs-loc-opp").value.trim();
-    const type=document.getElementById("hs-type-opp").value;
-    const p=new URLSearchParams();
-    if(kw)p.set("q",kw);if(loc)p.set("suburb",loc);if(type)p.set("type",type);
-    window.location.href="opportunities.html?"+p.toString();
-  }
-}
+## 🏗️ One-time setup — push code to GitHub
 
-document.addEventListener("DOMContentLoaded",()=>{
-  renderIndustries();
-  renderOppStrip();
-  renderFeatured();
-  renderRecent();
-  renderHomeMentors();
+Both hosting options (Netlify and GitHub Pages) need your code on GitHub first.
 
-  const sb=document.getElementById("stat-biz"),so=document.getElementById("stat-opp");
-  if(sb)sb.textContent=DB.filter(b=>b.status==="approved").length+"+";
-  if(so)so.textContent=OPPORTUNITIES.filter(o=>o.status==="approved").length+"+";
+### Prerequisites
+- [Git](https://git-scm.com/downloads) installed on your computer
+- A [GitHub account](https://github.com/join) (free)
 
-  // Keyword autocomplete
-  const inp=document.getElementById("hs-kw-biz"),ac=document.getElementById("ac-biz");
-  if(inp&&ac){
-    inp.addEventListener("input",()=>{
-      const q=inp.value.toLowerCase().trim();
-      if(!q){ac.classList.remove("open");return;}
-      const m=[...new Set(DB.filter(b=>b.status==="approved").flatMap(b=>[b.name,b.cat,...(b.tags||[])]).filter(s=>s.toLowerCase().includes(q)))].slice(0,8);
-      ac.innerHTML=m.map(x=>`<div class="ac-item" onclick="document.getElementById('hs-kw-biz').value='${escHtml(x)}';document.getElementById('ac-biz').classList.remove('open')">${escHtml(x)}</div>`).join("");
-      ac.classList.toggle("open",m.length>0);
-    });
-    document.addEventListener("click",e=>{if(!inp.contains(e.target))ac.classList.remove("open");});
-    inp.addEventListener("keydown",e=>{if(e.key==="Enter")heroSearch("biz");});
-  }
+### Step 1 — Create a GitHub repository
 
-  // Populate biz suburb datalist
-  const dl=document.getElementById("suburb-ac-biz");
-  if(dl){
-    const subs=[...new Set(Object.values(STATE_SUBURBS).flat())].sort();
-    subs.forEach(s=>{const o=document.createElement("option");o.value=s;dl.appendChild(o);});
-  }
+1. Go to **github.com/new**
+2. Repository name: `listily`
+3. Set to **Public** (required for free GitHub Pages; fine for Netlify either way)
+4. **Do NOT** tick "Add a README file" — you're pushing existing code
+5. Click **Create repository**
 
-  document.getElementById("hs-kw-opp")?.addEventListener("keydown",e=>{if(e.key==="Enter")heroSearch("opp");});
-});
+### Step 2 — Push your code
 
-// ── Mentor strip on homepage ─────────────────────────────────────
-function renderHomeMentors() {
-  const grid = document.getElementById('home-mentor-grid');
-  if (!grid || typeof MENTORS === 'undefined') return;
-  const featured = MENTORS.filter(m => m.status === 'approved' && m.featured).slice(0, 3);
-  grid.innerHTML = featured.map(m => `
-    <div class="mentor-card" onclick="location.href='mentors.html'" tabindex="0" style="cursor:pointer">
-      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px">
-        <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#A89CFF,#5B4CF5);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-weight:700;font-size:19px;color:#fff;flex-shrink:0">${escHtml(m.avatar||m.name.charAt(0))}</div>
-        <div>
-          <div style="font-weight:600;font-size:14px;color:#fff">${escHtml(m.name)}</div>
-          <div style="font-size:12px;color:#A89CFF;margin-top:2px"><i class="fa-solid fa-star" style="font-size:10px"></i> ${escHtml(m.specialty)}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:2px"><i class="fa-solid fa-location-dot" style="font-size:9px"></i> ${escHtml(m.suburb)}, ${escHtml(m.state)}</div>
-        </div>
-      </div>
-      <p style="font-size:13px;color:rgba(255,255,255,.55);line-height:1.55;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${escHtml(m.bio)}</p>
-      <div style="display:flex;flex-wrap:wrap;gap:4px">
-        ${(m.areas||[]).slice(0,3).map(a=>`<span style="font-size:11px;font-weight:500;padding:2px 9px;border-radius:999px;background:rgba(168,156,255,.15);color:#C4BCFF;border:1px solid rgba(168,156,255,.2)">${escHtml(a)}</span>`).join('')}
-      </div>
-    </div>`).join('') || '<p style="color:rgba(255,255,255,.4);font-size:14px">Mentors coming soon — <a href="register.html#mentor" style="color:#A89CFF">be the first to register</a>.</p>';
-}
+Open Terminal (Mac/Linux) or Git Bash (Windows), navigate to the unzipped `listily/` folder, then run:
+
+```bash
+# Initialise git
+git init
+
+# Stage all files
+git add .
+
+# First commit
+git commit -m "Listily.au — initial launch 🌿"
+
+# Rename default branch to main
+git branch -M main
+
+# Connect to your GitHub repo (replace YOUR-USERNAME)
+git remote add origin https://github.com/YOUR-USERNAME/listily.git
+
+# Push
+git push -u origin main
+```
+
+You'll be prompted for your GitHub username and password (or a [Personal Access Token](https://github.com/settings/tokens) if you have 2FA enabled).
+
+---
+
+## 🚀 Option A — Deploy on Netlify (recommended)
+
+**Why Netlify?**
+- The `netlify.toml` and `_headers` files in this project work natively
+- All HTTP security headers are applied at the CDN level (A+ on securityheaders.com)
+- Every push to `main` auto-deploys in ~15 seconds
+- Preview deployments for every pull request
+- Free SSL certificate, custom domain support
+- 100 GB bandwidth / month on the free tier
+
+### Step 1 — Create a Netlify account
+
+Go to **[app.netlify.com](https://app.netlify.com)** → click **Sign up with GitHub**. Authorise Netlify to access your GitHub account.
+
+### Step 2 — Import your repository
+
+1. On the Netlify dashboard click **Add new site** → **Import an existing project**
+2. Click **GitHub**
+3. If prompted, click **Configure Netlify on GitHub** and grant access to your `listily` repo
+4. Select the `listily` repository
+
+### Step 3 — Configure build settings
+
+Netlify will detect a static site. Confirm these settings:
+
+| Setting | Value |
+|---------|-------|
+| Branch to deploy | `main` |
+| Base directory | *(leave blank)* |
+| Build command | *(leave blank — no build needed)* |
+| Publish directory | `docs` |
+
+Click **Deploy site**.
+
+### Step 4 — Your site is live
+
+In ~15 seconds Netlify deploys your site to a URL like:
+
+```
+https://listily-a1b2c3.netlify.app
+```
+
+You can rename this in **Site settings → General → Site name**.
+
+### Step 5 — Verify security headers
+
+Visit **[securityheaders.com](https://securityheaders.com)** and enter your Netlify URL.
+You should see an **A** or **A+** rating. The `netlify.toml` applies all headers at the HTTP level.
+
+### Step 6 — Set up auto-deploy (already active)
+
+Auto-deploy is on by default. Every time you push to `main`, Netlify rebuilds and redeploys automatically. Test it:
+
+```bash
+# Make a small change, e.g. edit docs/index.html
+git add .
+git commit -m "Test auto-deploy"
+git push
+```
+
+Watch the **Deploys** tab in your Netlify dashboard — a new deploy starts within seconds.
+
+### Step 7 — Add deploy notifications (optional)
+
+Netlify → **Site settings** → **Notifications** → **Add notification** → Email.
+You'll receive an email on every successful deploy and any failures.
+
+### Step 8 — Add a custom domain (optional)
+
+1. Netlify dashboard → **Domain management** → **Add custom domain**
+2. Enter your domain, e.g. `listily.com.au`
+3. Netlify shows you the DNS records to add at your registrar:
+
+   | Type | Name | Value |
+   |------|------|-------|
+   | `CNAME` | `www` | `listily-a1b2c3.netlify.app` |
+   | `A` | `@` | `75.2.60.5` |
+
+4. Add these at your registrar (VentraIP, Crazy Domains, GoDaddy, etc.)
+5. Back in Netlify, click **Verify DNS configuration**
+6. SSL certificate is provisioned automatically via Let's Encrypt within 2–5 minutes
+
+---
+
+## 🚀 Option B — Deploy on GitHub Pages
+
+**When to choose this:**
+GitHub Pages is simpler to set up but has one limitation: it cannot set custom HTTP response headers. The `<meta>` fallbacks in each HTML file cover most security controls, but for a full A+ security rating, use Netlify or Cloudflare Pages.
+
+### Step 1 — Push code to GitHub
+
+(Same as the one-time setup above — if you've already done this, skip ahead.)
+
+### Step 2 — Enable GitHub Pages
+
+1. Go to your `listily` repository on GitHub
+2. Click **Settings** → **Pages** (in the left sidebar)
+3. Under **Source**, select **GitHub Actions**
+4. That's it — the `.github/workflows/deploy.yml` file handles everything
+
+### Step 3 — Your site is live
+
+After your first push, the Actions workflow runs automatically. You can watch it under the **Actions** tab. In ~60 seconds your site is at:
+
+```
+https://YOUR-USERNAME.github.io/listily/
+```
+
+### Step 4 — Update robots.txt
+
+Open `docs/robots.txt` and replace `YOUR-USERNAME` with your actual GitHub username in the sitemap URL.
+
+```bash
+# Edit the file, then:
+git add docs/robots.txt
+git commit -m "Update robots.txt with correct sitemap URL"
+git push
+```
+
+### Step 5 — Watch the auto-deploy workflow
+
+Every push to `main` triggers the workflow automatically:
+
+1. Go to your repo → **Actions** tab
+2. You'll see the "Deploy Listily to GitHub Pages" workflow running
+3. It runs a security scan (Gitleaks + JS pattern checks) first
+4. If the scan passes, it deploys to Pages
+5. You'll get a GitHub notification if anything fails
+
+### Step 6 — Add a custom domain (optional)
+
+1. Repo → **Settings** → **Pages** → **Custom domain**
+2. Enter your domain, e.g. `listily.com.au`
+3. At your domain registrar, add a `CNAME` record:
+   - Name: `www`
+   - Value: `YOUR-USERNAME.github.io`
+4. GitHub automatically provisions an SSL certificate
+
+> **Note:** GitHub Pages with a custom domain + Cloudflare proxy gives you the best of both worlds — free hosting plus full HTTP security headers from Cloudflare's Transform Rules.
+
+---
+
+## 🔁 Day-to-day workflow (both platforms)
+
+Once deployed, your update process is simply:
+
+```bash
+# 1. Make your changes (edit data.js, update HTML, etc.)
+
+# 2. Stage changes
+git add .
+
+# 3. Commit with a descriptive message
+git commit -m "Add: new Point Cook businesses"
+
+# 4. Push — auto-deploy starts immediately
+git push
+```
+
+**Netlify:** live in ~15 seconds  
+**GitHub Pages:** live in ~60 seconds (security scan runs first)
+
+---
+
+## 🔒 Security controls
+
+| Control | Netlify | GitHub Pages |
+|---------|---------|--------------|
+| CSP (Content Security Policy) | ✅ HTTP header via `netlify.toml` | ⚠️ `<meta>` fallback only |
+| X-Frame-Options | ✅ HTTP header | ⚠️ `<meta>` fallback |
+| X-Content-Type-Options | ✅ HTTP header | ⚠️ `<meta>` fallback |
+| HSTS (1 year) | ✅ HTTP header | ⚠️ Meta only |
+| XSS escaping | ✅ `escHtml()` in all JS | ✅ Same |
+| Secret detection | ✅ Gitleaks on every push | ✅ Gitleaks on every push |
+| Pattern scanning | ✅ GitHub Actions | ✅ GitHub Actions |
+| External link safety | ✅ `rel="noopener noreferrer"` | ✅ Same |
+| Admin brute force | ⚠️ Add Netlify Identity in Phase 2 | ⚠️ Add Cloudflare Access |
+
+---
+
+## 🔑 Admin access
+
+Demo credentials (change these before going to production):
+
+| Username | Password |
+|----------|----------|
+| `admin` | `admin123` |
+
+To change them, edit the `ADMIN` object in `docs/js/admin.js`:
+
+```javascript
+const ADMIN = { u: "your-username", p: "your-strong-password" };
+```
+
+> ⚠️ This is client-side auth — fine for a static demo/MVP. For production, use Netlify Identity, Cloudflare Access, or a proper backend with server-side authentication.
+
+---
+
+## 🗺️ Roadmap
+
+### Phase 2 — Persistent backend
+- [ ] Google Sheets via Apps Script for business and opportunity submissions
+- [ ] Email notifications to admin on new submissions
+- [ ] Approval/rejection emails to submitters
+
+### Phase 3 — Maps & location
+- [ ] Google Maps in business detail modal
+- [ ] Geolocation-based "Near me" search
+- [ ] Postcode radius search (5km, 10km, 20km)
+
+### Phase 4 — Business accounts
+- [ ] Business owner login (Supabase Auth or Firebase)
+- [ ] Self-service listing editing + hours management
+- [ ] Photo and logo uploads
+- [ ] "Claim your listing" flow
+
+### Phase 5 — Job-seeker features
+- [ ] Save opportunities (localStorage → backend)
+- [ ] Email job alerts by type + suburb + industry
+- [ ] Apply via Listily — CV upload without leaving the site
+- [ ] "I'm looking for work" profile for local jobseekers
+
+### Phase 6 — Community trust
+- [ ] Star ratings and reviews for businesses
+- [ ] "Still accurate?" prompts after 6 months
+- [ ] Report a listing (inaccurate / closed / spam)
+- [ ] Verified badge for claimed businesses
+
+### Phase 7 — Growth
+- [ ] Multilingual — Tamil, Vietnamese, Arabic, Punjabi, Mandarin
+- [ ] SEO suburb pages (`/vic/point-cook/plumbers`)
+- [ ] Featured listing tiers (free basic / paid promoted)
+- [ ] Sponsored opportunity slots
+- [ ] REST API for third-party integration
+- [ ] React Native mobile apps (iOS + Android)
+
+---
+
+## 📝 Licence
+
+MIT — free to use, fork and adapt with attribution.
