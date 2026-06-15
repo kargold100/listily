@@ -254,12 +254,13 @@
 <div class="sidebar-overlay" id="nfp-sidebar-overlay" onclick="toggleNFPSidebar(false)"></div>
 <div class="toast" id="toast"></div>
 
-<script src="js/analytics.js?v=12"></script>
-<script src="js/config.js?v=12"></script>
-<script src="js/reviews.js?v=12"></script>
-<script src="js/edits.js?v=12"></script>
-<script src="js/data.js?v=12"></script>
-<script src="js/utils.js?v=12"></script>
+<script src="js/analytics.js?v=14"></script>
+<script src="js/config.js?v=14"></script>
+<script src="js/reviews.js?v=14"></script>
+<script src="js/edits.js?v=14"></script>
+<script src="js/data.js?v=14"></script>
+<script src="js/overrides.js?v=14"></script>
+<script src="js/utils.js?v=14"></script>
 <script>
 const NFP_PER_PAGE = 12;
 let nfpPage = 1;

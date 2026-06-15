@@ -17,14 +17,32 @@
   // ────────────────────────────────────────────────────────
   //  CONFIGURATION
   // ────────────────────────────────────────────────────────
-  const STORAGE_ADAPTER = 'localStorage'; // CHANGE THIS to switch backend
+  // Runtime-configurable backend:
+  //   1. Admin can set the Sheets URL via the Admin > Backend tab (preferred)
+  //   2. Or edit BACKEND_DEFAULT below for a hard-coded fallback
+  //   3. Or change STORAGE_ADAPTER to bypass localStorage entirely
+  const BACKEND_DEFAULT = {
+    adapter: 'auto',  // 'auto' = use sheets if URL set, else localStorage
+    sheets:  ''       // hard-coded fallback URL (admin panel overrides this)
+  };
 
-  // Webhook URL for sheets/firebase/supabase backends
-  // Fill these in when you set up a backend in Phase 4
+  function getRuntimeConfig() {
+    try {
+      const stored = JSON.parse(localStorage.getItem('_listily_backend_cfg') || '{}');
+      return Object.assign({}, BACKEND_DEFAULT, stored);
+    } catch (e) { return BACKEND_DEFAULT; }
+  }
+
+  const cfg = getRuntimeConfig();
+  const SHEETS_URL = cfg.sheets || '';
+  const STORAGE_ADAPTER = (cfg.adapter === 'auto')
+    ? (SHEETS_URL ? 'sheets' : 'localStorage')
+    : cfg.adapter || 'localStorage';
+
   const WEBHOOK_URLS = {
-    sheets:    'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec',
-    firebase:  'https://YOUR_PROJECT.firebaseio.com/reviews.json',
-    supabase:  'https://YOUR_PROJECT.supabase.co/rest/v1/reviews'
+    sheets:    SHEETS_URL,
+    firebase:  '',
+    supabase:  ''
   };
   // ────────────────────────────────────────────────────────
 
