@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listily — Diagnostic Test Page</title>
+  <style>
+    body { font-family: monospace; max-width: 900px; margin: 2rem auto; padding: 0 1rem; background: #f5f5f5; color: #222; }
+    h1 { font-family: Arial; }
+    .check { padding: 12px; margin-bottom: 8px; border-radius: 8px; background: #fff; border-left: 4px solid #ccc; }
+    .ok    { border-left-color: #1A9E72; background: #f0f9f5; }
+    .fail  { border-left-color: #DC2626; background: #fef2f2; }
+    .info  { border-left-color: #F59E0B; background: #fffbeb; }
+    pre { background: #1a1a1a; color: #f0f0f0; padding: 12px; border-radius: 6px; font-size: 12px; overflow-x: auto; max-height: 200px; }
+    button { background: #1A9E72; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+  </style>
+</head>
+<body>
+  <h1>Listily Diagnostic Test</h1>
+  <p>This page tests whether the site can load its data properly. <strong>If all checks pass below but the homepage still shows nothing, do a hard refresh: <code>Ctrl+Shift+R</code> (Windows) or <code>Cmd+Shift+R</code> (Mac).</strong></p>
+
+  <div id="results"></div>
+
+  <script src="js/config.js?v=19"></script>
+  <script src="js/data.js?v=19"></script>
+  <script src="js/listings.js?v=19"></script>
+
+  <script>
+    const r = document.getElementById('results');
+    function show(status, label, detail) {
+      const cls = status === 'ok' ? 'ok' : status === 'fail' ? 'fail' : 'info';
+      const icon = status === 'ok' ? '✓' : status === 'fail' ? '✗' : 'ℹ';
+      r.innerHTML += `<div class="check ${cls}"><strong>${icon} ${label}</strong>${detail ? '<br><small>' + detail + '</small>' : ''}</div>`;
+    }
+
+    // Check 1: data.js loaded
+    if (typeof DB !== 'undefined') {
+      show('ok', 'data.js loaded', `DB array has ${DB.length} entries`);
+    } else {
+      show('fail', 'data.js NOT loaded', 'The DB variable is undefined. This means data.js has a syntax error or failed to load. Check browser DevTools → Console for errors.');
+    }
+
+    // Check 2: MENTORS
+    if (typeof MENTORS !== 'undefined') {
+      show('ok', 'MENTORS array loaded', `${MENTORS.length} mentors`);
+    } else {
+      show('fail', 'MENTORS array NOT loaded');
+    }
+
+    // Check 3: OPPORTUNITIES
+    if (typeof OPPORTUNITIES !== 'undefined') {
+      show('ok', 'OPPORTUNITIES array loaded', `${OPPORTUNITIES.length} opportunities`);
+    } else {
+      show('fail', 'OPPORTUNITIES array NOT loaded');
+    }
+
+    // Check 4: First entries (proves data parses correctly)
+    if (typeof DB !== 'undefined' && DB.length > 0) {
+      show('ok', 'First listing', `id ${DB[0].id} — ${DB[0].name}`);
+      show('ok', 'Last listing',  `id ${DB[DB.length-1].id} — ${DB[DB.length-1].name}`);
+    }
+
+    // Check 5: Industry breakdown
+    if (typeof DB !== 'undefined') {
+      const inds = {};
+      DB.filter(b => b.status === 'approved').forEach(b => { inds[b.industry] = (inds[b.industry]||0)+1; });
+      const breakdown = Object.entries(inds).sort((a,b)=>b[1]-a[1]).map(([k,v]) => v + ' × ' + k).join(' · ');
+      show('info', 'Industry breakdown', breakdown);
+    }
+
+    // Check 6: Backend config
+    let cfg = {};
+    try { cfg = JSON.parse(localStorage.getItem('_listily_backend_cfg') || '{}'); } catch (e) {}
+    if (cfg.sheets) {
+      show('info', 'Backend configured', `Sheets URL: <code>${cfg.sheets.slice(0, 70)}...</code>`);
+    } else {
+      show('info', 'Backend NOT configured', 'You are in demo mode (no shared backend). Reviews/edits saved locally only. Configure in Admin → Backend setup.');
+    }
+
+    // Check 7: Cache version
+    const scripts = document.querySelectorAll('script[src]');
+    const versions = [...new Set([...scripts].map(s => (s.src.match(/\?v=(\d+)/) || [])[1]).filter(Boolean))];
+    show('info', 'Script versions', versions.length ? versions.join(', ') : 'no versions');
+  </script>
+
+  <h2>Common fixes</h2>
+  <ul>
+    <li><strong>Listings not showing on homepage?</strong> Hard refresh: <code>Ctrl+Shift+R</code> or <code>Cmd+Shift+R</code></li>
+    <li><strong>Still nothing?</strong> Open DevTools (F12) → Console tab. Look for red error messages and share them.</li>
+    <li><strong>Backend not working?</strong> Go to Admin → Backend setup → Test connection. The diagnostic will tell you which step failed.</li>
+  </ul>
+</body>
+</html>
