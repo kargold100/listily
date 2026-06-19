@@ -59,6 +59,14 @@
       <button class="btn btn-primary full-btn" onclick="doLogin()">
         <i class="fa-solid fa-right-to-bracket"></i> Sign in
       </button>
+      <div style="margin-top:1.25rem;padding:.875rem;background:var(--bg-tint);border:1px dashed var(--border);border-radius:var(--r-md);font-size:12px;color:var(--text-2)">
+        <div style="font-weight:600;color:var(--text);margin-bottom:6px"><i class="fa-solid fa-key" style="color:var(--brand)"></i> Default admin credentials</div>
+        <div style="font-family:monospace;line-height:1.6">
+          Username: <strong>listly_admin</strong><br>
+          Password: <strong>ListlyAdmin123$</strong>
+        </div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:8px">Change these in <code>js/admin.js</code> (lines 3-4) before deploying publicly.</div>
+      </div>
     </div>
   </div>
 
@@ -82,14 +90,14 @@
     </div>
 
     <div class="admin-tabs" role="tablist">
-      <button class="atab active" onclick="switchAdminTab('pending',this)">
+      <button class="atab" onclick="switchAdminTab('pending',this)">
         <i class="fa-solid fa-clock"></i> Pending businesses
         <span class="atab-badge" id="atab-pending">0</span>
       </button>
       <button class="atab" onclick="switchAdminTab('opp-pending',this)">
         <i class="fa-solid fa-briefcase"></i> Pending opportunities
       </button>
-      <button class="atab" onclick="switchAdminTab('approved',this)">
+      <button class="atab active" onclick="switchAdminTab('approved',this)">
         <i class="fa-solid fa-circle-check"></i> Active listings
       </button>
       <button class="atab" onclick="switchAdminTab('opp-approved',this)">
@@ -120,9 +128,9 @@
       </button>
     </div>
 
-    <div id="admin-pane-pending"></div>
+    <div id="admin-pane-pending" style="display:none"></div>
     <div id="admin-pane-opp-pending" style="display:none"></div>
-    <div id="admin-pane-approved" style="display:none"></div>
+    <div id="admin-pane-approved" style="display:block"></div>
     <div id="admin-pane-opp-approved" style="display:none"></div>
     <div id="admin-pane-expired" style="display:none"></div>
     <div id="admin-pane-bulk-upload" style="display:none"></div>
@@ -143,14 +151,14 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="js/analytics.js?v=20"></script>
-<script src="js/config.js?v=20"></script>
-<script src="js/reviews.js?v=20"></script>
-<script src="js/edits.js?v=20"></script>
-<script src="js/data.js?v=20"></script>
-<script src="js/listings.js?v=20"></script>
-<script src="js/overrides.js?v=20"></script>
-<script src="js/utils.js?v=20"></script>
-<script src="js/admin.js?v=20"></script>
+<script src="js/analytics.js?v=21"></script>
+<script src="js/config.js?v=21"></script>
+<script src="js/reviews.js?v=21"></script>
+<script src="js/edits.js?v=21"></script>
+<script src="js/data.js?v=21"></script>
+<script src="js/listings.js?v=21"></script>
+<script src="js/overrides.js?v=21"></script>
+<script src="js/utils.js?v=21"></script>
+<script src="js/admin.js?v=21"></script>
 </body>
 </html>

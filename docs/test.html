@@ -3,91 +3,117 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Listily — Diagnostic Test Page</title>
+  <title>Listily — Diagnostic & Quick Access</title>
   <style>
-    body { font-family: monospace; max-width: 900px; margin: 2rem auto; padding: 0 1rem; background: #f5f5f5; color: #222; }
-    h1 { font-family: Arial; }
-    .check { padding: 12px; margin-bottom: 8px; border-radius: 8px; background: #fff; border-left: 4px solid #ccc; }
+    body { font-family: -apple-system, system-ui, sans-serif; max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem; background: #f7f7f5; color: #222; line-height: 1.5; }
+    h1 { font-family: 'Sora', sans-serif; font-size: 28px; margin-bottom: 8px; }
+    h2 { font-family: 'Sora', sans-serif; font-size: 18px; margin-top: 2rem; margin-bottom: .75rem; padding-bottom: 6px; border-bottom: 2px solid #e5e5e3; }
+    .lead { color: #666; margin-bottom: 1.5rem; }
+    .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+    .qa-card { display: block; padding: 1.125rem 1.25rem; background: #fff; border: 1.5px solid #e5e5e3; border-radius: 12px; text-decoration: none; color: #222; transition: all .15s; }
+    .qa-card:hover { border-color: #1A9E72; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.06); }
+    .qa-card strong { display: block; font-size: 15px; margin-bottom: 4px; color: #0F3020; }
+    .qa-card small { font-size: 12px; color: #888; }
+    .qa-card.primary { background: #1A9E72; color: #fff; border-color: #1A9E72; }
+    .qa-card.primary strong, .qa-card.primary small { color: #fff; }
+    .qa-card.primary small { opacity: .85; }
+    .creds { background: #fff5e0; border-left: 4px solid #F59E0B; padding: 1rem 1.25rem; border-radius: 8px; font-family: monospace; font-size: 13px; margin-bottom: 1.5rem; }
+    .creds strong { color: #7C2D12; font-family: -apple-system, sans-serif; display: block; margin-bottom: 6px; }
+    .check { padding: 12px 14px; margin-bottom: 8px; border-radius: 8px; background: #fff; border-left: 4px solid #ccc; font-size: 13px; }
     .ok    { border-left-color: #1A9E72; background: #f0f9f5; }
     .fail  { border-left-color: #DC2626; background: #fef2f2; }
     .info  { border-left-color: #F59E0B; background: #fffbeb; }
-    pre { background: #1a1a1a; color: #f0f0f0; padding: 12px; border-radius: 6px; font-size: 12px; overflow-x: auto; max-height: 200px; }
-    button { background: #1A9E72; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+    code { background: #f0f0eb; padding: 1px 6px; border-radius: 3px; font-size: 12px; }
+    .footer-note { font-size: 12px; color: #888; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e5e5e3; }
   </style>
 </head>
 <body>
-  <h1>Listily Diagnostic Test</h1>
-  <p>This page tests whether the site can load its data properly. <strong>If all checks pass below but the homepage still shows nothing, do a hard refresh: <code>Ctrl+Shift+R</code> (Windows) or <code>Cmd+Shift+R</code> (Mac).</strong></p>
+  <h1>Listily — Quick Access &amp; Diagnostic</h1>
+  <p class="lead">Use this page to verify your deployment, jump to admin features, and manage your data.</p>
 
+  <h2>Quick links</h2>
+  <div class="quick-actions">
+    <a href="admin.html" class="qa-card primary">
+      <strong>🛡️ Open admin dashboard</strong>
+      <small>Manage listings, reviews, edits, backend setup</small>
+    </a>
+    <a href="index.html" class="qa-card">
+      <strong>🏠 Open homepage</strong>
+      <small>See the public site</small>
+    </a>
+    <a href="directory.html" class="qa-card">
+      <strong>📋 Business directory</strong>
+      <small>Browse all approved listings</small>
+    </a>
+    <a href="reviews.html" class="qa-card">
+      <strong>⭐ Reviews page</strong>
+      <small>See public reviews feed</small>
+    </a>
+  </div>
+
+  <div class="creds">
+    <strong>🔑 Admin login credentials</strong>
+    Username: <strong style="display:inline">listly_admin</strong><br>
+    Password: <strong style="display:inline">ListlyAdmin123$</strong>
+    <div style="font-size:11px;color:#7C2D12;opacity:.7;font-family:-apple-system,sans-serif;margin-top:8px">Change these in <code>js/admin.js</code> (lines 3-4) before deploying publicly.</div>
+  </div>
+
+  <h2>System diagnostics</h2>
   <div id="results"></div>
 
-  <script src="js/config.js?v=20"></script>
-  <script src="js/data.js?v=20"></script>
-  <script src="js/listings.js?v=20"></script>
+  <h2>Common issues &amp; fixes</h2>
+  <ul style="font-size:13.5px;line-height:1.8">
+    <li><strong>"I see 'No pending submissions' on admin":</strong> That's correct — all 100 listings are pre-approved. Check the <strong>Approved</strong> tab to see them.</li>
+    <li><strong>"Bulk upload not working":</strong> Make sure you've logged in to admin first (URL must be <code>/admin.html</code>, not the public site).</li>
+    <li><strong>"Backend setup not working":</strong> First save the Sheets URL, the page will auto-reload. Then click "Test connection" — it'll tell you exactly what's wrong if anything.</li>
+    <li><strong>"Changes not showing":</strong> Hard refresh — <code>Ctrl+Shift+R</code> (Windows) or <code>Cmd+Shift+R</code> (Mac) to bypass browser cache.</li>
+    <li><strong>"Listings missing":</strong> Open DevTools (F12) → Console tab → look for red errors. Share them and I can fix.</li>
+  </ul>
+
+  <div class="footer-note">
+    Listily diagnostic page · v20<br>
+    If listings show ✓ below with count of 100+, the data is loading correctly.
+  </div>
+
+  <script src="js/config.js?v=21"></script>
+  <script src="js/data.js?v=21"></script>
+  <script src="js/listings.js?v=21"></script>
 
   <script>
     const r = document.getElementById('results');
     function show(status, label, detail) {
       const cls = status === 'ok' ? 'ok' : status === 'fail' ? 'fail' : 'info';
       const icon = status === 'ok' ? '✓' : status === 'fail' ? '✗' : 'ℹ';
-      r.innerHTML += `<div class="check ${cls}"><strong>${icon} ${label}</strong>${detail ? '<br><small>' + detail + '</small>' : ''}</div>`;
+      r.innerHTML += `<div class="check ${cls}"><strong>${icon} ${label}</strong>${detail ? '<br><small style="color:#555">' + detail + '</small>' : ''}</div>`;
     }
 
-    // Check 1: data.js loaded
     if (typeof DB !== 'undefined') {
-      show('ok', 'data.js loaded', `DB array has ${DB.length} entries`);
+      show('ok', `Data loaded — ${DB.length} business listings`, `First: ${DB[0]?.name} · Last: ${DB[DB.length-1]?.name}`);
     } else {
-      show('fail', 'data.js NOT loaded', 'The DB variable is undefined. This means data.js has a syntax error or failed to load. Check browser DevTools → Console for errors.');
+      show('fail', 'data.js failed to load', 'Open DevTools (F12) → Console for the actual error');
     }
 
-    // Check 2: MENTORS
-    if (typeof MENTORS !== 'undefined') {
-      show('ok', 'MENTORS array loaded', `${MENTORS.length} mentors`);
-    } else {
-      show('fail', 'MENTORS array NOT loaded');
-    }
+    if (typeof MENTORS !== 'undefined') show('ok', `Mentors loaded — ${MENTORS.length}`);
+    if (typeof OPPORTUNITIES !== 'undefined') show('ok', `Opportunities loaded — ${OPPORTUNITIES.length}`);
 
-    // Check 3: OPPORTUNITIES
-    if (typeof OPPORTUNITIES !== 'undefined') {
-      show('ok', 'OPPORTUNITIES array loaded', `${OPPORTUNITIES.length} opportunities`);
-    } else {
-      show('fail', 'OPPORTUNITIES array NOT loaded');
-    }
-
-    // Check 4: First entries (proves data parses correctly)
-    if (typeof DB !== 'undefined' && DB.length > 0) {
-      show('ok', 'First listing', `id ${DB[0].id} — ${DB[0].name}`);
-      show('ok', 'Last listing',  `id ${DB[DB.length-1].id} — ${DB[DB.length-1].name}`);
-    }
-
-    // Check 5: Industry breakdown
     if (typeof DB !== 'undefined') {
       const inds = {};
       DB.filter(b => b.status === 'approved').forEach(b => { inds[b.industry] = (inds[b.industry]||0)+1; });
-      const breakdown = Object.entries(inds).sort((a,b)=>b[1]-a[1]).map(([k,v]) => v + ' × ' + k).join(' · ');
-      show('info', 'Industry breakdown', breakdown);
+      const top5 = Object.entries(inds).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>`${v}× ${k}`).join(' · ');
+      show('info', `Top industries`, top5);
     }
 
-    // Check 6: Backend config
     let cfg = {};
     try { cfg = JSON.parse(localStorage.getItem('_listily_backend_cfg') || '{}'); } catch (e) {}
     if (cfg.sheets) {
-      show('info', 'Backend configured', `Sheets URL: <code>${cfg.sheets.slice(0, 70)}...</code>`);
+      show('ok', 'Shared backend configured', `Google Sheets — ${cfg.sheets.slice(0,60)}...`);
     } else {
-      show('info', 'Backend NOT configured', 'You are in demo mode (no shared backend). Reviews/edits saved locally only. Configure in Admin → Backend setup.');
+      show('info', 'Shared backend NOT configured (demo mode)', 'Reviews/edits saved per-browser only. Set up via Admin → Backend setup tab.');
     }
 
-    // Check 7: Cache version
     const scripts = document.querySelectorAll('script[src]');
     const versions = [...new Set([...scripts].map(s => (s.src.match(/\?v=(\d+)/) || [])[1]).filter(Boolean))];
-    show('info', 'Script versions', versions.length ? versions.join(', ') : 'no versions');
+    show('info', 'Cache version', versions.length ? versions.join(', ') : 'no version params (could indicate stale cache)');
   </script>
-
-  <h2>Common fixes</h2>
-  <ul>
-    <li><strong>Listings not showing on homepage?</strong> Hard refresh: <code>Ctrl+Shift+R</code> or <code>Cmd+Shift+R</code></li>
-    <li><strong>Still nothing?</strong> Open DevTools (F12) → Console tab. Look for red error messages and share them.</li>
-    <li><strong>Backend not working?</strong> Go to Admin → Backend setup → Test connection. The diagnostic will tell you which step failed.</li>
-  </ul>
 </body>
 </html>
