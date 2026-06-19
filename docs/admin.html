@@ -4,9 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
   <title>Admin — Listily.au</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -59,14 +58,6 @@
       <button class="btn btn-primary full-btn" onclick="doLogin()">
         <i class="fa-solid fa-right-to-bracket"></i> Sign in
       </button>
-      <div style="margin-top:1.25rem;padding:.875rem;background:var(--bg-tint);border:1px dashed var(--border);border-radius:var(--r-md);font-size:12px;color:var(--text-2)">
-        <div style="font-weight:600;color:var(--text);margin-bottom:6px"><i class="fa-solid fa-key" style="color:var(--brand)"></i> Default admin credentials</div>
-        <div style="font-family:monospace;line-height:1.6">
-          Username: <strong>listly_admin</strong><br>
-          Password: <strong>ListlyAdmin123$</strong>
-        </div>
-        <div style="font-size:11px;color:var(--text-3);margin-top:8px">Change these in <code>js/admin.js</code> (lines 3-4) before deploying publicly.</div>
-      </div>
     </div>
   </div>
 
@@ -133,6 +124,7 @@
     <div id="admin-pane-approved" style="display:block"></div>
     <div id="admin-pane-opp-approved" style="display:none"></div>
     <div id="admin-pane-expired" style="display:none"></div>
+    <div id="admin-pane-rejected" style="display:none"></div>
     <div id="admin-pane-bulk-upload" style="display:none"></div>
     <div id="admin-pane-reviews" style="display:none"></div>
     <div id="admin-pane-edits" style="display:none"></div>
@@ -151,14 +143,14 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="js/analytics.js?v=21"></script>
-<script src="js/config.js?v=21"></script>
-<script src="js/reviews.js?v=21"></script>
-<script src="js/edits.js?v=21"></script>
-<script src="js/data.js?v=21"></script>
-<script src="js/listings.js?v=21"></script>
-<script src="js/overrides.js?v=21"></script>
-<script src="js/utils.js?v=21"></script>
-<script src="js/admin.js?v=21"></script>
+<script src="js/analytics.js?v=22"></script>
+<script src="js/config.js?v=22"></script>
+<script src="js/reviews.js?v=22"></script>
+<script src="js/edits.js?v=22"></script>
+<script src="js/data.js?v=22"></script>
+<script src="js/listings.js?v=22"></script>
+<script src="js/overrides.js?v=22"></script>
+<script src="js/utils.js?v=22"></script>
+<script src="js/admin.js?v=22"></script>
 </body>
 </html>

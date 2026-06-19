@@ -56,9 +56,11 @@ function updateStats() {
 function renderAdminDash() { updateStats(); renderPending(); renderApproved(); renderRejected(); renderOppPending(); renderOppApproved(); renderExpired(); renderBulkUpload(); renderReviews(); renderListingEdits(); renderBackendConfig(); renderAnalytics(); }
 
 function switchAdminTab(t, btn) {
-  document.querySelectorAll('.atab').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+  document.querySelectorAll('.atab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
   ['pending','approved','rejected','opp-pending','opp-approved','expired','bulk-upload','reviews','edits','backend','analytics'].forEach(tab => {
-    document.getElementById('admin-pane-' + tab).style.display = tab === t ? 'block' : 'none';
+    const pane = document.getElementById('admin-pane-' + tab);
+    if (pane) pane.style.display = tab === t ? 'block' : 'none';
   });
 }
 

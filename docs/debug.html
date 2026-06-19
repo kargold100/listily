@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listily — Live Debug</title>
+  <style>
+    body { font-family: -apple-system, system-ui, monospace; max-width: 1000px; margin: 0 auto; padding: 1rem; background: #0a0a0a; color: #e0e0e0; }
+    h1 { color: #4FD490; font-size: 22px; margin-bottom: 4px; }
+    .lead { color: #888; font-size: 13px; margin-bottom: 1.5rem; }
+    .section { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .section h2 { font-size: 15px; color: #4FD490; margin-bottom: .75rem; padding-bottom: 6px; border-bottom: 1px solid #2a2a2a; font-family: -apple-system, sans-serif; }
+    .ok { color: #4FD490; }
+    .fail { color: #ff6b6b; }
+    .warn { color: #fbbf24; }
+    .log-line { padding: 4px 0; font-size: 12px; font-family: monospace; line-height: 1.6; border-bottom: 1px dotted #2a2a2a; }
+    .log-line.err { background: #2a0e0e; padding: 6px 8px; border-radius: 4px; margin-bottom: 4px; border: 1px solid #5c1f1f; }
+    .copy-btn { background: #4FD490; color: #000; border: none; padding: 8px 16px; border-radius: 6px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 1rem; }
+    pre { background: #000; padding: 12px; border-radius: 4px; font-size: 11px; overflow-x: auto; color: #ddd; margin: 0; max-height: 300px; overflow-y: auto; }
+    code { background: #2a2a2a; padding: 1px 6px; border-radius: 3px; font-size: 12px; color: #fbbf24; }
+    a { color: #4FD490; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Listily Live Debug</h1>
+  <p class="lead">This page captures every error and console message in real time. Copy the output and send it back so the actual problem can be diagnosed.</p>
+
+  <div class="section">
+    <h2>Test 1 — Can data.js load?</h2>
+    <div id="t1"></div>
+  </div>
+
+  <div class="section">
+    <h2>Test 2 — Can admin.html render?</h2>
+    <div id="t2">Loading admin.html in an iframe to capture its errors…</div>
+    <iframe id="admin-frame" src="admin.html" style="width:100%;height:400px;border:1px solid #333;border-radius:4px;margin-top:8px"></iframe>
+  </div>
+
+  <div class="section">
+    <h2>Test 3 — All captured console messages</h2>
+    <pre id="log">(waiting…)</pre>
+    <button class="copy-btn" onclick="copyDebug()">📋 Copy entire debug report</button>
+    <div id="copy-status" style="font-size:12px;color:#4FD490;margin-top:6px"></div>
+  </div>
+
+  <div class="section">
+    <h2>What to do next</h2>
+    <ol style="font-size:13px;line-height:1.8;color:#ccc;padding-left:20px">
+      <li>Wait 3 seconds for tests to finish</li>
+      <li>Click <strong>Copy entire debug report</strong></li>
+      <li>Paste the report back so the exact issue can be diagnosed</li>
+    </ol>
+    <p style="font-size:13px;color:#888;margin-top:1rem">If admin.html shows in the iframe above, look for the <strong>Bulk upload</strong> and <strong>Backend setup</strong> tabs near the top of the dashboard. If it says "Login" — log in with your credentials first.</p>
+  </div>
+
+  <script>
+    const logs = [];
+    const t1 = document.getElementById('t1');
+    const logEl = document.getElementById('log');
+
+    function addLog(type, msg) {
+      logs.push({ time: new Date().toISOString().slice(11,23), type, msg: String(msg).substring(0, 500) });
+      logEl.textContent = logs.map(l => `[${l.time}] ${l.type.toUpperCase()}: ${l.msg}`).join('\n');
+    }
+
+    // Capture window errors
+    window.addEventListener('error', e => {
+      addLog('error', `${e.message} at ${e.filename}:${e.lineno}:${e.colno}`);
+    });
+    window.addEventListener('unhandledrejection', e => {
+      addLog('promise-reject', String(e.reason).substring(0, 300));
+    });
+
+    // Override console.error
+    const origErr = console.error;
+    console.error = function(...args) {
+      addLog('console-err', args.map(a => String(a)).join(' '));
+      origErr.apply(console, args);
+    };
+    const origWarn = console.warn;
+    console.warn = function(...args) {
+      addLog('console-warn', args.map(a => String(a)).join(' '));
+      origWarn.apply(console, args);
+    };
+
+    // Test 1: Try loading data.js
+    addLog('info', 'Loading data.js...');
+    const script = document.createElement('script');
+    script.src = 'js/data.js?v=22&t=' + Date.now(); // cache buster
+    script.onload = () => {
+      addLog('info', 'data.js loaded successfully');
+      try {
+        if (typeof DB !== 'undefined') {
+          t1.innerHTML = `<div class="ok">✓ DB loaded: ${DB.length} business listings</div>
+            <div style="font-size:12px;color:#888;margin-top:4px">First: ${DB[0]?.name} · Last: ${DB[DB.length-1]?.name}</div>`;
+          if (typeof MENTORS !== 'undefined') {
+            t1.innerHTML += `<div class="ok" style="margin-top:6px">✓ MENTORS: ${MENTORS.length}</div>`;
+          }
+          if (typeof OPPORTUNITIES !== 'undefined') {
+            t1.innerHTML += `<div class="ok">✓ OPPORTUNITIES: ${OPPORTUNITIES.length}</div>`;
+          }
+        } else {
+          t1.innerHTML = `<div class="fail">✗ DB is undefined after data.js loaded — variable scope issue?</div>`;
+        }
+      } catch (e) {
+        t1.innerHTML = `<div class="fail">✗ Error checking DB: ${e.message}</div>`;
+      }
+    };
+    script.onerror = (e) => {
+      addLog('error', 'data.js failed to load — file missing or syntax error');
+      t1.innerHTML = `<div class="fail">✗ data.js failed to load. Check that <code>js/data.js</code> exists in your deployment and check Network tab in DevTools for HTTP errors.</div>`;
+    };
+    document.head.appendChild(script);
+
+    // Listen to iframe errors
+    const frame = document.getElementById('admin-frame');
+    frame.addEventListener('load', () => {
+      try {
+        const frameWin = frame.contentWindow;
+        const frameDoc = frame.contentDocument;
+        // Try to detect issues
+        addLog('info', 'admin.html iframe loaded');
+        if (frameWin.adminLoggedIn !== undefined) {
+          addLog('info', `admin.js exports adminLoggedIn=${frameWin.adminLoggedIn}`);
+        }
+        if (typeof frameWin.DB !== 'undefined') {
+          addLog('info', `admin.html sees DB with ${frameWin.DB.length} entries`);
+        } else {
+          addLog('warn', 'admin.html does NOT see DB — data.js may have failed inside iframe');
+        }
+        // Check if login form is visible
+        const loginVisible = frameDoc.getElementById('admin-login-view')?.style.display !== 'none';
+        const dashVisible = frameDoc.getElementById('admin-dash')?.style.display !== 'none';
+        document.getElementById('t2').innerHTML = `
+          <div class="${loginVisible ? 'ok' : 'warn'}">Login view visible: ${loginVisible}</div>
+          <div class="${dashVisible ? 'ok' : 'info'}">Dashboard visible (after login): ${dashVisible}</div>
+          <div style="font-size:12px;color:#888;margin-top:6px">Use the iframe above to interact with admin. Errors will appear in the log below.</div>
+        `;
+        // Hook into iframe's errors
+        frameWin.addEventListener('error', e => {
+          addLog('iframe-error', `${e.message} at ${e.filename}:${e.lineno}`);
+        });
+      } catch (e) {
+        addLog('warn', 'Could not inspect iframe (cross-origin or load failed): ' + e.message);
+      }
+    });
+
+    function copyDebug() {
+      const report = `=== LISTILY DEBUG REPORT ===
+Generated: ${new Date().toISOString()}
+URL: ${location.href}
+User-Agent: ${navigator.userAgent}
+
+=== DOM CHECKS ===
+data.js load: ${typeof DB !== 'undefined' ? `OK (${DB.length} entries)` : 'FAILED'}
+MENTORS: ${typeof MENTORS !== 'undefined' ? MENTORS.length : 'undefined'}
+OPPORTUNITIES: ${typeof OPPORTUNITIES !== 'undefined' ? OPPORTUNITIES.length : 'undefined'}
+
+=== CAPTURED LOGS (${logs.length}) ===
+${logs.map(l => `[${l.time}] ${l.type.toUpperCase()}: ${l.msg}`).join('\n')}
+
+=== END REPORT ===`;
+
+      navigator.clipboard.writeText(report).then(() => {
+        document.getElementById('copy-status').textContent = '✓ Copied to clipboard. Paste it in the chat.';
+      }).catch(() => {
+        // Fallback
+        const ta = document.createElement('textarea');
+        ta.value = report;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        document.getElementById('copy-status').textContent = '✓ Copied (via fallback).';
+      });
+    }
+
+    // After 3 seconds, summarize
+    setTimeout(() => {
+      addLog('info', `Initial diagnostics complete. ${logs.filter(l => l.type === 'error' || l.type === 'iframe-error').length} errors detected.`);
+    }, 3000);
+  </script>
+</body>
+</html>
