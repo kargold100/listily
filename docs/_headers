@@ -1,34 +1,24 @@
 ## Listily.au — Security Headers
-## Works natively on Netlify and Cloudflare Pages.
-## For GitHub Pages, use the <meta> fallbacks already in each HTML file.
+## Works on Netlify, Cloudflare Pages.
+## For GitHub Pages, use the <meta> fallbacks in each HTML file.
 
 /*
-  # Prevent clickjacking — no iframing of any page
-  X-Frame-Options: DENY
-
-  # Prevent MIME sniffing attacks
   X-Content-Type-Options: nosniff
-
-  # Limit referrer info sent to third parties
   Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
 
-  # Block geolocation, mic, camera and payment APIs
-  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), bluetooth=()
+  # CSP — allows Google Apps Script for shared backend, Font Awesome for icons
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com; base-uri 'self'; form-action 'self';
 
-  # Legacy XSS protection for older browsers
-  X-XSS-Protection: 1; mode=block
+# HTML files — short cache so updates roll out fast
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
 
-  # Force HTTPS for 1 year (requires HTTPS host — Netlify/CF enforce this automatically)
-  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+# JS — cache for 5 min only (so version bumps actually take effect)
+/js/*
+  Cache-Control: public, max-age=300, must-revalidate
 
-  # Content Security Policy
-  # - Scripts: self + cdnjs (Font Awesome)
-  # - Styles: self + inline (needed for dynamic styles) + Google Fonts
-  # - Fonts: Google Fonts CDN + cdnjs
-  # - Images: self + data URIs + any HTTPS source (for business logos etc)
-  # - Connections: self only (no external API calls from client)
-  # - Frames: none
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';
-
-  # Cache static assets for 1 hour
-  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+# CSS — same
+/css/*
+  Cache-Control: public, max-age=300, must-revalidate
