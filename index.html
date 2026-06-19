@@ -1,34 +1,375 @@
-## Listily.au — Security Headers
-## Works natively on Netlify and Cloudflare Pages.
-## For GitHub Pages, use the <meta> fallbacks already in each HTML file.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="About Listily.au — Australia's community business directory, opportunities board and mentor network.">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self';">
+  <title>About — Listily.au</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/base.css">
+  <style>
+    .about-hero{background:linear-gradient(140deg,#07120D 0%,#0D1F17 60%,#0F2D1E 100%);padding:5.5rem 0 5rem;position:relative;overflow:hidden}
+    .about-hero::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 80% 40%,rgba(26,158,114,.1) 0%,transparent 70%);pointer-events:none}
+    .ah-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-light);margin-bottom:1.25rem;background:rgba(26,158,114,.1);border:1px solid rgba(26,158,114,.18);padding:5px 14px;border-radius:var(--r-full)}
+    .ah-title{font-family:var(--font-d);font-size:clamp(32px,5vw,52px);font-weight:800;line-height:1.1;color:#fff;margin-bottom:1rem;letter-spacing:-.02em}
+    .ah-accent{background:linear-gradient(135deg,#4FD490 0%,#A0E4CB 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .ah-sub{font-size:17px;color:rgba(255,255,255,.65);line-height:1.65;max-width:560px}
 
-/*
-  # Prevent clickjacking — no iframing of any page
-  X-Frame-Options: DENY
+    /* Mission values */
+    .values-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:2rem}
+    .value-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.625rem}
+    .value-icon{width:48px;height:48px;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:1.125rem}
+    .value-card h3{font-size:15px;font-weight:600;margin-bottom:7px}
+    .value-card p{font-size:13px;color:var(--text-2);line-height:1.65}
 
-  # Prevent MIME sniffing attacks
-  X-Content-Type-Options: nosniff
+    /* How it works */
+    .how-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;position:relative;margin-top:2rem}
+    .how-step{text-align:center;padding:2rem 1.5rem;position:relative}
+    .how-step+.how-step::before{content:"";position:absolute;top:2.5rem;left:-1px;width:2px;height:24px;background:var(--border)}
+    @media(min-width:640px){
+      .how-step+.how-step::before{top:2.5rem;left:0;width:100%;height:2px;transform:translateX(-50%)}
+    }
+    .step-circle{width:52px;height:52px;border-radius:50%;background:var(--brand-bg);border:2px solid var(--brand-border);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-family:var(--font-d);font-weight:700;font-size:18px;color:var(--brand-dark)}
+    .how-step h3{font-size:14px;font-weight:600;margin-bottom:6px}
+    .how-step p{font-size:13px;color:var(--text-2);line-height:1.6}
 
-  # Limit referrer info sent to third parties
-  Referrer-Policy: strict-origin-when-cross-origin
+    /* Stats strip */
+    .stats-strip{background:var(--brand-dark);padding:3rem 0}
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:2rem;text-align:center}
+    .stat-num{font-family:var(--font-d);font-size:36px;font-weight:800;color:#fff;letter-spacing:-.02em}
+    .stat-lbl{font-size:13px;color:rgba(255,255,255,.55);margin-top:4px}
 
-  # Block geolocation, mic, camera and payment APIs
-  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), bluetooth=()
+    /* Mentor section */
+    .mentor-about{background:linear-gradient(135deg,#1E1854 0%,#2D2480 100%);padding:4.5rem 0}
+    .mentor-about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+    .mentor-about-grid .eyebrow-mentor{color:#A89CFF}
+    .mentor-about-grid .section-title{color:#fff}
+    .mentor-about-grid .section-sub{color:rgba(255,255,255,.6)}
+    .mentor-points{list-style:none;margin-top:1.5rem}
+    .mentor-points li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:rgba(255,255,255,.75);margin-bottom:.875rem;line-height:1.55}
+    .mentor-points li i{color:#A89CFF;flex-shrink:0;margin-top:2px}
+    .mentor-visual{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:var(--r-xl);padding:2rem;text-align:center}
+    .mentor-visual-icon{font-size:56px;margin-bottom:1rem}
+    .mentor-visual h3{font-family:var(--font-d);font-size:22px;font-weight:700;color:#fff;margin-bottom:.5rem}
+    .mentor-visual p{font-size:13px;color:rgba(255,255,255,.55);line-height:1.6}
 
-  # Legacy XSS protection for older browsers
-  X-XSS-Protection: 1; mode=block
+    /* FAQ */
+    .faq-list{margin-top:2rem}
+    .faq-item{border-bottom:1px solid var(--border);padding:1.25rem 0}
+    .faq-q{font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:1rem;user-select:none}
+    .faq-q i{color:var(--text-3);transition:transform .2s;flex-shrink:0}
+    .faq-q.open i{transform:rotate(180deg)}
+    .faq-a{font-size:14px;color:var(--text-2);line-height:1.7;margin-top:.875rem;display:none}
+    .faq-a.open{display:block}
 
-  # Force HTTPS for 1 year (requires HTTPS host — Netlify/CF enforce this automatically)
-  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+    /* Contact */
+    .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem}
+    .contact-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.875rem}
+    .contact-icon{width:52px;height:52px;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:1.125rem}
+    .contact-card h3{font-size:17px;font-weight:600;margin-bottom:8px}
+    .contact-card p{font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:1rem}
+    .contact-card a{color:var(--brand-dark);font-weight:500;text-decoration:none}
+    .contact-card a:hover{text-decoration:underline}
 
-  # Content Security Policy
-  # - Scripts: self + cdnjs (Font Awesome)
-  # - Styles: self + inline (needed for dynamic styles) + Google Fonts
-  # - Fonts: Google Fonts CDN + cdnjs
-  # - Images: self + data URIs + any HTTPS source (for business logos etc)
-  # - Connections: self only (no external API calls from client)
-  # - Frames: none
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';
+    @media(max-width:720px){
+      .mentor-about-grid{grid-template-columns:1fr}
+      .contact-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  # Cache static assets for 1 hour
-  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-icon"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div>
+      <span class="logo-word">l<span class="li">i</span>st<span class="li">i</span>ly</span>
+      <span class="logo-suffix">.au</span>
+    </a>
+        <div class="nav-links" id="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="directory.html" class="nav-link">Businesses</a>
+      <a href="opportunities.html" class="nav-link">Opportunities</a>
+      <a href="mentors.html" class="nav-link">Mentors</a>
+      <a href="nfp.html" class="nav-link">Give &amp; Receive</a>
+      <a href="reviews.html" class="nav-link">Reviews</a>
+      <a href="register.html" class="nav-link">Add listing</a>
+      <a href="about.html" class="nav-link active">About</a>
+    </div>
+    <div class="nav-actions">
+      <a href="admin.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-shield-halved"></i> Admin</a>
+      <a href="register.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Add your business</a>
+      <button class="nav-burger" id="nav-burger" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="about-hero">
+  <div class="hero-grid-bg" aria-hidden="true"></div>
+  <div class="container" style="position:relative;z-index:1;max-width:700px">
+    <div class="ah-eyebrow"><i class="fa-solid fa-leaf"></i> Our story</div>
+    <h1 class="ah-title">Built for community.<br><span class="ah-accent">Made in Australia.</span></h1>
+    <p class="ah-sub">Listily started with a simple idea — people in every suburb should be able to find trusted local businesses, discover local opportunities, and connect with mentors who can guide them. All in one place. All free.</p>
+  </div>
+</div>
+
+<!-- Stats strip -->
+<div class="stats-strip">
+  <div class="container">
+    <div class="stats-row">
+      <div><div class="stat-num">57+</div><div class="stat-lbl">Verified businesses</div></div>
+      <div><div class="stat-num">10+</div><div class="stat-lbl">Opportunities posted</div></div>
+      <div><div class="stat-num">8+</div><div class="stat-lbl">Community mentors</div></div>
+      <div><div class="stat-num">8</div><div class="stat-lbl">States & territories</div></div>
+      <div><div class="stat-num">16</div><div class="stat-lbl">Industries listed</div></div>
+      <div><div class="stat-num">Free</div><div class="stat-lbl">Always free to list</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Mission & Values -->
+<section class="section bg-card">
+  <div class="container">
+    <div class="section-head center">
+      <div>
+        <p class="eyebrow">Our mission</p>
+        <h2 class="section-title">What Listily stands for</h2>
+        <p class="section-sub" style="margin:0.75rem auto 0">We believe every local business deserves to be found, every opportunity deserves to reach the right person, and every community member deserves access to guidance.</p>
+      </div>
+    </div>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon" style="background:var(--green-bg)"><i class="fa-solid fa-shield-check" style="color:var(--green-t)"></i></div>
+        <h3>Trust through verification</h3>
+        <p>Every business and opportunity on Listily is reviewed by our admin team before going live. No spam, no fakes — just genuine local listings.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon" style="background:var(--blue-bg)"><i class="fa-solid fa-people-group" style="color:var(--blue-t)"></i></div>
+        <h3>Community first</h3>
+        <p>We're built around Australian suburbs — not algorithms. From Point Cook to Cairns, we focus on the people and businesses that make communities thrive.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon" style="background:var(--mentor-bg)"><i class="fa-solid fa-star" style="color:var(--mentor)"></i></div>
+        <h3>Mentorship matters</h3>
+        <p>Our mentors section connects people with experienced local professionals who volunteer their knowledge — because the best guidance is often found close to home.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon" style="background:var(--amber-bg)"><i class="fa-solid fa-heart-pulse" style="color:var(--amber-t)"></i></div>
+        <h3>Support when it counts</h3>
+        <p>We list emergency and crisis services alongside local businesses — because a community directory should serve the whole community, especially when it matters most.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="section">
+  <div class="container">
+    <div class="section-head center">
+      <div>
+        <p class="eyebrow">How it works</p>
+        <h2 class="section-title">Simple for everyone</h2>
+      </div>
+    </div>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="step-circle">1</div>
+        <h3>Submit your listing</h3>
+        <p>Businesses, opportunity posters and mentors fill in a simple form — takes about 5 minutes.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-circle">2</div>
+        <h3>Admin review</h3>
+        <p>Our team reviews every submission within 24 hours to ensure quality and accuracy.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-circle">3</div>
+        <h3>Go live</h3>
+        <p>Approved listings appear in the directory, searchable by suburb, state and category.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-circle">4</div>
+        <h3>Community connects</h3>
+        <p>People find your business, apply for your opportunity, or reach out to your mentor profile.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Mentors section -->
+<section class="mentor-about" id="mentors">
+  <div class="container">
+    <div class="mentor-about-grid">
+      <div>
+        <p class="eyebrow-mentor">The mentor programme</p>
+        <h2 class="section-title">More than a directory</h2>
+        <p class="section-sub" style="color:rgba(255,255,255,.6)">Listily's mentor network connects community members with experienced local professionals who volunteer their time to guide others.</p>
+        <ul class="mentor-points">
+          <li><i class="fa-solid fa-check-circle"></i> Mentors register their speciality, experience and how they want to be contacted</li>
+          <li><i class="fa-solid fa-check-circle"></i> They choose whether to publish their phone number or keep contact via email only</li>
+          <li><i class="fa-solid fa-check-circle"></i> All mentors are admin-verified before appearing publicly</li>
+          <li><i class="fa-solid fa-check-circle"></i> Covers trades, business, finance, arts, wellness, sport, education and more</li>
+          <li><i class="fa-solid fa-check-circle"></i> 100% free — both for mentors and mentees</li>
+        </ul>
+        <div style="margin-top:2rem;display:flex;gap:10px;flex-wrap:wrap">
+          <a href="mentors.html" class="btn btn-cta-white"><i class="fa-solid fa-magnifying-glass"></i> Find a mentor</a>
+          <a href="register.html#mentor" class="btn btn-cta-outline"><i class="fa-solid fa-star"></i> Become a mentor</a>
+        </div>
+      </div>
+      <div class="mentor-visual">
+        <div class="mentor-visual-icon">🌟</div>
+        <h3>Give back to your community</h3>
+        <p>Whether you're a tradie, accountant, artist or coach — if you have experience that could help someone take their next step, we'd love to have you.</p>
+        <div style="margin-top:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left">
+          <div style="background:rgba(255,255,255,.06);border-radius:var(--r-md);padding:.875rem">
+            <div style="font-size:20px;margin-bottom:4px">⏱️</div>
+            <div style="font-size:13px;font-weight:600;color:#fff">Flexible</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.5)">You set your availability</div>
+          </div>
+          <div style="background:rgba(255,255,255,.06);border-radius:var(--r-md);padding:.875rem">
+            <div style="font-size:20px;margin-bottom:4px">🔒</div>
+            <div style="font-size:13px;font-weight:600;color:#fff">Private option</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.5)">Whitelist your phone number</div>
+          </div>
+          <div style="background:rgba(255,255,255,.06);border-radius:var(--r-md);padding:.875rem">
+            <div style="font-size:20px;margin-bottom:4px">💰</div>
+            <div style="font-size:13px;font-weight:600;color:#fff">Free</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.5)">No fees, ever</div>
+          </div>
+          <div style="background:rgba(255,255,255,.06);border-radius:var(--r-md);padding:.875rem">
+            <div style="font-size:20px;margin-bottom:4px">✅</div>
+            <div style="font-size:13px;font-weight:600;color:#fff">Verified</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.5)">Admin-approved profiles</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section bg-card">
+  <div class="container" style="max-width:760px">
+    <div class="section-head center">
+      <div>
+        <p class="eyebrow">Common questions</p>
+        <h2 class="section-title">FAQ</h2>
+      </div>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Is it free to list my business on Listily? <i class="fa-solid fa-chevron-down"></i></div>
+        <div class="faq-a">Yes — completely free. There are no listing fees, no subscription costs, and no hidden charges. Listily is a community-driven directory and we intend to keep basic listings free always.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How long does it take to get listed? <i class="fa-solid fa-chevron-down"></i></div>
+        <div class="faq-a">Our admin team reviews all submissions within 24 hours. Once approved, your listing goes live immediately and is searchable across all relevant category and suburb filters.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can I update my listing after it's published? <i class="fa-solid fa-chevron-down"></i></div>
+        <div class="faq-a">At the moment, updates are handled by contacting us directly via the email below. Self-service editing is on our roadmap for Phase 4 — business owner accounts with a dashboard to manage your own listing.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How does the mentor programme work? <i class="fa-solid fa-chevron-down"></i></div>
+        <div class="faq-a">Mentors register via the "Become a mentor" form and choose their areas of speciality, how they prefer to connect (in-person, video call or phone), and whether to display their phone number publicly. All mentor profiles are reviewed before going live. Connecting with a mentor is free for both parties — Listily facilitates the connection, but the mentoring relationship itself is between you.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Why are emergency and support services listed? <i class="fa-solid fa-chevron-down"></i></div>
+        <div class="faq-a">We believe a community directory should serve the whole community. When someone searches for local services, they may need more than a plumber or a café — they might need crisis support, financial counselling or health advice. Listing verified national and state services alongside local businesses is part of our commitment to community wellbeing.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Is Listily available across all of Australia? <i class="fa-solid fa-chevron-down"></i></div>
+        <div class="faq-a">Yes. While our initial focus was on western Melbourne suburbs, Listily is built to cover all 8 states and territories. We currently have listings across VIC, NSW, QLD and WA, with SA, TAS, ACT and NT growing. Any Australian business, opportunity or mentor can register regardless of location.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How do I report an inaccurate or spam listing? <i class="fa-solid fa-chevron-down"></i></div>
+        <div class="faq-a">Email us at the address below with the listing name and what you believe is inaccurate or inappropriate. We review all reports within 24 hours and will update or remove listings that don't meet our standards.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section class="section" id="contact">
+  <div class="container">
+    <div class="section-head center">
+      <div>
+        <p class="eyebrow">Get in touch</p>
+        <h2 class="section-title">Contact us</h2>
+        <p class="section-sub" style="margin:.75rem auto 0">We're a small team. We read every message and aim to respond within one business day.</p>
+      </div>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="contact-icon" style="background:var(--green-bg)"><i class="fa-solid fa-envelope" style="color:var(--green-t)"></i></div>
+        <h3>General enquiries</h3>
+        <p>Questions about listings, the platform or the mentor programme? We'd love to hear from you.</p>
+        <a href="mailto:hello@listily.com.au">hello@listily.com.au</a>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon" style="background:var(--amber-bg)"><i class="fa-solid fa-flag" style="color:var(--amber-t)"></i></div>
+        <h3>Report a listing</h3>
+        <p>If you've spotted an inaccurate, misleading or inappropriate listing, please let us know.</p>
+        <a href="mailto:report@listily.com.au">report@listily.com.au</a>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon" style="background:var(--mentor-bg)"><i class="fa-solid fa-star" style="color:var(--mentor)"></i></div>
+        <h3>Mentor programme</h3>
+        <p>Interested in joining as a mentor, or want to partner your organisation with our mentor network?</p>
+        <a href="mailto:mentors@listily.com.au">mentors@listily.com.au</a>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon" style="background:var(--blue-bg)"><i class="fa-solid fa-handshake" style="color:var(--blue-t)"></i></div>
+        <h3>Partnerships</h3>
+        <p>Community organisations, councils and industry bodies — reach out to explore how we can work together.</p>
+        <a href="mailto:partnerships@listily.com.au">partnerships@listily.com.au</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="logo-icon sm"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div>
+        <span class="logo-word sm">l<span class="li">i</span>st<span class="li">i</span>ly</span>
+        <span class="logo-suffix sm">.au</span>
+      </div>
+      <p>Your local community directory — businesses, opportunities, mentors and support services across Australia.</p>
+      <div class="footer-social">
+        <a href="#" data-social="facebook" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+      </div>
+    </div>
+    <div class="footer-col"><h4>Directory</h4><a href="directory.html">Businesses</a><a href="opportunities.html">Opportunities</a><a href="mentors.html">Mentors</a><a href="directory.html?industry=Emergency+%26+Support">Emergency & Support</a></div>
+    <div class="footer-col"><h4>Join</h4><a href="register.html">Add your business</a><a href="register.html#opportunity">Post an opportunity</a><a href="register.html#mentor">Become a mentor</a></div>
+    <div class="footer-col"><h4>Company</h4><a href="about.html">About</a><a href="about.html#contact">Contact</a><a href="about.html#faq">FAQ</a></div>
+    <div class="footer-col"><h4>Legal</h4><a href="privacy.html">Privacy policy</a><a href="terms.html">Terms of use</a><a href="admin.html">Admin</a></div>
+  </div>
+  <div class="footer-bottom"><div class="container"><p>© 2026 Listily.au — Australian Community Business Directory &amp; Opportunities Board. All listings are community-submitted and admin-verified.</p></div></div>
+</footer>
+
+<div class="toast" id="toast"></div>
+<script src="js/config.js?v=17"></script>
+<script src="js/reviews.js?v=17"></script>
+<script src="js/edits.js?v=17"></script>
+<script src="js/utils.js?v=17"></script>
+<script>
+function toggleFaq(el) {
+  const a = el.nextElementSibling;
+  const open = a.classList.toggle('open');
+  el.classList.toggle('open', open);
+}
+</script>
+<script src="js/analytics.js?v=17"></script>
+</body>
+</html>

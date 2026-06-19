@@ -1,404 +1,230 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="NFP & Charities on Listily.au — find food banks, clothing drives, shelters, volunteering and donation opportunities near you in Australia.">
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-Frame-Options" content="DENY">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self';">
-  <title>NFP & Charities — Listily.au</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/directory.css">
-  <style>
-    /* NFP hero */
-    .nfp-hero{background:linear-gradient(140deg,#0D2B1A 0%,#14401F 50%,#1A5C2A 100%);padding:5rem 0 4rem;position:relative;overflow:hidden}
-    .nfp-hero::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 70% 50%,rgba(16,185,129,.12) 0%,transparent 70%);pointer-events:none}
-    .nh-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#86EFAC;margin-bottom:1.25rem;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.2);padding:5px 14px;border-radius:var(--r-full)}
-    .nh-title{font-family:var(--font-d);font-size:clamp(30px,5vw,50px);font-weight:800;line-height:1.1;color:#fff;margin-bottom:1rem;letter-spacing:-.02em}
-    .nh-accent{background:linear-gradient(135deg,#86EFAC 0%,#D1FAE5 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .nh-sub{font-size:16px;color:rgba(255,255,255,.65);line-height:1.65;max-width:560px;margin-bottom:2rem}
-    .nh-stats{display:flex;gap:2rem;flex-wrap:wrap}
-    .nh-stat strong{font-family:var(--font-d);font-size:24px;font-weight:700;color:#fff;display:block}
-    .nh-stat span{font-size:11px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.05em}
+let regStep=1;
 
-    /* Action cards */
-    .action-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:2rem}
-    .action-card{background:var(--bg-card);border:1.5px solid var(--border);border-radius:var(--r-xl);padding:1.5rem;text-align:center;text-decoration:none;color:var(--text);transition:all .18s;cursor:pointer}
-    .action-card:hover{transform:translateY(-3px);box-shadow:var(--sh-md)}
-    .ac-icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 1rem}
-    .ac-give{background:#FEF2D6;border-color:#F4BD5E} .ac-give:hover{border-color:var(--amber-t);background:#FDE8A8}
-    .ac-need{background:#E7F1FD;border-color:#88BAF0} .ac-need:hover{border-color:var(--blue-t);background:#C7DFFA}
-    .ac-vol{background:#E3F6EE;border-color:#7ACAA2}  .ac-vol:hover{border-color:var(--green-t);background:#B6EDD1}
-    .ac-reg{background:#EEECFE;border-color:#ADA0F0}  .ac-reg:hover{border-color:var(--mentor);background:#D4CEFF}
-    .action-card h3{font-size:15px;font-weight:600;margin-bottom:6px}
-    .action-card p{font-size:13px;color:var(--text-2);line-height:1.6}
-
-    /* Category pills */
-    .nfp-cat-pill{padding:7px 16px;border:1.5px solid var(--border);border-radius:var(--r-full);font-size:13px;font-weight:500;cursor:pointer;color:var(--text-2);background:var(--bg-card);font-family:var(--font);transition:all .15s}
-    .nfp-cat-pill:hover{background:var(--green-bg);border-color:var(--green-b);color:var(--green-t)}
-    .nfp-cat-pill.active{background:var(--green-bg);border-color:var(--green-b);color:var(--green-t);font-weight:600}
-
-    /* NFP card variant */
-    .biz-card.nfp-card{border-left:3px solid var(--green-b)}
-    .biz-card.nfp-card:hover{border-color:var(--green-t)}
-    .nfp-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:var(--r-full);background:var(--green-bg);color:var(--green-t);margin-top:4px}
-    .accepts-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:var(--r-full);background:#E7F1FD;color:#124FA0;margin-top:4px}
-  </style>
-</head>
-<body>
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-
-<nav class="navbar" id="navbar">
-  <div class="nav-inner container">
-    <a href="index.html" class="nav-logo">
-      <div class="logo-icon"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div>
-      <span class="logo-word">l<span class="li">i</span>st<span class="li">i</span>ly</span>
-      <span class="logo-suffix">.au</span>
-    </a>
-        <div class="nav-links" id="nav-links">
-      <a href="index.html" class="nav-link">Home</a>
-      <a href="directory.html" class="nav-link">Businesses</a>
-      <a href="opportunities.html" class="nav-link">Opportunities</a>
-      <a href="mentors.html" class="nav-link">Mentors</a>
-      <a href="nfp.html" class="nav-link active">Give &amp; Receive</a>
-      <a href="reviews.html" class="nav-link">Reviews</a>
-      <a href="register.html" class="nav-link">Add listing</a>
-      <a href="about.html" class="nav-link">About</a>
-      <a href="search.html" class="nav-link" style="color:var(--brand);font-weight:600"><i class="fa-solid fa-magnifying-glass" style="font-size:11px"></i> Search</a>
-    </div>
-    <div class="nav-actions">
-      <a href="admin.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-shield-halved"></i> Admin</a>
-      <a href="register.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Register NFP</a>
-      <button class="nav-burger" id="nav-burger" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
-    </div>
-  </div>
-</nav>
-
-<!-- Hero -->
-<div class="nfp-hero">
-  <div class="hero-grid-bg" aria-hidden="true"></div>
-  <div class="container" style="position:relative;z-index:1">
-    <div class="nh-eyebrow"><i class="fa-solid fa-hand-holding-heart"></i> Not-for-profit &amp; charities</div>
-    <h1 class="nh-title">Give a little.<br><span class="nh-accent">Change a lot.</span></h1>
-    <p class="nh-sub">Find local charities and NFPs accepting food donations, clothing, toys, furniture and volunteers — or get the support you need right now.</p>
-    <div class="nh-stats">
-      <div class="nh-stat"><strong id="nfp-count">14</strong><span>Organisations listed</span></div>
-      <div class="nh-stat"><strong>Free</strong><span>All services</span></div>
-      <div class="nh-stat"><strong>VIC · NSW · QLD</strong><span>States covered</span></div>
-    </div>
-  </div>
-</div>
-
-<!-- How to help / get help -->
-<section class="section bg-card">
-  <div class="container">
-    <div class="section-head center">
-      <div>
-        <p class="eyebrow">Get started</p>
-        <h2 class="section-title">How can we help you?</h2>
-      </div>
-    </div>
-    <div class="action-grid">
-      <div class="action-card ac-give" onclick="filterNFP('donate',this)">
-        <div class="ac-icon" style="background:#FDE8A8"><i class="fa-solid fa-box-open" style="color:#92560A"></i></div>
-        <h3>Donate goods</h3>
-        <p>Drop off food, clothing, toys, furniture or household goods to a local charity near you.</p>
-      </div>
-      <div class="action-card ac-need" onclick="filterNFP('need',this)">
-        <div class="ac-icon" style="background:#C7DFFA"><i class="fa-solid fa-hands-holding" style="color:#124FA0"></i></div>
-        <h3>I need support</h3>
-        <p>Find food relief, emergency accommodation, clothing assistance and more in your area.</p>
-      </div>
-      <div class="action-card ac-vol" onclick="filterNFP('volunteer',this)">
-        <div class="ac-icon" style="background:#B6EDD1"><i class="fa-solid fa-people-carry-box" style="color:#0D5C40"></i></div>
-        <h3>Volunteer</h3>
-        <p>Give your time — food sorting, delivery driving, administrative support and more.</p>
-      </div>
-      <div class="action-card ac-reg" onclick="location.href='register.html'">
-        <div class="ac-icon" style="background:#D4CEFF"><i class="fa-solid fa-building-ngo" style="color:#4628B0"></i></div>
-        <h3>Register your NFP</h3>
-        <p>Is your charity or NFP not listed? Add it for free — reach more donors and volunteers.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<main id="main-content">
-<div class="dir-layout container">
-
-  <!-- Sidebar -->
-  <aside class="dir-sidebar" id="nfp-sidebar">
-    <div class="sidebar-header">
-      <h2>Filter</h2>
-      <button class="btn-text" onclick="clearNFPFilters()">Clear</button>
-    </div>
-    <div class="filter-group">
-      <label class="filter-label">Search</label>
-      <div class="filter-search-wrap">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="nf-keyword" placeholder="Organisation or service…" oninput="applyNFPFilters()">
-      </div>
-    </div>
-    <div class="filter-group">
-      <label class="filter-label">Category</label>
-      <select id="nf-cat" onchange="applyNFPFilters()">
-        <option value="">All categories</option>
-        <option>Food Bank</option>
-        <option>Food Relief</option>
-        <option>Clothing Donations</option>
-        <option>Shelter & Housing</option>
-        <option>Refugee Support</option>
-        <option>Children & Youth</option>
-        <option>Women's Support</option>
-        <option>Disability Advocacy</option>
-        <option>Animal Welfare</option>
-        <option>Toy & Book Drive</option>
-        <option>Community Garden</option>
-        <option>Aboriginal & Torres Strait Islander</option>
-      </select>
-    </div>
-    <div class="filter-group">
-      <label class="filter-label">State</label>
-      <select id="nf-state" onchange="onNFPStateChange()">
-        <option value="">All states</option>
-        <option value="VIC">Victoria</option>
-        <option value="NSW">New South Wales</option>
-        <option value="QLD">Queensland</option>
-        <option value="WA">Western Australia</option>
-        <option value="SA">South Australia</option>
-      </select>
-    </div>
-    <div class="filter-group">
-      <label class="filter-label">Suburb</label>
-      <select id="nf-suburb" onchange="applyNFPFilters()">
-        <option value="">All suburbs</option>
-      </select>
-    </div>
-    <button class="btn btn-primary full-btn" onclick="applyNFPFilters()"><i class="fa-solid fa-sliders"></i> Apply</button>
-    <button class="btn btn-ghost full-btn sidebar-close" onclick="toggleNFPSidebar(false)" style="margin-top:8px">Close</button>
-  </aside>
-
-  <!-- Main -->
-  <div>
-    <div class="dir-topbar">
-      <div>
-        <h2 class="dir-title" id="nfp-dir-title">All organisations</h2>
-        <p class="dir-count" id="nfp-dir-count"></p>
-      </div>
-      <div class="dir-topbar-right">
-        <button class="btn btn-ghost btn-sm filter-toggle-btn" onclick="toggleNFPSidebar(true)"><i class="fa-solid fa-sliders"></i> Filter</button>
-      </div>
-    </div>
-
-    <!-- Category pills -->
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem" id="nfp-pills">
-      <button class="nfp-cat-pill active" onclick="setNFPPill('',this)">All</button>
-      <button class="nfp-cat-pill" onclick="setNFPPill('Food Bank',this)">🥫 Food banks</button>
-      <button class="nfp-cat-pill" onclick="setNFPPill('Food Relief',this)">🥦 Food relief</button>
-      <button class="nfp-cat-pill" onclick="setNFPPill('Clothing Donations',this)">👕 Clothing</button>
-      <button class="nfp-cat-pill" onclick="setNFPPill('Shelter & Housing',this)">🏠 Shelter</button>
-      <button class="nfp-cat-pill" onclick="setNFPPill('Refugee Support',this)">🌍 Refugee support</button>
-      <button class="nfp-cat-pill" onclick="setNFPPill('Children & Youth',this)">🌱 Children</button>
-      <button class="nfp-cat-pill" onclick="setNFPPill('Animal Welfare',this)">🐾 Animal welfare</button>
-    </div>
-
-    <div class="results-grid" id="nfp-grid" role="list"></div>
-    <div class="pagination" id="nfp-pagination"></div>
-  </div>
-</div>
-</main>
-
-<!-- Donation tip strip -->
-<section style="background:var(--green-bg);border-top:1px solid var(--green-b);border-bottom:1px solid var(--green-b);padding:2rem 0">
-  <div class="container">
-    <h3 style="font-family:var(--font-d);font-size:17px;font-weight:700;margin-bottom:1rem;color:var(--green-t)"><i class="fa-solid fa-lightbulb"></i> Tips for donating goods</h3>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem">
-      <div style="font-size:13px;color:var(--text-2)"><strong style="color:var(--green-t)">✓ Food donations</strong> — check use-by dates, non-perishables preferred. Long-life milk, canned goods, pasta, rice and baby formula are always needed.</div>
-      <div style="font-size:13px;color:var(--text-2)"><strong style="color:var(--green-t)">✓ Clothing</strong> — clean, wearable condition. Underwear and socks must be new. Winter coats, work clothing and school uniforms are high-demand items.</div>
-      <div style="font-size:13px;color:var(--text-2)"><strong style="color:var(--green-t)">✓ Toys & books</strong> — clean and in working condition. Age labels removed. Picture books, puzzles and educational toys are particularly welcome.</div>
-      <div style="font-size:13px;color:var(--text-2)"><strong style="color:var(--green-t)">✓ Furniture</strong> — contact the organisation first to confirm they can accept and store large items. GIVIT is a great platform for matching furniture donors with recipients.</div>
-    </div>
-  </div>
-</section>
-
-<footer class="site-footer">
-  <div class="container footer-inner">
-    <div class="footer-brand">
-      <div class="footer-logo">
-        <div class="logo-icon sm"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div>
-        <span class="logo-word sm">l<span class="li">i</span>st<span class="li">i</span>ly</span>
-        <span class="logo-suffix sm">.au</span>
-      </div>
-      <p>Your local community directory — businesses, opportunities, mentors, charities and support services.</p>
-      <div class="footer-social">
-        <a href="#" data-social="facebook" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
-        <a href="#" data-social="instagram" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-        <a href="#" data-social="linkedin" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
-      </div>
-    </div>
-    <div class="footer-col"><h4>Directory</h4><a href="directory.html">Businesses</a><a href="opportunities.html">Opportunities</a><a href="mentors.html">Mentors</a><a href="nfp.html">Give &amp; Receive</a></div>
-    <div class="footer-col"><h4>Support</h4><a href="directory.html?industry=Emergency+%26+Support">Emergency &amp; Support</a><a href="nfp.html">NFP &amp; Charities</a><a href="directory.html?industry=Pet+Services">Pet Services</a></div>
-    <div class="footer-col"><h4>Join</h4><a href="register.html">Add your listing</a><a href="register.html#opportunity">Post opportunity</a><a href="register.html#mentor">Become a mentor</a></div>
-    <div class="footer-col"><h4>Company</h4><a href="about.html">About</a><a href="about.html#contact">Contact</a><a href="privacy.html">Privacy</a><a href="admin.html">Admin</a></div>
-  </div>
-  <div class="footer-bottom"><div class="container"><p>© 2026 Listily.au — Australian Community Directory. All listings community-submitted and admin-verified.</p></div></div>
-</footer>
-
-<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true">
-  <div class="modal-box"><button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button><div id="modal-body"></div></div>
-</div>
-<div class="sidebar-overlay" id="nfp-sidebar-overlay" onclick="toggleNFPSidebar(false)"></div>
-<div class="toast" id="toast"></div>
-
-<script src="js/analytics.js?v=14"></script>
-<script src="js/config.js?v=14"></script>
-<script src="js/reviews.js?v=14"></script>
-<script src="js/edits.js?v=14"></script>
-<script src="js/data.js?v=14"></script>
-<script src="js/overrides.js?v=14"></script>
-<script src="js/utils.js?v=14"></script>
-<script>
-const NFP_PER_PAGE = 12;
-let nfpPage = 1;
-let nfpActiveCat = '';
-let nfpActiveFilter = '';
-
-// Donation-accepting tags and need-support tags for filter cards
-const DONATE_CATS = ['Food Bank','Food Relief','Clothing Donations','Toy & Book Drive','Animal Welfare','Community Garden'];
-const NEED_CATS   = ['Food Bank','Food Relief','Clothing Donations','Shelter & Housing','Refugee Support','Children & Youth','Women\'s Support','Disability Advocacy','Financial Hardship'];
-const VOL_CATS    = ['Food Bank','Food Relief','Community Garden','Animal Welfare','Children & Youth','Refugee Support'];
-
-function filterNFP(type, el) {
-  nfpActiveFilter = type;
-  document.querySelectorAll('.action-card').forEach(c => c.style.opacity = '0.6');
-  if (el) el.style.opacity = '1';
-  applyNFPFilters();
-}
-
-function setNFPPill(cat, btn) {
-  nfpActiveCat = cat;
-  document.querySelectorAll('.nfp-cat-pill').forEach(p => p.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  document.getElementById('nf-cat').value = cat;
-  applyNFPFilters();
-}
-
-function onNFPStateChange() {
-  const state = document.getElementById('nf-state').value;
-  const sel = document.getElementById('nf-suburb');
-  sel.innerHTML = '<option value="">All suburbs</option>';
-  (STATE_SUBURBS[state] || []).sort().forEach(s => {
-    const o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o);
+function goStep(n){
+  if(n>regStep&&!validateStep(regStep))return;
+  if(n===5)buildReview();
+  document.getElementById(`step-${regStep}`).classList.remove("active");
+  document.querySelectorAll(".reg-step").forEach(el=>{
+    const s=parseInt(el.dataset.step);el.classList.remove("active","done");
+    if(s===n)el.classList.add("active");else if(s<n)el.classList.add("done");
   });
-  applyNFPFilters();
+  document.getElementById(`step-${n}`).classList.add("active");
+  regStep=n;window.scrollTo({top:0,behavior:"smooth"});
 }
 
-function applyNFPFilters() {
-  const kw = (document.getElementById('nf-keyword')?.value || '').toLowerCase();
-  const cat = document.getElementById('nf-cat')?.value || nfpActiveCat;
-  const state = document.getElementById('nf-state')?.value || '';
-  const suburb = document.getElementById('nf-suburb')?.value || '';
-
-  let list = DB.filter(b => b.status === 'approved' && b.industry === 'NFP & Charities');
-
-  if (kw) list = list.filter(b => (b.name + ' ' + b.desc + ' ' + (b.tags||[]).join(' ')).toLowerCase().includes(kw));
-  if (cat) list = list.filter(b => b.cat === cat);
-  if (state) list = list.filter(b => b.suburb === suburb || b.state === state);
-  if (suburb) list = list.filter(b => b.suburb === suburb);
-
-  // Action card filter
-  if (nfpActiveFilter === 'donate') list = list.filter(b => DONATE_CATS.includes(b.cat));
-  else if (nfpActiveFilter === 'need') list = list.filter(b => NEED_CATS.includes(b.cat));
-  else if (nfpActiveFilter === 'volunteer') list = list.filter(b => VOL_CATS.includes(b.cat));
-
-  const titleEl = document.getElementById('nfp-dir-title');
-  const countEl = document.getElementById('nfp-dir-count');
-  if (titleEl) titleEl.textContent = cat || (nfpActiveFilter ? nfpActiveFilter + ' organisations' : 'All organisations');
-  if (countEl) countEl.textContent = `${list.length} organisation${list.length !== 1 ? 's' : ''} found`;
-
-  nfpPage = 1;
-  window._nfpList = list;
-  renderNFPGrid(list);
-  renderNFPPagination(list);
-}
-
-function renderNFPGrid(list) {
-  const grid = document.getElementById('nfp-grid');
-  const page = list.slice((nfpPage-1)*NFP_PER_PAGE, nfpPage*NFP_PER_PAGE);
-  if (!page.length) {
-    grid.innerHTML = `<div class="no-results" style="grid-column:1/-1"><i class="fa-solid fa-hand-holding-heart"></i><h3>No organisations found</h3><p>Try different filters or search terms.</p></div>`;
-    return;
+function validateStep(s){
+  if(s===1){
+    const name2=document.getElementById("r-name")?.value.trim();
+    const ind2=document.getElementById("r-industry")?.value;
+    const cat2=getCatValue();
+    const state2=document.getElementById("r-state")?.value;
+    const sub2=document.getElementById("r-suburb")?.value.trim();
+    const desc2=document.getElementById("r-desc")?.value.trim();
+    if(!name2||!ind2||!cat2||!state2||!sub2||!desc2){alert("Please fill in all required fields.");return false;}
+    return true;/*skip*/
+    const fields=["r-name","r-industry","r-cat","r-state","r-suburb","r-desc"];
+    if(fields.some(id=>!document.getElementById(id)?.value.trim())){alert("Please fill in all required fields.");return false;}
   }
-  grid.innerHTML = page.map(b => {
-    const s = getOpenStatus(b);
-    const isDonate = DONATE_CATS.includes(b.cat);
-    const isNeed   = NEED_CATS.includes(b.cat);
-    const isVol    = VOL_CATS.includes(b.cat);
-    return `<article class="biz-card nfp-card" tabindex="0" onclick="openBizModal(${b.id})" role="listitem" aria-label="${escHtml(b.name)}">
-      <div class="biz-card-header">
-        <div class="biz-emoji" aria-hidden="true">${b.icon}</div>
-        <div>
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <div class="biz-name">${escHtml(b.name)}</div>
-          ${(typeof Reviews!=='undefined')?(()=>{const avg=Reviews.avgRating(b.id,'business');const cnt=Reviews.getFor(b.id,'business').length;return avg?`<span style="font-size:11px;color:#F59E0B">${Reviews.starsHTML(avg,'sm')}</span><span style="font-size:10px;color:var(--text-3)">${avg} (${cnt})</span>`:'';})():''}
-        </div>
-          <div class="biz-loc"><i class="fa-solid fa-location-dot" style="font-size:10px"></i>${escHtml(b.suburb)}, ${escHtml(b.state)}</div>
-          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">
-            ${isDonate ? '<span class="nfp-badge"><i class="fa-solid fa-box-open"></i>Accepts donations</span>' : ''}
-            ${isNeed   ? '<span class="accepts-badge"><i class="fa-solid fa-hands-holding"></i>Provides support</span>' : ''}
-            ${isVol    ? '<span class="nfp-badge" style="background:#EEECFE;color:#4628B0"><i class="fa-solid fa-people-carry-box"></i>Needs volunteers</span>' : ''}
-          </div>
-        </div>
-      </div>
-      <p class="biz-desc">${escHtml(b.desc)}</p>
-      <div class="biz-tags">${renderTags(b.tags)}</div>
-      <div class="biz-footer">
-        <div class="biz-contacts">
-          ${b.phone ? `<span class="chip"><i class="fa-solid fa-phone"></i>${escHtml(b.phone)}</span>` : ''}
-          ${b.email ? `<span class="chip"><i class="fa-solid fa-envelope"></i>Email</span>` : ''}
-          ${b.web   ? `<span class="chip"><i class="fa-solid fa-globe"></i>Website</span>` : ''}
-        </div>
-        <span class="open-badge ${s.cls}">${s.label}</span>
-      </div>
-      <div class="biz-updated"><i class="fa-regular fa-clock"></i>${relDate(b.lastUpdated)}</div>
-    </article>`;
-  }).join('');
+  if(s===2&&!document.getElementById("r-contact")?.value.trim()){alert("Please enter contact name.");return false;}
+  if(s===3){
+    const em=document.getElementById("r-email")?.value.trim();
+    if(!em){alert("Email is required.");return false;}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){alert("Please enter a valid email.");return false;}
+  }
+  return true;
 }
 
-function renderNFPPagination(list) {
-  const total = Math.ceil(list.length / NFP_PER_PAGE);
-  const pg = document.getElementById('nfp-pagination');
-  if (!pg || total <= 1) { if (pg) pg.innerHTML = ''; return; }
-  let html = `<button class="page-btn" onclick="goNFPPage(${nfpPage-1})" ${nfpPage===1?'disabled':''} aria-label="Previous"><i class="fa-solid fa-chevron-left"></i></button>`;
-  for (let i = 1; i <= total; i++) html += `<button class="page-btn${i===nfpPage?' active':''}" onclick="goNFPPage(${i})">${i}</button>`;
-  html += `<button class="page-btn" onclick="goNFPPage(${nfpPage+1})" ${nfpPage===total?'disabled':''} aria-label="Next"><i class="fa-solid fa-chevron-right"></i></button>`;
-  pg.innerHTML = html;
+function populateCatDropdown(){
+  const ind = document.getElementById("r-industry").value;
+  const sel = document.getElementById("r-cat");
+  const freeInput = document.getElementById("r-cat-free");
+  const isEmergency = ind === "Emergency & Support";
+
+  if (isEmergency) {
+    // Show free-text input, hide dropdown
+    sel.style.display = "none";
+    if (freeInput) {
+      freeInput.style.display = "block";
+      freeInput.placeholder = "e.g. Crisis Line, Mental Health Helpline, Domestic Violence Support, After-Hours GP…";
+      freeInput.required = true;
+    }
+  } else {
+    // Show dropdown, hide free-text
+    sel.style.display = "block";
+    if (freeInput) { freeInput.style.display = "none"; freeInput.required = false; }
+    sel.innerHTML = `<option value="">Select category…</option>`;
+    (INDUSTRY_CATS[ind] || []).forEach(c => {
+      const o = document.createElement("option");
+      o.value = c; o.textContent = c; sel.appendChild(o);
+    });
+  }
 }
 
-function goNFPPage(n) { nfpPage = n; renderNFPGrid(window._nfpList||[]); renderNFPPagination(window._nfpList||[]); window.scrollTo({top:0,behavior:'smooth'}); }
-function clearNFPFilters() {
-  ['nf-keyword','nf-cat','nf-state','nf-suburb'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  nfpActiveCat = ''; nfpActiveFilter = '';
-  document.querySelectorAll('.nfp-cat-pill').forEach(p => p.classList.remove('active'));
-  document.querySelector('.nfp-cat-pill')?.classList.add('active');
-  document.querySelectorAll('.action-card').forEach(c => c.style.opacity = '1');
-  applyNFPFilters();
-}
-function toggleNFPSidebar(open) {
-  document.getElementById('nfp-sidebar').classList.toggle('open', open);
-  document.getElementById('nfp-sidebar-overlay').classList.toggle('open', open);
+function getCatValue() {
+  const ind = document.getElementById("r-industry").value;
+  if (ind === "Emergency & Support") {
+    return document.getElementById("r-cat-free")?.value.trim() || "";
+  }
+  return document.getElementById("r-cat")?.value || "";
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const count = DB.filter(b => b.status === 'approved' && b.industry === 'NFP & Charities').length;
-  const el = document.getElementById('nfp-count');
-  if (el) el.textContent = count;
-  applyNFPFilters();
+function populateSuburbList(){
+  const state=document.getElementById("r-state").value,dl=document.getElementById("suburb-list");
+  dl.innerHTML="";
+  (STATE_SUBURBS[state]||[]).sort().forEach(s=>{const o=document.createElement("option");o.value=s;dl.appendChild(o);});
+}
+
+function getHoursFromForm(){
+  const h={};document.querySelectorAll(".hi[data-day]").forEach(el=>{h[el.dataset.day]=el.value.trim()||"Closed";});return h;
+}
+
+function buildReview(){
+  const rows=[
+    ["Business name",document.getElementById("r-name")?.value],
+    ["Industry",document.getElementById("r-industry")?.value],
+    ["Category",getCatValue()],
+    ["State",document.getElementById("r-state")?.value],
+    ["Suburb",document.getElementById("r-suburb")?.value],
+    ["ABN",document.getElementById("r-abn")?.value],
+    ["Contact",document.getElementById("r-contact")?.value],
+    ["Role",document.getElementById("r-role")?.value],
+    ["Mobile",document.getElementById("r-mobile")?.value],
+    ["Email",document.getElementById("r-email")?.value],
+    ["WhatsApp",document.getElementById("r-wa")?.value],
+    ["Website",document.getElementById("r-web")?.value],
+  ].filter(([,v])=>v);
+  document.getElementById("review-box").innerHTML=rows.map(([l,v])=>`<div class="review-row"><span class="review-lbl">${escHtml(l)}</span><span class="review-val">${escHtml(v)}</span></div>`).join("");
+}
+
+function submitReg(){
+  if(!validateStep(3))return;
+  const today=new Date().toISOString().slice(0,10);
+  const ind=document.getElementById("r-industry").value;
+  const name=document.getElementById("r-name").value.trim();
+  DB.push({
+    id:Date.now(),name,industry:ind,cat:getCatValue(),
+    suburb:document.getElementById("r-suburb").value.trim(),state:document.getElementById("r-state").value,
+    abn:document.getElementById("r-abn")?.value,
+    desc:document.getElementById("r-desc").value.trim(),
+    icon:industryIcon(ind),
+    tags:(document.getElementById("r-keywords")?.value||"").split(",").map(s=>s.trim()).filter(Boolean).slice(0,3),
+    contact:document.getElementById("r-contact").value.trim(),
+    role:document.getElementById("r-role")?.value,
+    mobile:document.getElementById("r-mobile")?.value.trim(),
+    phone:document.getElementById("r-phone")?.value.trim(),
+    email:document.getElementById("r-email").value.trim(),
+    wa:document.getElementById("r-wa")?.value.trim(),
+    web:document.getElementById("r-web")?.value.trim(),
+    fb:document.getElementById("r-fb")?.value.trim(),
+    hours:getHoursFromForm(),lastUpdated:today,submittedAt:today,status:"pending"
+  });
+  document.getElementById("success-msg").textContent=`"${name}" has been submitted for review and will go live within 24 hours.`;
+  document.getElementById("reg-form-wrapper").style.display="none";
+  document.getElementById("success-panel").style.display="block";
+}
+
+function resetForm(){
+  document.querySelectorAll("#reg-form-wrapper input,#reg-form-wrapper select,#reg-form-wrapper textarea").forEach(el=>el.value="");
+  document.getElementById("reg-form-wrapper").style.display="block";
+  document.getElementById("success-panel").style.display="none";
+  goStep(1);
+}
+
+function submitOpp(){
+  const title=document.getElementById("ro-title")?.value.trim();
+  const type=document.getElementById("ro-type")?.value;
+  const email=document.getElementById("ro-email")?.value.trim();
+  if(!title||!type||!email){alert("Please fill in all required opportunity fields.");return;}
+  const today=new Date().toISOString().slice(0,10);
+  OPPORTUNITIES.push({
+    id:Date.now(),title,type,
+    org:document.getElementById("ro-org")?.value.trim()||"",
+    suburb:document.getElementById("ro-suburb")?.value.trim()||"",
+    state:document.getElementById("ro-state")?.value||"",
+    industry:document.getElementById("ro-industry")?.value||"",
+    arrangement:document.getElementById("ro-arrange")?.value||"",
+    salary:document.getElementById("ro-salary")?.value.trim()||"",
+    duration:document.getElementById("ro-duration")?.value.trim()||"",
+    icon:"💼",
+    desc:document.getElementById("ro-desc")?.value.trim()||"",
+    responsibilities:(document.getElementById("ro-responsibilities")?.value||"").split("\n").map(s=>s.trim()).filter(Boolean),
+    requirements:(document.getElementById("ro-requirements")?.value||"").split("\n").map(s=>s.trim()).filter(Boolean),
+    closingDate:document.getElementById("ro-closing")?.value||null,
+    email,contact:document.getElementById("ro-contact")?.value.trim()||"",
+    phone:document.getElementById("ro-phone")?.value.trim()||"",
+    postedAt:today,lastUpdated:today,status:"pending"
+  });
+  document.getElementById("opp-success-msg").textContent=`"${title}" has been submitted and will appear after admin review.`;
+  document.getElementById("opp-form").style.display="none";
+  document.getElementById("opp-success").style.display="block";
+}
+
+function industryIcon(ind){
+  const m={"Hospitality & Food":"🍽️","Home & Trade Services":"🔧","Health & Medical":"🏥","Real Estate & Property":"🏡","Education & Childcare":"📚","Professional Services":"💼","Retail & Shopping":"🛍️","Beauty & Personal Care":"✂️","Automotive":"🚗","Community & Culture":"🎭","Technology & IT":"💻","Finance & Insurance":"📊","Fitness & Sport":"💪","Events & Entertainment":"🎉","Home Business":"🏠"};
+  return m[ind]||"🏢";
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  document.getElementById("r-industry")?.addEventListener("change",populateCatDropdown);
+  document.getElementById("r-state")?.addEventListener("change",populateSuburbList);
+  // Handle #opportunity anchor
+  if(window.location.hash==="#opportunity"){
+    document.getElementById("tab-biz")?.classList.remove("active");
+    document.getElementById("tab-opp")?.classList.add("active");
+    document.getElementById("biz-form-section")?.style.setProperty("display","none");
+    document.getElementById("opp-form-section")?.style.setProperty("display","block");
+  }
 });
-</script>
-</body>
-</html>
+
+function submitMentor() {
+  const name    = document.getElementById('rm-name')?.value.trim();
+  const state   = document.getElementById('rm-state')?.value;
+  const suburb  = document.getElementById('rm-suburb')?.value.trim();
+  const exp     = document.getElementById('rm-exp')?.value;
+  const spec    = document.getElementById('rm-specialty')?.value.trim();
+  const areas   = document.getElementById('rm-areas')?.value.trim();
+  const bio     = document.getElementById('rm-bio')?.value.trim();
+  const email   = document.getElementById('rm-email')?.value.trim();
+  const avail   = document.getElementById('rm-avail')?.value;
+
+  if (!name||!state||!suburb||!exp||!spec||!areas||!bio||!email||!avail) {
+    alert('Please fill in all required fields marked with *.'); return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert('Please enter a valid email address.'); return;
+  }
+
+  const phone     = document.getElementById('rm-phone')?.value.trim();
+  const wa        = document.getElementById('rm-wa')?.value.trim();
+  const whitelist = document.getElementById('rm-whitelist')?.checked || false;
+  const modes     = [...document.querySelectorAll('.rm-mode:checked')].map(el => el.value);
+  const notes     = document.getElementById('rm-notes')?.value.trim();
+  const today     = new Date().toISOString().slice(0,10);
+  const areaList  = areas.split(',').map(s => s.trim()).filter(Boolean);
+
+  if (typeof MENTORS !== 'undefined') {
+    MENTORS.push({
+      id: Date.now(),
+      name, state, suburb,
+      specialty: spec,
+      areas: areaList,
+      bio,
+      avatar: name.charAt(0).toUpperCase(),
+      experience: exp,
+      email, phone, wa,
+      whitelistPhone: whitelist,
+      mode: modes.length ? modes : ['Video call'],
+      available: avail,
+      notes,
+      tags: areaList.slice(0,4),
+      lastUpdated: today,
+      submittedAt: today,
+      status: 'pending'
+    });
+  }
+
+  document.getElementById('mentor-success-msg').textContent =
+    `"${name}" has been submitted for review and will appear on the mentors page within 24 hours.`;
+  document.getElementById('mentor-form').style.display = 'none';
+  document.getElementById('mentor-success').style.display = 'block';
+}

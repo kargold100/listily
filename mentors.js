@@ -1,9 +1,211 @@
-User-agent: *
-Allow: /
-Disallow: /admin.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Local jobs, apprenticeships, traineeships, internships and volunteering opportunities near you — Listily.au">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self';">
+  <title>Job, Volunteering &amp; Training Opportunities — Listily.au</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/opportunities.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-icon-wrap"><div class="logo-l-vert"></div><div class="logo-l-horiz"></div><div class="logo-dot"></div></div>
+      <span class="logo-wordmark">listly</span><span class="logo-au">.au</span>
+    </a>
+        <div class="nav-links" id="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="directory.html" class="nav-link">Businesses</a>
+      <a href="opportunities.html" class="nav-link active">Opportunities</a>
+      <a href="mentors.html" class="nav-link">Mentors</a>
+      <a href="nfp.html" class="nav-link">Give &amp; Receive</a>
+      <a href="reviews.html" class="nav-link">Reviews</a>
+      <a href="register.html" class="nav-link">Add listing</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="search.html" class="nav-link" style="color:var(--brand);font-weight:600"><i class="fa-solid fa-magnifying-glass" style="font-size:11px"></i> Search</a>
+    </div>
+    <div class="nav-actions">
+      <a href="admin.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-shield-halved"></i> Admin</a>
+      <a href="register.html#opportunity" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Post opportunity</a>
+      <button class="nav-burger" id="nav-burger" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
 
-# Replace YOUR-USERNAME with your actual GitHub username if hosting on GitHub Pages
-# Sitemap: https://YOUR-USERNAME.github.io/listily/sitemap.xml
+<!-- Opportunities hero -->
+<div class="opp-hero">
+  <div class="container opp-hero-inner">
+    <div>
+      <h1 class="opp-hero-title">Job, Volunteering &amp;<br>Training Opportunities</h1>
+      <p class="opp-hero-sub">Jobs, apprenticeships, traineeships, internships, volunteering, work experience and career exploration opportunities from local Australian businesses and organisations.</p>
+    </div>
+    <a href="register.html#opportunity" class="btn btn-cta-white"><i class="fa-solid fa-plus"></i> Post an opportunity</a>
+  </div>
+  <!-- Type stat pills -->
+  <div class="container">
+    <div class="opp-stat-pills" id="opp-stat-pills"></div>
+  </div>
+</div>
 
-# If using a custom domain:
-# Sitemap: https://listily.au/sitemap.xml
+<div class="opp-layout container">
+  <!-- SIDEBAR -->
+  <aside class="opp-sidebar" id="opp-sidebar">
+    <div class="sidebar-header">
+      <h2>Filters</h2>
+      <button class="btn-text" onclick="clearOppFilters()">Clear all</button>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Keyword</label>
+      <div class="filter-search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="of-keyword" placeholder="Role, skill, employer…" oninput="applyOppFilters()">
+      </div>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Opportunity type</label>
+      <div class="check-group" id="type-checks">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">State</label>
+      <select id="of-state" onchange="onOppStateChange()">
+        <option value="">All states</option>
+        <option value="VIC">Victoria</option><option value="NSW">New South Wales</option>
+        <option value="QLD">Queensland</option><option value="WA">Western Australia</option>
+        <option value="SA">South Australia</option><option value="TAS">Tasmania</option>
+        <option value="ACT">ACT</option><option value="NT">Northern Territory</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Suburb</label>
+      <select id="of-suburb" onchange="applyOppFilters()">
+        <option value="">All suburbs</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Industry</label>
+      <select id="of-industry" onchange="applyOppFilters()">
+        <option value="">All industries</option>
+        <option>Hospitality &amp; Food</option>
+        <option>Home &amp; Trade Services</option>
+        <option>Health &amp; Medical</option>
+        <option>Legal &amp; Migration</option>
+        <option>Real Estate &amp; Property</option>
+        <option>Education &amp; Childcare</option>
+        <option>Career &amp; Student Support</option>
+        <option>Professional Services</option>
+        <option>Retail &amp; Shopping</option>
+        <option>Beauty &amp; Personal Care</option>
+        <option>Automotive</option>
+        <option>Community &amp; Culture</option>
+        <option>Migrant &amp; Multicultural</option>
+        <option>Technology &amp; IT</option>
+        <option>Finance &amp; Insurance</option>
+        <option>Fitness &amp; Sport</option>
+        <option>Events &amp; Entertainment</option>
+        <option>Home Business</option>
+        <option>Emergency &amp; Support</option>
+        <option>Pet Services</option>
+        <option>NFP &amp; Charities</option>
+        <option>Driving Schools</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Work arrangement</label>
+      <select id="of-arrange" onchange="applyOppFilters()">
+        <option value="">Any</option>
+        <option value="Full-time">Full-time</option>
+        <option value="Part-time">Part-time</option>
+        <option value="Casual">Casual</option>
+        <option value="Contract">Contract</option>
+        <option value="Remote">Remote</option>
+        <option value="Hybrid">Hybrid</option>
+        <option value="On-site">On-site</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Sort by</label>
+      <select id="of-sort" onchange="applyOppFilters()">
+        <option value="newest">Newest first</option>
+        <option value="closing">Closing soon</option>
+        <option value="alpha">A–Z</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Include expired</label>
+      <label class="toggle-row">
+        <input type="checkbox" id="of-show-expired" onchange="applyOppFilters()">
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        <span class="toggle-lbl" style="font-size:12px">Show expired listings too</span>
+      </label>
+    </div>
+    <button class="btn btn-primary full-btn" onclick="applyOppFilters()"><i class="fa-solid fa-sliders"></i> Apply filters</button>
+    <button class="btn btn-ghost full-btn sidebar-close" id="opp-sidebar-close" onclick="toggleOppSidebar(false)" style="margin-top:8px">Close filters</button>
+  </aside>
+
+  <!-- MAIN -->
+  <main id="main-content" class="opp-main">
+    <div class="dir-topbar">
+      <div>
+        <h2 class="dir-title" id="opp-title">All opportunities</h2>
+        <p class="dir-count" id="opp-count"></p>
+      </div>
+      <div class="dir-topbar-right">
+        <button class="btn btn-ghost btn-sm filter-toggle-btn" onclick="toggleOppSidebar(true)">
+          <i class="fa-solid fa-sliders"></i> Filters
+          <span id="opp-filter-badge" class="active-filter-badge" style="display:none">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Results: two-panel like Seek -->
+    <div class="opp-results-wrap">
+      <div class="opp-list" id="opp-list" role="list"></div>
+      <div class="opp-detail-panel" id="opp-detail-panel">
+        <div class="opp-detail-placeholder">
+          <i class="fa-solid fa-briefcase"></i>
+          <p>Select an opportunity to view details</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="pagination" id="opp-pagination"></div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal-box" id="modal-box">
+    <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+<div class="sidebar-overlay" id="opp-sidebar-overlay" onclick="toggleOppSidebar(false)"></div>
+
+<footer class="site-footer">
+  <div class="footer-bottom"><div class="container"><p>© 2026 Listily.au — Australian Business Directory &amp; Opportunities Board</p></div></div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/analytics.js?v=17"></script>
+<script src="js/config.js?v=17"></script>
+<script src="js/reviews.js?v=17"></script>
+<script src="js/edits.js?v=17"></script>
+<script src="js/data.js?v=17"></script>
+<script src="js/listings.js?v=17"></script>
+<script src="js/overrides.js?v=17"></script>
+<script src="js/utils.js?v=17"></script>
+<script src="js/opportunities.js?v=17"></script>
+</body>
+</html>

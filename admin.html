@@ -1,75 +1,278 @@
-name: Deploy Listily to GitHub Pages
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Community reviews on Listily.au — see what locals are saying about businesses, mentors and opportunities.">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://*.firebaseio.com https://*.supabase.co;">
+  <title>Reviews — Listily.au</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/base.css">
+  <style>
+    .rev-hero{background:linear-gradient(140deg,#1A1408 0%,#3B2C0E 50%,#5A3F12 100%);padding:5rem 0 4rem;position:relative;overflow:hidden}
+    .rev-hero::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 70% 50%,rgba(245,158,11,.15) 0%,transparent 70%);pointer-events:none}
+    .rh-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#FCD34D;margin-bottom:1.25rem;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.2);padding:5px 14px;border-radius:var(--r-full)}
+    .rh-title{font-family:var(--font-d);font-size:clamp(30px,5vw,50px);font-weight:800;line-height:1.1;color:#fff;margin-bottom:1rem;letter-spacing:-.02em}
+    .rh-accent{background:linear-gradient(135deg,#FCD34D 0%,#FDE68A 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .rh-sub{font-size:16px;color:rgba(255,255,255,.65);line-height:1.65;max-width:560px;margin-bottom:2rem}
+    .rh-stats{display:flex;gap:2rem;flex-wrap:wrap}
+    .rh-stat strong{font-family:var(--font-d);font-size:24px;font-weight:700;color:#fff;display:block}
+    .rh-stat span{font-size:11px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.05em}
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+    .backend-banner{padding:.75rem 1rem;background:var(--amber-bg);border-top:1px solid var(--amber-b);border-bottom:1px solid var(--amber-b);font-size:13px;color:var(--amber-t);text-align:center}
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+    .filter-bar{background:var(--bg-card);border-bottom:1px solid var(--border);padding:1rem 0;position:sticky;top:var(--nav-h);z-index:50}
+    .filter-row{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center}
+    .filter-row select,.filter-row input{padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:13px;background:#fff;color:#111827;font-family:var(--font)}
+    .filter-row input[type=text]{flex:1;min-width:200px}
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+    .reviews-grid{padding:2rem 0;display:flex;flex-direction:column;gap:14px;max-width:780px;margin:0 auto}
+    .pub-review{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.25rem 1.375rem;transition:border-color .15s}
+    .pub-review:hover{border-color:var(--amber-b)}
+    .pub-rev-header{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap}
+    .pub-rev-meta{font-size:11.5px;color:var(--text-3)}
+    .pub-rev-meta strong{color:var(--text-2);font-weight:600}
+    .pub-rev-title{font-weight:600;font-size:15px;margin-top:6px;color:var(--text)}
+    .pub-rev-body{font-size:13.5px;color:var(--text-2);line-height:1.7;margin-top:.75rem}
+    .pub-rev-listing{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:var(--r-full);text-decoration:none;transition:all .15s;margin-top:.625rem}
+    .prl-business{background:var(--brand-bg);color:var(--brand-dark)} .prl-business:hover{background:var(--brand);color:#fff}
+    .prl-mentor{background:var(--mentor-bg);color:var(--mentor-dark)}   .prl-mentor:hover{background:var(--mentor);color:#fff}
+    .prl-opportunity{background:var(--blue-bg);color:var(--blue-t)}     .prl-opportunity:hover{background:var(--blue-t);color:#fff}
 
-jobs:
+    .empty-rev{text-align:center;padding:4rem 1rem;color:var(--text-3)}
+    .empty-rev i{font-size:48px;display:block;margin-bottom:1rem;opacity:.3}
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  security-scan:
-    name: Security scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+<nav class="navbar" id="navbar">
+  <div class="nav-inner container">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-icon"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div>
+      <span class="logo-word">l<span class="li">i</span>st<span class="li">i</span>ly</span><span class="logo-suffix">.au</span>
+    </a>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="directory.html" class="nav-link">Businesses</a>
+      <a href="opportunities.html" class="nav-link">Opportunities</a>
+      <a href="mentors.html" class="nav-link">Mentors</a>
+      <a href="nfp.html" class="nav-link">Give &amp; Receive</a>
+      <a href="reviews.html" class="nav-link active">Reviews</a>
+      <a href="register.html" class="nav-link">Add listing</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="search.html" class="nav-link" style="color:var(--brand);font-weight:600"><i class="fa-solid fa-magnifying-glass" style="font-size:11px"></i> Search</a>
+    </div>
+    <div class="nav-actions">
+      <a href="admin.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-shield-halved"></i> Admin</a>
+      <button class="nav-burger" id="nav-burger" aria-label="Toggle menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
 
-      - name: Gitleaks secret detection
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          config-path: .gitleaks.toml
+<div class="rev-hero">
+  <div class="hero-grid-bg" aria-hidden="true"></div>
+  <div class="container" style="position:relative;z-index:1">
+    <div class="rh-eyebrow"><i class="fa-solid fa-star"></i> Community reviews</div>
+    <h1 class="rh-title">What locals are<br><span class="rh-accent">saying.</span></h1>
+    <p class="rh-sub">Honest reviews from your community — on businesses, mentors and opportunities listed on Listily.</p>
+    <div class="rh-stats">
+      <div class="rh-stat"><strong id="rh-total">0</strong><span>Total reviews</span></div>
+      <div class="rh-stat"><strong id="rh-avg">—</strong><span>Average rating</span></div>
+      <div class="rh-stat"><strong id="rh-recent">0</strong><span>This month</span></div>
+    </div>
+  </div>
+</div>
 
-      - name: Scan for unsafe JS patterns
-        run: |
-          echo "=== eval() ===" && (grep -rn "eval(" docs/js/ && echo "WARNING") || echo "OK"
-          echo "=== document.write ===" && (grep -rn "document\.write(" docs/ && echo "WARNING") || echo "OK"
-          echo "Scan complete"
+<div id="backend-banner" class="backend-banner" style="display:none">
+  <i class="fa-solid fa-triangle-exclamation"></i>
+  <strong>Demo mode:</strong> reviews are saved to your browser only and aren't visible to other visitors.
+  <a href="#backend-info" style="color:var(--amber-t);text-decoration:underline;font-weight:600">Set up a shared backend →</a>
+</div>
 
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: security-scan
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+<div class="filter-bar">
+  <div class="container filter-row">
+    <input type="text" id="rev-search" placeholder="Search reviews…" oninput="renderReviews()">
+    <select id="rev-type" onchange="renderReviews()">
+      <option value="">All types</option>
+      <option value="business">Businesses</option>
+      <option value="mentor">Mentors</option>
+      <option value="opportunity">Opportunities</option>
+    </select>
+    <select id="rev-rating" onchange="renderReviews()">
+      <option value="">All ratings</option>
+      <option value="5">★★★★★ (5 only)</option>
+      <option value="4">★★★★☆ (4+)</option>
+      <option value="3">★★★☆☆ (3+)</option>
+      <option value="2">★★☆☆☆ (2+)</option>
+      <option value="1">★☆☆☆☆ (1+)</option>
+    </select>
+    <select id="rev-sort" onchange="renderReviews()">
+      <option value="recent">Most recent</option>
+      <option value="oldest">Oldest first</option>
+      <option value="rating-desc">Highest rating</option>
+      <option value="rating-asc">Lowest rating</option>
+      <option value="helpful">Most helpful</option>
+    </select>
+  </div>
+</div>
 
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+<main id="main-content">
+  <div class="container reviews-grid" id="reviews-grid"></div>
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  <!-- Backend setup info -->
+  <section class="section bg-tint" id="backend-info">
+    <div class="container" style="max-width:780px">
+      <h2 style="font-family:var(--font-d);font-size:24px;font-weight:700;margin-bottom:.5rem">Want reviews visible to everyone?</h2>
+      <p style="font-size:14px;color:var(--text-2);line-height:1.7;margin-bottom:1.5rem">Right now reviews are stored in each visitor's own browser — so they're not shared across devices. To make reviews public to all visitors, connect a free shared backend:</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.125rem">
+          <div style="font-size:22px;margin-bottom:8px">📊</div>
+          <h3 style="font-size:14px;font-weight:600;margin-bottom:4px">Google Sheets</h3>
+          <p style="font-size:12.5px;color:var(--text-2);line-height:1.6">Easiest — uses Google Apps Script as a webhook. Free, no signup beyond a Google account.</p>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.125rem">
+          <div style="font-size:22px;margin-bottom:8px">🔥</div>
+          <h3 style="font-size:14px;font-weight:600;margin-bottom:4px">Firebase</h3>
+          <p style="font-size:12.5px;color:var(--text-2);line-height:1.6">Google's realtime DB — free tier handles 100k reads/day. Already trusted by millions of apps.</p>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.125rem">
+          <div style="font-size:22px;margin-bottom:8px">⚡</div>
+          <h3 style="font-size:14px;font-weight:600;margin-bottom:4px">Supabase</h3>
+          <p style="font-size:12.5px;color:var(--text-2);line-height:1.6">Open-source Postgres backend. 500MB and 50k monthly active users on the free tier.</p>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--text-3);margin-top:1.25rem">See <code style="background:var(--bg-tint);padding:2px 6px;border-radius:4px;font-size:12px">REVIEWS_BACKEND_SETUP.md</code> in the repo for step-by-step setup for each option.</p>
+    </div>
+  </section>
+</main>
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="logo-icon sm"><div class="logo-l-v"></div><div class="logo-l-h"></div><div class="logo-dot-1"></div><div class="logo-dot-2"></div></div>
+        <span class="logo-word sm">l<span class="li">i</span>st<span class="li">i</span>ly</span><span class="logo-suffix sm">.au</span>
+      </div>
+      <p>Your local community directory.</p>
+      <div class="footer-social">
+        <a href="#" data-social="facebook" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+        <a href="#" data-social="instagram" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" data-social="linkedin" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+      </div>
+    </div>
+    <div class="footer-col"><h4>Directory</h4><a href="directory.html">Businesses</a><a href="opportunities.html">Opportunities</a><a href="mentors.html">Mentors</a><a href="nfp.html">Give &amp; Receive</a></div>
+    <div class="footer-col"><h4>Community</h4><a href="reviews.html">Reviews</a><a href="search.html">Search</a><a href="register.html">Add listing</a></div>
+    <div class="footer-col"><h4>Company</h4><a href="about.html">About</a><a href="about.html#contact">Contact</a><a href="admin.html">Admin</a></div>
+  </div>
+  <div class="footer-bottom"><div class="container"><p>© 2026 Listily.au — Australian Community Directory</p></div></div>
+</footer>
 
-      - name: Upload docs/ folder as GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './docs'
+<div class="toast" id="toast"></div>
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+<script src="js/analytics.js?v=17"></script>
+<script src="js/config.js?v=17"></script>
+<script src="js/reviews.js?v=17"></script>
+<script src="js/edits.js?v=17"></script>
+<script src="js/data.js?v=17"></script>
+<script src="js/listings.js?v=17"></script>
+<script src="js/overrides.js?v=17"></script>
+<script src="js/utils.js?v=17"></script>
+<script>
+function getListingMeta(r) {
+  if (r.listingType === 'business') {
+    const b = DB.find(x => String(x.id) === String(r.listingId));
+    return b ? { name: b.name, icon: b.icon || '🏢', href: 'directory.html?open=' + b.id, type: 'Business' } : null;
+  } else if (r.listingType === 'mentor') {
+    const m = typeof MENTORS !== 'undefined' ? MENTORS.find(x => String(x.id) === String(r.listingId)) : null;
+    return m ? { name: m.name, icon: '⭐', href: 'mentors.html', type: 'Mentor' } : null;
+  } else if (r.listingType === 'opportunity') {
+    const o = OPPORTUNITIES.find(x => String(x.id) === String(r.listingId));
+    return o ? { name: o.title, icon: o.icon || '💼', href: 'opportunities.html', type: 'Opportunity' } : null;
+  }
+  return { name: r.listingName || 'Unknown', icon: '🏢', href: '#', type: r.listingType };
+}
 
-      - name: Print site URL
-        run: |
-          echo "════════════════════════════════════════"
-          echo " ✅ Listily is live at:"
-          echo " ${{ steps.deployment.outputs.page_url }}"
-          echo "════════════════════════════════════════"
-          echo ""
-          echo "NOTE: This is your SITE URL — different from your repo URL."
-          echo "Your repo page shows the README. Your site URL shows the app."
+function renderReviews() {
+  let all = Reviews.getAll().filter(r => r.status === 'approved');
+
+  const kw     = (document.getElementById('rev-search')?.value || '').toLowerCase();
+  const type   = document.getElementById('rev-type')?.value || '';
+  const minRt  = parseInt(document.getElementById('rev-rating')?.value || '0');
+  const sort   = document.getElementById('rev-sort')?.value || 'recent';
+
+  if (kw) all = all.filter(r => (r.title + ' ' + r.body + ' ' + r.reviewer + ' ' + r.listingName).toLowerCase().includes(kw));
+  if (type) all = all.filter(r => r.listingType === type);
+  if (minRt) all = all.filter(r => r.rating >= minRt);
+
+  all.sort((a, b) => {
+    if (sort === 'oldest')      return new Date(a.ts) - new Date(b.ts);
+    if (sort === 'rating-desc') return b.rating - a.rating || new Date(b.ts) - new Date(a.ts);
+    if (sort === 'rating-asc')  return a.rating - b.rating || new Date(b.ts) - new Date(a.ts);
+    if (sort === 'helpful')     return (b.helpful||0) - (a.helpful||0);
+    return new Date(b.ts) - new Date(a.ts);
+  });
+
+  // Stats
+  const total = all.length;
+  const avg   = total ? (all.reduce((s,r)=>s+r.rating,0)/total).toFixed(1) : '—';
+  const now   = new Date();
+  const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+  const recent = all.filter(r => new Date(r.ts) >= monthAgo).length;
+  document.getElementById('rh-total').textContent = total;
+  document.getElementById('rh-avg').textContent = avg;
+  document.getElementById('rh-recent').textContent = recent;
+
+  const grid = document.getElementById('reviews-grid');
+  if (!all.length) {
+    grid.innerHTML = `<div class="empty-rev">
+      <i class="fa-regular fa-star"></i>
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:.5rem;color:var(--text-2)">No reviews yet</h3>
+      <p style="font-size:14px">Open any business, mentor or opportunity listing and click "Leave a review" to be the first.</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = all.map(r => {
+    const meta = getListingMeta(r);
+    const date = new Date(r.ts).toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
+    const typeCls = 'prl-' + r.listingType;
+    return `<article class="pub-review">
+      <div class="pub-rev-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">${Reviews.starsHTML(r.rating, 'sm')}</div>
+          <div class="pub-rev-meta"><strong>${escHtml(r.reviewer)}</strong>${r.suburb ? ` · ${escHtml(r.suburb)}` : ''} · ${date}</div>
+        </div>
+        ${meta && meta.href !== '#' ? `<a href="${escHtml(meta.href)}" class="pub-rev-listing ${typeCls}">${meta.icon} ${escHtml(meta.name)} →</a>` : ''}
+      </div>
+      ${r.title ? `<div class="pub-rev-title">${escHtml(r.title)}</div>` : ''}
+      ${r.body ? `<p class="pub-rev-body">${escHtml(r.body)}</p>` : ''}
+      ${r.helpful > 0 ? `<div style="font-size:11px;color:var(--text-3);margin-top:.625rem">👍 ${r.helpful} found this helpful</div>` : ''}
+    </article>`;
+  }).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof Reviews === 'undefined') return;
+
+  // Show backend banner if local
+  if (!Reviews.isShared()) document.getElementById('backend-banner').style.display = 'block';
+
+  // Wait briefly for async cache load to settle, then render
+  setTimeout(renderReviews, 100);
+
+  // Configure social links from config
+  if (typeof SOCIAL_CONFIG !== 'undefined') {
+    document.querySelectorAll('[data-social]').forEach(a => {
+      const k = a.dataset.social;
+      if (SOCIAL_CONFIG[k]) a.href = SOCIAL_CONFIG[k];
+    });
+  }
+});
+</script>
+</body>
+</html>
