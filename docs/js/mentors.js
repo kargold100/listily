@@ -132,6 +132,14 @@ function openMentorModal(id) {
     Reviews.renderList('mentor-reviews-' + m.id, m.id, 'mentor');
     Reviews.renderForm('mentor-review-form-' + m.id, m.id, 'mentor', m.name);
   }
+  // Mount edit trigger
+  if (typeof ListingEdits !== 'undefined') {
+    const ec = document.createElement('div');
+    ec.id = 'mentor-edit-trigger-' + m.id;
+    ec.style.cssText = 'margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);text-align:center';
+    document.getElementById('modal-body').appendChild(ec);
+    ListingEdits.renderTrigger('mentor-edit-trigger-' + m.id, m, 'mentor');
+  }
 }
 
 function applyMentorFilters() {

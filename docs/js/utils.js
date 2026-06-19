@@ -158,6 +158,14 @@ function openBizModal(id){
     Reviews.renderList('biz-reviews-' + b.id, b.id, 'business');
     Reviews.renderForm('biz-review-form-' + b.id, b.id, 'business', b.name);
   }
+  // Mount edit trigger
+  if (typeof ListingEdits !== 'undefined') {
+    const editContainer = document.createElement('div');
+    editContainer.id = 'biz-edit-trigger-' + b.id;
+    editContainer.style.cssText = 'margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);text-align:center';
+    document.getElementById('modal-body').appendChild(editContainer);
+    ListingEdits.renderTrigger('biz-edit-trigger-' + b.id, b, 'business');
+  }
   openModal();
 }
 
@@ -214,6 +222,17 @@ function openOppDetail(id){
     if (typeof Reviews !== 'undefined') {
       Reviews.renderList('opp-reviews-' + o.id, o.id, 'opportunity');
       Reviews.renderForm('opp-review-form-' + o.id, o.id, 'opportunity', o.title);
+    }
+    // Mount edit trigger
+    if (typeof ListingEdits !== 'undefined') {
+      const host = document.querySelector('.opp-detail-content') || document.getElementById('modal-body');
+      if (host && !document.getElementById('opp-edit-trigger-' + o.id)) {
+        const ec = document.createElement('div');
+        ec.id = 'opp-edit-trigger-' + o.id;
+        ec.style.cssText = 'margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);text-align:center';
+        host.appendChild(ec);
+        ListingEdits.renderTrigger('opp-edit-trigger-' + o.id, o, 'opportunity');
+      }
     }
   }, 50);
 

@@ -53,11 +53,11 @@ function updateStats() {
   if (badge) { badge.textContent = tot; badge.style.display = tot > 0 ? 'inline-flex' : 'none'; }
 }
 
-function renderAdminDash() { updateStats(); renderPending(); renderApproved(); renderRejected(); renderOppPending(); renderOppApproved(); renderExpired(); renderBulkUpload(); renderReviews(); renderAnalytics(); }
+function renderAdminDash() { updateStats(); renderPending(); renderApproved(); renderRejected(); renderOppPending(); renderOppApproved(); renderExpired(); renderBulkUpload(); renderReviews(); renderListingEdits(); renderBackendConfig(); renderAnalytics(); }
 
 function switchAdminTab(t, btn) {
   document.querySelectorAll('.atab').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-  ['pending','approved','rejected','opp-pending','opp-approved','expired','bulk-upload','reviews','analytics'].forEach(tab => {
+  ['pending','approved','rejected','opp-pending','opp-approved','expired','bulk-upload','reviews','edits','backend','analytics'].forEach(tab => {
     document.getElementById('admin-pane-' + tab).style.display = tab === t ? 'block' : 'none';
   });
 }
@@ -439,8 +439,15 @@ function renderBulkUpload() {
   const el = document.getElementById('admin-pane-bulk-upload');
   if (!el) return;
   el.innerHTML = `
+  <div style="background:var(--brand-bg);border:1px solid var(--brand-border);border-radius:var(--r-lg);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <i class="fa-solid fa-cloud-arrow-up" style="font-size:24px;color:var(--brand-dark)"></i>
+    <div style="flex:1;min-width:200px">
+      <div style="font-size:14px;font-weight:600;color:var(--brand-dark);margin-bottom:2px">Bulk upload — add many listings at once</div>
+      <div style="font-size:12px;color:var(--brand-dark);opacity:.85">Perfect for adding local supplier directories, council databases, or migrating from another platform. Two methods below: CSV file or JSON paste.</div>
+    </div>
+  </div>
   <h2 style="font-size:18px;font-weight:600;margin-bottom:.5rem">Bulk upload listings</h2>
-  <p style="font-size:13px;color:var(--text-3);margin-bottom:1.5rem">Upload multiple businesses or opportunities at once using a CSV file or paste JSON. Admin-uploaded listings are tagged as <strong>Added by: admin</strong>.</p>
+  <p style="font-size:13px;color:var(--text-3);margin-bottom:1.5rem">All bulk-imported listings are marked <strong>"Added by: admin"</strong> and appear in the "Admin uploads" list at the bottom of this page.</p>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
 
@@ -531,13 +538,33 @@ function previewCSV(input) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    const lines = e.target.result.split('\n').filter(l => l.trim());
-    if (lines.length < 2) { document.getElementById('csv-preview').innerHTML = '<p style="color:var(--red-t);font-size:13px">No data rows found.</p>'; return; }
-    const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g,'').trim().toLowerCase());
-    _csvParsed = lines.slice(1).map(line => {
-      const vals = line.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
+    const text = e.target.result.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    // Proper CSV parsing — handles quoted fields with commas and escaped quotes
+    function parseCSV(str) {
+      const rows = [];
+      let row = [], field = '', inQuotes = false;
+      for (let i = 0; i < str.length; i++) {
+        const ch = str[i], next = str[i+1];
+        if (inQuotes) {
+          if (ch === '"' && next === '"') { field += '"'; i++; }
+          else if (ch === '"') { inQuotes = false; }
+          else { field += ch; }
+        } else {
+          if (ch === '"') { inQuotes = true; }
+          else if (ch === ',') { row.push(field); field = ''; }
+          else if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+          else { field += ch; }
+        }
+      }
+      if (field !== '' || row.length > 0) { row.push(field); rows.push(row); }
+      return rows.filter(r => r.some(c => c.trim() !== ''));
+    }
+    const rows = parseCSV(text);
+    if (rows.length < 2) { document.getElementById('csv-preview').innerHTML = '<p style="color:var(--red-t);font-size:13px">No data rows found.</p>'; return; }
+    const headers = rows[0].map(h => h.trim().toLowerCase());
+    _csvParsed = rows.slice(1).map(vals => {
       const obj = {};
-      headers.forEach((h,i) => { obj[h] = (vals[i]||'').replace(/^"|"$/g,'').trim(); });
+      headers.forEach((h, i) => { obj[h] = (vals[i] || '').trim(); });
       return obj;
     }).filter(o => o.name);
     const preview = document.getElementById('csv-preview');
@@ -700,4 +727,376 @@ function reviewAdminCard(r, isPending) {
     ${r.body ? `<p style="font-size:13px;color:var(--text-2);line-height:1.6;margin:0">${escHtml(r.body)}</p>` : ''}
     <div style="font-size:11px;color:var(--text-3)">👍 ${r.helpful||0} helpful · Status: <strong>${r.status}</strong></div>
   </div>`;
+}
+
+// ─── Listing edits admin panel ──────────────────────────────────
+function renderListingEdits() {
+  const el = document.getElementById('admin-pane-edits');
+  if (!el || typeof ListingEdits === 'undefined') return;
+
+  const all = ListingEdits.getAll();
+  const pending  = all.filter(e => e.status === 'pending');
+  const approved = all.filter(e => e.status === 'approved' || e.status === 'applied');
+  const rejected = all.filter(e => e.status === 'rejected');
+
+  // Update tab badge
+  const badge = document.getElementById('atab-edits');
+  if (badge) { badge.textContent = pending.length; badge.style.display = pending.length ? 'inline-flex' : 'none'; }
+
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
+      <div>
+        <h2 style="font-size:18px;font-weight:600;margin-bottom:4px">Listing edit submissions</h2>
+        <p style="font-size:13px;color:var(--text-3)">${all.length} total · ${pending.length} pending · ${approved.length} applied · ${rejected.length} rejected</p>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="ListingEdits.exportCSV()"><i class="fa-solid fa-download"></i> Export CSV</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--red-t)" onclick="if(confirm('Delete ALL edit submissions permanently?')){ListingEdits.clearAll();renderAdminDash();}"><i class="fa-solid fa-trash"></i> Clear all</button>
+      </div>
+    </div>
+
+    ${pending.length ? `
+      <h3 style="font-size:14px;font-weight:600;color:var(--amber-t);margin-bottom:.75rem;display:flex;align-items:center;gap:6px">
+        <i class="fa-solid fa-clock"></i> Pending review (${pending.length})
+      </h3>
+      <div class="list-table" style="margin-bottom:1.5rem">
+        ${pending.map(editAdminCard).join('')}
+      </div>` : ''}
+
+    ${approved.length ? `
+      <h3 style="font-size:14px;font-weight:600;color:var(--green-t);margin-bottom:.75rem;display:flex;align-items:center;gap:6px">
+        <i class="fa-solid fa-circle-check"></i> Approved / applied (${approved.length})
+      </h3>
+      <div class="list-table" style="margin-bottom:1.5rem">
+        ${approved.map(editAdminCard).join('')}
+      </div>` : ''}
+
+    ${rejected.length ? `
+      <details style="margin-top:1rem">
+        <summary style="font-size:13px;color:var(--text-3);cursor:pointer;padding:.5rem 0">Rejected (${rejected.length})</summary>
+        <div class="list-table" style="margin-top:.5rem">
+          ${rejected.map(editAdminCard).join('')}
+        </div>
+      </details>` : ''}
+
+    ${!all.length ? `
+      <div class="no-results" style="padding:3rem"><i class="fa-solid fa-pen-to-square"></i>
+        <h3>No edit submissions yet</h3>
+        <p style="font-size:13px;color:var(--text-3)">Edit suggestions from listing pages will appear here for your review.</p>
+      </div>` : ''}
+  `;
+}
+
+function editAdminCard(e) {
+  const date = e.ts ? new Date(e.ts).toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+  const fields = Object.entries(e.changes || {});
+  const isPending = e.status === 'pending';
+  const isApplied = e.status === 'applied' || e.status === 'approved';
+  const isRejected = e.status === 'rejected';
+
+  const roleBadge = e.submitterRole === 'owner'
+    ? '<span class="status-badge" style="background:var(--green-bg);color:var(--green-t)">Owner</span>'
+    : e.submitterRole === 'staff'
+    ? '<span class="status-badge" style="background:var(--blue-bg);color:var(--blue-t)">Staff</span>'
+    : '<span class="status-badge sb-pending">Public</span>';
+
+  return `<div class="list-row" style="flex-direction:column;align-items:flex-start;gap:8px;padding:1rem">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;width:100%;gap:1rem;flex-wrap:wrap">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap">
+          <span style="font-size:13px;font-weight:600">${escHtml(e.listingName || e.listingId)}</span>
+          <span class="status-badge" style="background:var(--bg-tint);color:var(--text-3);text-transform:capitalize">${escHtml(e.listingType)}</span>
+          ${roleBadge}
+          ${isApplied ? '<span class="status-badge sb-approved">✓ Applied</span>' : ''}
+          ${isRejected ? '<span class="status-badge sb-rejected">Rejected</span>' : ''}
+        </div>
+        <div style="font-size:12px;color:var(--text-3)">
+          From <strong>${escHtml(e.submitterName)}</strong> · <a href="mailto:${escHtml(e.submitterEmail)}">${escHtml(e.submitterEmail)}</a> · ${date}
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0">
+        ${isPending ? `
+          <button class="btn-approve" onclick="approveAndApplyEdit('${e.id}')" title="Apply the changes to the live listing"><i class="fa-solid fa-check"></i> Apply</button>
+          <button class="btn-preview-sm" onclick="ListingEdits.approve('${e.id}',false);renderAdminDash()" title="Mark approved but don't auto-apply"><i class="fa-solid fa-eye"></i> Mark approved</button>
+          <button class="btn-reject-act" onclick="rejectEditPrompt('${e.id}')" title="Reject"><i class="fa-solid fa-xmark"></i> Reject</button>
+        ` : ''}
+        <button class="btn-reject-act" onclick="if(confirm('Permanently delete this edit submission?')){ListingEdits.purge('${e.id}');renderAdminDash();}" title="Delete"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+
+    ${fields.length ? `
+      <div style="width:100%;background:var(--bg-tint);border-radius:var(--r-md);padding:.625rem .875rem;margin-top:6px">
+        <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:6px">Suggested changes</div>
+        ${fields.map(([k,v]) => `<div style="font-size:13px;margin-bottom:3px;line-height:1.5"><strong style="color:var(--text-2);text-transform:capitalize">${escHtml(k)}:</strong> <span style="color:var(--text)">${escHtml(typeof v === 'string' ? v : JSON.stringify(v))}</span></div>`).join('')}
+      </div>` : ''}
+
+    ${e.reason ? `<div style="font-size:12px;color:var(--text-2);font-style:italic;padding:6px 10px;border-left:3px solid var(--border-2);margin-top:4px">"${escHtml(e.reason)}"</div>` : ''}
+    ${e.adminNotes ? `<div style="font-size:11px;color:var(--red-t);margin-top:4px"><strong>Admin note:</strong> ${escHtml(e.adminNotes)}</div>` : ''}
+  </div>`;
+}
+
+// Apply the suggested changes directly to the live listing
+function approveAndApplyEdit(editId) {
+  const e = ListingEdits.getAll().find(x => x.id === editId);
+  if (!e) return;
+  if (!confirm(`Apply ${Object.keys(e.changes).length} change(s) to "${e.listingName}"?\n\nThis will update the live listing immediately.`)) return;
+
+  // Find the target
+  let target = null;
+  let arr = null;
+  if (e.listingType === 'business') {
+    target = DB.find(b => String(b.id) === String(e.listingId));
+    arr = DB;
+  } else if (e.listingType === 'mentor' && typeof MENTORS !== 'undefined') {
+    target = MENTORS.find(m => String(m.id) === String(e.listingId));
+    arr = MENTORS;
+  } else if (e.listingType === 'opportunity') {
+    target = OPPORTUNITIES.find(o => String(o.id) === String(e.listingId));
+    arr = OPPORTUNITIES;
+  }
+  if (!target) { showToast('Listing not found.', 'var(--red-t)'); return; }
+
+  // Apply changes
+  Object.entries(e.changes).forEach(([k, v]) => {
+    if (v !== '' && v !== undefined && v !== null) {
+      target[k] = v;
+    }
+  });
+  target.lastUpdated = new Date().toISOString().slice(0,10);
+
+  // Persist as an "override" so other visitors also see the change
+  if (typeof ListingOverrides !== 'undefined') {
+    ListingOverrides.save({
+      listingId: e.listingId,
+      listingType: e.listingType,
+      changes: e.changes,
+      appliedBy: 'admin',
+      ts: new Date().toISOString(),
+    });
+  }
+
+  ListingEdits.approve(editId, true);
+  showToast('✓ Edit applied to listing');
+  renderAdminDash();
+}
+
+function rejectEditPrompt(editId) {
+  const notes = prompt('Reason for rejection (optional, visible only to admin):');
+  if (notes === null) return;  // cancelled
+  ListingEdits.reject(editId, notes);
+  renderAdminDash();
+}
+
+// ─── Backend config panel ───────────────────────────────────────
+function renderBackendConfig() {
+  const el = document.getElementById('admin-pane-backend');
+  if (!el) return;
+
+  let cfg = {};
+  try { cfg = JSON.parse(localStorage.getItem('_listily_backend_cfg') || '{}'); } catch(e) {}
+  const sheetsUrl = cfg.sheets || '';
+  const adapter   = cfg.adapter || 'auto';
+  const isLive    = !!sheetsUrl;
+
+  el.innerHTML = `
+  <h2 style="font-size:18px;font-weight:600;margin-bottom:.5rem">Shared backend (Reviews &amp; Edits)</h2>
+  <p style="font-size:13px;color:var(--text-3);margin-bottom:1.5rem">By default reviews and edits are saved only in each visitor's browser. Connect a Google Sheet here to make them <strong>shared across all visitors</strong>.</p>
+
+  <div style="background:${isLive?'var(--green-bg)':'var(--amber-bg)'};border:1px solid ${isLive?'var(--green-b)':'var(--amber-b)'};border-radius:var(--r-lg);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div style="flex:1;min-width:200px">
+      <div style="font-size:14px;font-weight:600;color:${isLive?'var(--green-t)':'var(--amber-t)'};margin-bottom:4px">
+        <i class="fa-solid ${isLive?'fa-circle-check':'fa-triangle-exclamation'}"></i>
+        ${isLive ? 'Shared backend ACTIVE — Google Sheets' : 'Demo mode — single-device only'}
+      </div>
+      <div style="font-size:12px;color:${isLive?'var(--green-t)':'var(--amber-t)'};opacity:.85">
+        ${isLive ? 'Reviews and edits are saved to your Google Sheet and visible to all visitors.' : 'Reviews and edits are saved only in this browser.'}
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr;gap:20px;max-width:780px">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.5rem">
+      <h3 style="font-size:15px;font-weight:600;margin-bottom:.5rem"><i class="fa-solid fa-link" style="color:var(--brand)"></i> Google Sheets webhook URL</h3>
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;line-height:1.6">Paste the Web App URL from your deployed Google Apps Script.</p>
+      <input type="url" id="bk-sheets-url" value="${escHtml(sheetsUrl)}" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:13px;background:#fff;color:#111827;font-family:monospace;margin-bottom:1rem">
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem">
+        <button class="btn btn-primary" onclick="saveBackendConfig()"><i class="fa-solid fa-check"></i> Save &amp; activate</button>
+        <button class="btn btn-ghost" onclick="testBackendConnection()"><i class="fa-solid fa-plug"></i> Test connection</button>
+        <button class="btn btn-ghost" style="color:var(--red-t)" onclick="if(confirm('Disconnect backend? Reviews/edits will revert to single-device localStorage.')){clearBackendConfig()}"><i class="fa-solid fa-link-slash"></i> Disconnect</button>
+      </div>
+
+      <div id="bk-test-result" style="font-size:12px;margin-top:8px"></div>
+    </div>
+
+    <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.5rem">
+      <summary style="font-size:15px;font-weight:600;cursor:pointer;list-style:none">
+        <i class="fa-solid fa-circle-info" style="color:var(--brand);margin-right:6px"></i>
+        How to set up the Google Sheets backend (step-by-step)
+      </summary>
+      <div style="margin-top:1.25rem;font-size:13px;line-height:1.7;color:var(--text-2)">
+
+        <p style="margin-bottom:1rem"><strong>Step 1.</strong> Create a new Google Sheet at <a href="https://sheets.new" target="_blank" rel="noopener" style="color:var(--brand-dark)">sheets.new</a> and rename it to "Listily Data".</p>
+
+        <p style="margin-bottom:1rem"><strong>Step 2.</strong> Create three tabs in the sheet: <code>Reviews</code>, <code>Edits</code>, and <code>Overrides</code>.</p>
+
+        <p style="margin-bottom:.5rem"><strong>Step 3.</strong> In the <code>Reviews</code> tab, add these column headers in row 1:</p>
+        <div style="background:var(--bg-tint);padding:.75rem;border-radius:var(--r-md);font-family:monospace;font-size:11px;margin-bottom:1rem;overflow-x:auto">id | listingId | listingType | listingName | reviewer | rating | title | body | suburb | ts | status | helpful | reported</div>
+
+        <p style="margin-bottom:.5rem"><strong>Step 4.</strong> In the <code>Edits</code> tab, add these column headers in row 1:</p>
+        <div style="background:var(--bg-tint);padding:.75rem;border-radius:var(--r-md);font-family:monospace;font-size:11px;margin-bottom:1rem;overflow-x:auto">id | listingId | listingType | listingName | submitterName | submitterEmail | submitterRole | changes | reason | ts | status | adminNotes</div>
+
+        <p style="margin-bottom:.5rem"><strong>Step 4b.</strong> In the <code>Overrides</code> tab, add these column headers in row 1 (stores applied edits so all visitors see the latest data):</p>
+        <div style="background:var(--bg-tint);padding:.75rem;border-radius:var(--r-md);font-family:monospace;font-size:11px;margin-bottom:1rem;overflow-x:auto">listingId | listingType | changes | appliedBy | ts</div>
+
+        <p style="margin-bottom:.5rem"><strong>Step 5.</strong> Click <strong>Extensions → Apps Script</strong>. Delete the default code and paste this:</p>
+
+        <div style="position:relative;margin-bottom:1rem">
+          <button onclick="copyAppsScript(this)" style="position:absolute;top:8px;right:8px;background:var(--brand);color:#fff;border:none;padding:4px 12px;border-radius:var(--r-md);font-size:11px;cursor:pointer;z-index:1"><i class="fa-solid fa-copy"></i> Copy</button>
+          <pre id="apps-script-code" style="background:#1a1a1a;color:#f0f0f0;padding:1rem;border-radius:var(--r-md);font-size:11px;overflow-x:auto;line-height:1.5;margin:0;max-height:280px;overflow-y:auto"><code>const SS = SpreadsheetApp.getActiveSpreadsheet();
+
+function doGet(e) {
+  const action = e.parameter.action;
+  if (action === 'getReviews')   return jsonReply(readSheet('Reviews'));
+  if (action === 'getEdits')     return jsonReply(readSheet('Edits'));
+  if (action === 'getOverrides') return jsonReply(readSheet('Overrides'));
+  return jsonReply({ ok: true, ts: new Date().toISOString() });
+}
+
+function doPost(e) {
+  const body = JSON.parse(e.postData.contents);
+  let tab;
+  if (body.action.includes('Override')) tab = 'Overrides';
+  else if (body.action.includes('Edit')) tab = 'Edits';
+  else tab = 'Reviews';
+  const sheet = SS.getSheetByName(tab);
+  if (!sheet) return jsonReply({ error: 'Sheet not found: ' + tab });
+
+  if (body.action === 'add' || body.action === 'addEdit' || body.action === 'addOverride') {
+    const row = body.review || body.edit || body.override;
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    const values = headers.map(h => {
+      const v = row[h];
+      return (typeof v === 'object' && v !== null) ? JSON.stringify(v) : (v || '');
+    });
+    sheet.appendRow(values);
+  } else if (body.action === 'update' || body.action === 'updateEdit') {
+    updateRow(sheet, body.id, body.patch);
+  } else if (body.action === 'remove' || body.action === 'removeEdit') {
+    removeRow(sheet, body.id);
+  }
+  return jsonReply({ ok: true });
+}
+
+function readSheet(name) {
+  const sheet = SS.getSheetByName(name);
+  if (!sheet) return [];
+  const data = sheet.getDataRange().getValues();
+  if (data.length < 2) return [];
+  const headers = data[0];
+  return data.slice(1).filter(r => r[0]).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => {
+      let v = row[i];
+      if (typeof v === 'string' &amp;&amp; (v.startsWith('{') || v.startsWith('['))) {
+        try { v = JSON.parse(v); } catch (e) {}
+      }
+      obj[h] = v;
+    });
+    return obj;
+  });
+}
+
+function updateRow(sheet, id, patch) {
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  for (let i = 1; i &lt; data.length; i++) {
+    if (data[i][0] === id) {
+      Object.keys(patch).forEach(k => {
+        const col = headers.indexOf(k);
+        if (col &gt; -1) {
+          const v = patch[k];
+          sheet.getRange(i+1, col+1).setValue(
+            typeof v === 'object' &amp;&amp; v !== null ? JSON.stringify(v) : v
+          );
+        }
+      });
+      return;
+    }
+  }
+}
+
+function removeRow(sheet, id) {
+  const data = sheet.getDataRange().getValues();
+  for (let i = 1; i &lt; data.length; i++) {
+    if (data[i][0] === id) { sheet.deleteRow(i+1); return; }
+  }
+}
+
+function jsonReply(data) {
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}</code></pre>
+        </div>
+
+        <p style="margin-bottom:1rem"><strong>Step 6.</strong> Click <strong>Deploy → New deployment</strong>. Settings:</p>
+        <ul style="margin-left:1.5rem;margin-bottom:1rem">
+          <li>Type: <strong>Web app</strong></li>
+          <li>Execute as: <strong>Me</strong></li>
+          <li>Who has access: <strong>Anyone</strong></li>
+        </ul>
+        <p style="margin-bottom:1rem">Click <strong>Deploy</strong>, authorise the script (you'll get a warning — click "Advanced → Go to project name (unsafe)" — that's normal for personal scripts), then copy the <strong>Web app URL</strong>.</p>
+
+        <p style="margin-bottom:1rem"><strong>Step 7.</strong> Paste that URL into the field above and click <strong>Save &amp; activate</strong>. Click <strong>Test connection</strong> to verify it's working.</p>
+
+        <p style="margin-bottom:0;padding:.875rem;background:var(--green-bg);border-radius:var(--r-md);color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> Once connected, all reviews and edit submissions from <strong>every visitor</strong> will be saved to your Google Sheet — and you can see them all in one place.</p>
+      </div>
+    </details>
+  </div>`;
+}
+
+function saveBackendConfig() {
+  const url = document.getElementById('bk-sheets-url')?.value.trim();
+  if (url && !url.match(/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec/)) {
+    if (!confirm('That URL doesn\'t look like a typical Google Apps Script Web App URL. Save anyway?')) return;
+  }
+  const cfg = { sheets: url, adapter: 'auto' };
+  localStorage.setItem('_listily_backend_cfg', JSON.stringify(cfg));
+  showToast(url ? '✓ Backend saved — reload page to activate' : 'Cleared backend URL');
+  document.getElementById('bk-test-result').innerHTML =
+    '<div style="padding:.75rem;background:var(--green-bg);border:1px solid var(--green-b);border-radius:var(--r-md);color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> Saved. <strong>Reload the page</strong> to activate the new backend.</div>';
+}
+
+function clearBackendConfig() {
+  localStorage.removeItem('_listily_backend_cfg');
+  showToast('Backend disconnected — reload page');
+  renderBackendConfig();
+}
+
+async function testBackendConnection() {
+  const url = document.getElementById('bk-sheets-url')?.value.trim();
+  const out = document.getElementById('bk-test-result');
+  if (!url) { out.innerHTML = '<span style="color:var(--red-t)">Please enter a URL first.</span>'; return; }
+  out.innerHTML = '<span style="color:var(--text-3)"><i class="fa-solid fa-spinner fa-spin"></i> Testing connection…</span>';
+  try {
+    const res = await fetch(url + '?action=ping');
+    const data = await res.json();
+    if (data && (data.ok || data.ts || Array.isArray(data))) {
+      out.innerHTML = '<div style="padding:.75rem;background:var(--green-bg);border:1px solid var(--green-b);border-radius:var(--r-md);color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> Connection works! Click Save &amp; activate.</div>';
+    } else {
+      out.innerHTML = '<div style="padding:.75rem;background:var(--amber-bg);border:1px solid var(--amber-b);border-radius:var(--r-md);color:var(--amber-t)"><i class="fa-solid fa-triangle-exclamation"></i> Got a response but format unexpected. Check Apps Script deployment.</div>';
+    }
+  } catch (e) {
+    out.innerHTML = `<div style="padding:.75rem;background:var(--red-bg);border:1px solid var(--red-b);border-radius:var(--r-md);color:var(--red-t)"><i class="fa-solid fa-xmark"></i> Connection failed: ${escHtml(e.message)}. Check the URL, deployment settings (must be "Anyone" access), and that Apps Script is deployed as Web app.</div>`;
+  }
+}
+
+function copyAppsScript(btn) {
+  const code = document.getElementById('apps-script-code').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+    setTimeout(() => { btn.innerHTML = orig; }, 1500);
+  });
 }
