@@ -1139,55 +1139,71 @@ async function testBackendConnection() {
   if (!url) { out.innerHTML = '<span style="color:var(--red-t)">Please enter a URL first.</span>'; return; }
   out.innerHTML = '<span style="color:var(--text-3)"><i class="fa-solid fa-spinner fa-spin"></i> Testing connection…</span>';
 
-  // Run multiple checks
   const checks = [];
+  let urlOk = false;
 
   // Check 1: URL pattern
-  if (!url.startsWith('https://script.google.com/macros/s/')) {
-    checks.push({ ok: false, msg: 'URL doesn\'t look like an Apps Script Web App URL. It should start with https://script.google.com/macros/s/...' });
+  if (!url.match(/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec/)) {
+    checks.push({ ok: false, msg: 'URL format wrong. Should look like https://script.google.com/macros/s/AKfycb.../exec' });
   } else {
+    urlOk = true;
     checks.push({ ok: true, msg: 'URL format looks correct' });
   }
 
-  // Check 2: Reach the endpoint
-  try {
-    const res = await fetch(url + '?action=ping');
-    if (!res.ok) {
-      checks.push({ ok: false, msg: `Server returned HTTP ${res.status}. Check that the script is deployed as Web app with "Anyone" access.` });
-    } else {
-      const data = await res.json();
-      if (data && (data.ok || data.ts || Array.isArray(data))) {
-        checks.push({ ok: true, msg: 'Server responded successfully' });
+  // Check 2: Can we reach the endpoint?
+  let serverReached = false;
+  if (urlOk) {
+    try {
+      const res = await fetch(url + '?action=ping');
+      serverReached = true;
+      if (!res.ok) {
+        checks.push({ ok: false, msg: `Server returned HTTP ${res.status}. Most common cause: deployment "Who has access" is set to "Only myself" instead of "Anyone". You need to <strong>create a new deployment</strong> (not edit existing) with access set to "Anyone".` });
       } else {
-        checks.push({ ok: false, msg: 'Server responded but with unexpected format. Check that you pasted the Apps Script code correctly.' });
+        try {
+          const data = await res.json();
+          if (data && (data.ok || data.ts || Array.isArray(data))) {
+            checks.push({ ok: true, msg: 'Server reached and returned valid JSON' });
+          } else {
+            checks.push({ ok: false, msg: 'Server reached but returned unexpected format. Verify the Apps Script code was pasted correctly and saved.' });
+          }
+        } catch (parseErr) {
+          checks.push({ ok: false, msg: 'Server reached but did not return JSON. The Apps Script may have errored — check the Apps Script editor → Executions for error logs.' });
+        }
       }
+    } catch (e) {
+      // "Failed to fetch" — this is the specific error the user is seeing
+      checks.push({ ok: false, msg: `<strong>Browser blocked the request.</strong> This means one of these specific things — check in order:<br>
+        <ol style="margin:8px 0 0 18px;padding:0">
+          <li style="margin-bottom:6px"><strong>"Who has access" wasn't set to "Anyone"</strong> when you deployed. This is the #1 cause. Fix: in Apps Script editor → click Deploy → <em>New deployment</em> (NOT "Manage deployments") → Web app → Execute as: Me → <strong>Who has access: Anyone</strong> → Deploy. Copy the new URL, paste here, click Save &amp; activate.</li>
+          <li style="margin-bottom:6px"><strong>You didn't authorise the script</strong> after deploying. First time you deploy, Google shows a scary "Google hasn't verified this app" screen — click Advanced → "Go to (your project name) (unsafe)" → Allow.</li>
+          <li style="margin-bottom:6px"><strong>The deployment URL has changed.</strong> If you redeployed, you must copy the NEW URL — Apps Script generates a fresh one each deployment.</li>
+        </ol>` });
     }
-  } catch (e) {
-    checks.push({ ok: false, msg: `Could not reach server: ${e.message}. Common causes: (a) wrong URL, (b) deployment not set to "Anyone" access, (c) script not deployed as Web app.` });
   }
 
-  // Check 3: Listings tab accessible
-  try {
-    const res = await fetch(url + '?action=getListings');
-    const data = await res.json();
-    if (Array.isArray(data)) {
-      checks.push({ ok: true, msg: `Listings tab readable — ${data.length} rows found` });
-    } else if (data && data.error) {
-      checks.push({ ok: false, msg: `Listings tab error: ${data.error}. Make sure your sheet has a tab called "Listings".` });
-    }
-  } catch (e) {
-    checks.push({ ok: false, msg: 'Could not fetch Listings tab — may not exist yet' });
+  // Check 3: Listings tab (only if previous worked)
+  if (urlOk && serverReached) {
+    try {
+      const res = await fetch(url + '?action=getListings');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          checks.push({ ok: true, msg: `Listings tab readable — ${data.length} rows found` });
+        } else if (data && data.error) {
+          checks.push({ ok: false, msg: `Listings tab error: ${data.error}. Make sure you created a tab named exactly "Listings" (case-sensitive) in your sheet.` });
+        }
+      }
+    } catch (e) { /* skip */ }
   }
 
-  // Render results
   const allOk = checks.every(c => c.ok);
   out.innerHTML = `
     <div style="padding:.875rem;background:${allOk ? 'var(--green-bg)' : 'var(--amber-bg)'};border:1px solid ${allOk ? 'var(--green-b)' : 'var(--amber-b)'};border-radius:var(--r-md)">
       <div style="font-weight:600;color:${allOk ? 'var(--green-t)' : 'var(--amber-t)'};margin-bottom:8px">
         ${allOk ? '<i class="fa-solid fa-circle-check"></i> All checks passed' : '<i class="fa-solid fa-triangle-exclamation"></i> Some issues found'}
       </div>
-      <ul style="margin:0;padding-left:1.5rem;font-size:12.5px;line-height:1.7">
-        ${checks.map(c => `<li style="color:${c.ok ? 'var(--green-t)' : 'var(--red-t)'}">${c.ok ? '✓' : '✗'} ${escHtml(c.msg)}</li>`).join('')}
+      <ul style="margin:0;padding-left:1.5rem;font-size:12.5px;line-height:1.7;list-style:none">
+        ${checks.map(c => `<li style="color:${c.ok ? 'var(--green-t)' : 'var(--red-t)'};margin-bottom:6px"><span style="font-weight:bold;margin-right:6px">${c.ok ? '✓' : '✗'}</span>${c.msg}</li>`).join('')}
       </ul>
     </div>`;
 }
