@@ -911,79 +911,9 @@ function renderBackendConfig() {
   let cfg = {};
   try { cfg = JSON.parse(localStorage.getItem('_listily_backend_cfg') || '{}'); } catch(e) {}
   const sheetsUrl = cfg.sheets || '';
-  const adapter   = cfg.adapter || 'auto';
-  const isLive    = !!sheetsUrl;
+  const isLive = !!sheetsUrl;
 
-  el.innerHTML = `
-  <h2 style="font-size:18px;font-weight:600;margin-bottom:.5rem">Shared backend (Reviews &amp; Edits)</h2>
-  <p style="font-size:13px;color:var(--text-3);margin-bottom:1.5rem">By default reviews and edits are saved only in each visitor's browser. Connect a Google Sheet here to make them <strong>shared across all visitors</strong>.</p>
-
-  <div style="background:${isLive?'var(--green-bg)':'var(--amber-bg)'};border:1px solid ${isLive?'var(--green-b)':'var(--amber-b)'};border-radius:var(--r-lg);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-    <div style="flex:1;min-width:200px">
-      <div style="font-size:14px;font-weight:600;color:${isLive?'var(--green-t)':'var(--amber-t)'};margin-bottom:4px">
-        <i class="fa-solid ${isLive?'fa-circle-check':'fa-triangle-exclamation'}"></i>
-        ${isLive ? 'Shared backend ACTIVE — Google Sheets' : 'Demo mode — single-device only'}
-      </div>
-      <div style="font-size:12px;color:${isLive?'var(--green-t)':'var(--amber-t)'};opacity:.85">
-        ${isLive ? 'Reviews and edits are saved to your Google Sheet and visible to all visitors.' : 'Reviews and edits are saved only in this browser.'}
-      </div>
-    </div>
-  </div>
-
-  <div style="display:grid;grid-template-columns:1fr;gap:20px;max-width:780px">
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.5rem">
-      <h3 style="font-size:15px;font-weight:600;margin-bottom:.5rem"><i class="fa-solid fa-link" style="color:var(--brand)"></i> Google Sheets webhook URL</h3>
-      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;line-height:1.6">Paste the Web App URL from your deployed Google Apps Script.</p>
-      <input type="url" id="bk-sheets-url" value="${escHtml(sheetsUrl)}" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:13px;background:#fff;color:#111827;font-family:monospace;margin-bottom:1rem">
-
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem">
-        <button class="btn btn-primary" onclick="saveBackendConfig()"><i class="fa-solid fa-check"></i> Save &amp; activate</button>
-        <button class="btn btn-ghost" onclick="testBackendConnection()"><i class="fa-solid fa-plug"></i> Test connection</button>
-        <button class="btn btn-ghost" style="color:var(--red-t)" onclick="if(confirm('Disconnect backend? Reviews/edits will revert to single-device localStorage.')){clearBackendConfig()}"><i class="fa-solid fa-link-slash"></i> Disconnect</button>
-      </div>
-
-      ${isLive ? `
-      <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:1rem">
-        <h4 style="font-size:14px;font-weight:600;margin-bottom:.5rem"><i class="fa-solid fa-arrows-rotate" style="color:var(--brand)"></i> Sync controls</h4>
-        <p style="font-size:12px;color:var(--text-2);margin-bottom:.875rem;line-height:1.5">Listings sync between this site and your Google Sheet. Use these controls to push or pull manually.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-primary btn-sm" onclick="seedSheetWithLocalDB()" style="background:var(--brand)"><i class="fa-solid fa-cloud-arrow-up"></i> Push all listings to sheet (seed)</button>
-          <button class="btn btn-ghost btn-sm" onclick="refreshFromSheet()"><i class="fa-solid fa-cloud-arrow-down"></i> Pull from sheet</button>
-        </div>
-        <div id="seed-result" style="font-size:12px;margin-top:8px"></div>
-      </div>` : ''}
-
-      <div id="bk-test-result" style="font-size:12px;margin-top:8px"></div>
-    </div>
-
-    <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.5rem">
-      <summary style="font-size:15px;font-weight:600;cursor:pointer;list-style:none">
-        <i class="fa-solid fa-circle-info" style="color:var(--brand);margin-right:6px"></i>
-        How to set up the Google Sheets backend (step-by-step)
-      </summary>
-      <div style="margin-top:1.25rem;font-size:13px;line-height:1.7;color:var(--text-2)">
-
-        <p style="margin-bottom:1rem"><strong>Step 1.</strong> Create a new Google Sheet at <a href="https://sheets.new" target="_blank" rel="noopener" style="color:var(--brand-dark)">sheets.new</a> and rename it to "Listily Data".</p>
-
-        <p style="margin-bottom:1rem"><strong>Step 2.</strong> Create four tabs in the sheet: <code>Listings</code>, <code>Reviews</code>, <code>Edits</code>, and <code>Overrides</code>.</p>
-
-        <p style="margin-bottom:.5rem"><strong>Step 3.</strong> In the <code>Listings</code> tab, add these column headers in row 1 (this is your master business directory):</p>
-        <div style="background:var(--bg-tint);padding:.75rem;border-radius:var(--r-md);font-family:monospace;font-size:11px;margin-bottom:1rem;overflow-x:auto">id | name | industry | cat | suburb | state | desc | icon | tags | phone | mobile | email | web | address | hours | contact | status | featured | addedBy | lastUpdated | submittedAt | notes</div>
-
-        <p style="margin-bottom:.5rem"><strong>Step 3b.</strong> In the <code>Reviews</code> tab, add these column headers in row 1:</p>
-        <div style="background:var(--bg-tint);padding:.75rem;border-radius:var(--r-md);font-family:monospace;font-size:11px;margin-bottom:1rem;overflow-x:auto">id | listingId | listingType | listingName | reviewer | rating | title | body | suburb | ts | status | helpful | reported</div>
-
-        <p style="margin-bottom:.5rem"><strong>Step 4.</strong> In the <code>Edits</code> tab, add these column headers in row 1:</p>
-        <div style="background:var(--bg-tint);padding:.75rem;border-radius:var(--r-md);font-family:monospace;font-size:11px;margin-bottom:1rem;overflow-x:auto">id | listingId | listingType | listingName | submitterName | submitterEmail | submitterRole | changes | reason | ts | status | adminNotes</div>
-
-        <p style="margin-bottom:.5rem"><strong>Step 4b.</strong> In the <code>Overrides</code> tab, add these column headers in row 1 (stores applied edits so all visitors see the latest data):</p>
-        <div style="background:var(--bg-tint);padding:.75rem;border-radius:var(--r-md);font-family:monospace;font-size:11px;margin-bottom:1rem;overflow-x:auto">listingId | listingType | changes | appliedBy | ts</div>
-
-        <p style="margin-bottom:.5rem"><strong>Step 5.</strong> Click <strong>Extensions → Apps Script</strong>. Delete the default code and paste this:</p>
-
-        <div style="position:relative;margin-bottom:1rem">
-          <button onclick="copyAppsScript(this)" style="position:absolute;top:8px;right:8px;background:var(--brand);color:#fff;border:none;padding:4px 12px;border-radius:var(--r-md);font-size:11px;cursor:pointer;z-index:1"><i class="fa-solid fa-copy"></i> Copy</button>
-          <pre id="apps-script-code" style="background:#1a1a1a;color:#f0f0f0;padding:1rem;border-radius:var(--r-md);font-size:11px;overflow-x:auto;line-height:1.5;margin:0;max-height:280px;overflow-y:auto"><code>const SS = SpreadsheetApp.getActiveSpreadsheet();
+  const APPS_SCRIPT_CODE = `const SS = SpreadsheetApp.getActiveSpreadsheet();
 
 function doGet(e) {
   const action = e.parameter.action;
@@ -1038,9 +968,7 @@ function upsertListing(sheet, listing) {
       headers.forEach((h, j) => {
         if (listing[h] !== undefined) {
           const v = listing[h];
-          sheet.getRange(i+1, j+1).setValue(
-            typeof v === 'object' && v !== null ? JSON.stringify(v) : v
-          );
+          sheet.getRange(i+1, j+1).setValue(typeof v === 'object' && v !== null ? JSON.stringify(v) : v);
         }
       });
       return;
@@ -1059,7 +987,7 @@ function readSheet(name) {
     const obj = {};
     headers.forEach((h, i) => {
       let v = row[i];
-      if (typeof v === 'string' &amp;&amp; (v.startsWith('{') || v.startsWith('['))) {
+      if (typeof v === 'string' && (v.startsWith('{') || v.startsWith('['))) {
         try { v = JSON.parse(v); } catch (e) {}
       }
       obj[h] = v;
@@ -1071,15 +999,13 @@ function readSheet(name) {
 function updateRow(sheet, id, patch) {
   const data = sheet.getDataRange().getValues();
   const headers = data[0];
-  for (let i = 1; i &lt; data.length; i++) {
+  for (let i = 1; i < data.length; i++) {
     if (data[i][0] === id) {
       Object.keys(patch).forEach(k => {
         const col = headers.indexOf(k);
-        if (col &gt; -1) {
+        if (col > -1) {
           const v = patch[k];
-          sheet.getRange(i+1, col+1).setValue(
-            typeof v === 'object' &amp;&amp; v !== null ? JSON.stringify(v) : v
-          );
+          sheet.getRange(i+1, col+1).setValue(typeof v === 'object' && v !== null ? JSON.stringify(v) : v);
         }
       });
       return;
@@ -1089,33 +1015,100 @@ function updateRow(sheet, id, patch) {
 
 function removeRow(sheet, id) {
   const data = sheet.getDataRange().getValues();
-  for (let i = 1; i &lt; data.length; i++) {
+  for (let i = 1; i < data.length; i++) {
     if (data[i][0] === id) { sheet.deleteRow(i+1); return; }
   }
 }
 
 function jsonReply(data) {
-  return ContentService
-    .createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON);
-}</code></pre>
+  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
+}`;
+
+  el.innerHTML = `
+  <h2 style="font-size:18px;font-weight:600;margin-bottom:.5rem">Shared backend (data across all browsers)</h2>
+  <p style="font-size:13px;color:var(--text-3);margin-bottom:1.5rem">By default, reviews and edits are saved only in each visitor's browser. Connect a Google Sheet here to share data across all visitors and devices.</p>
+
+  <!-- Status banner -->
+  <div style="background:${isLive?'var(--green-bg)':'var(--amber-bg)'};border:1px solid ${isLive?'var(--green-b)':'var(--amber-b)'};border-radius:var(--r-lg);padding:1rem 1.25rem;margin-bottom:1.5rem">
+    <div style="font-size:14px;font-weight:600;color:${isLive?'var(--green-t)':'var(--amber-t)'};margin-bottom:4px">
+      <i class="fa-solid ${isLive?'fa-circle-check':'fa-triangle-exclamation'}"></i>
+      ${isLive ? 'Shared backend ACTIVE — Google Sheets connected' : 'Demo mode — single-device only'}
+    </div>
+    <div style="font-size:12px;color:${isLive?'var(--green-t)':'var(--amber-t)'};opacity:.85">
+      ${isLive ? 'All reviews, edits and listings sync to your Google Sheet. Visible to every visitor.' : 'Data saved only in this browser. Configure below to enable sharing.'}
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr;gap:20px;max-width:780px">
+
+    <!-- URL + sync controls -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.5rem">
+      <h3 style="font-size:15px;font-weight:600;margin-bottom:.5rem"><i class="fa-solid fa-link" style="color:var(--brand)"></i> Google Sheets webhook URL</h3>
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;line-height:1.6">Paste the Web App URL from your deployed Google Apps Script.</p>
+      <input type="url" id="bk-sheets-url" value="${escHtml(sheetsUrl)}" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--r-md);font-size:13px;background:#fff;color:#111827;font-family:monospace;margin-bottom:1rem">
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem">
+        <button class="btn btn-primary" onclick="saveBackendConfig()"><i class="fa-solid fa-check"></i> Save &amp; activate</button>
+        <button class="btn btn-ghost" onclick="testBackendConnection()"><i class="fa-solid fa-plug"></i> Test connection</button>
+        <button class="btn btn-ghost" style="color:var(--red-t)" onclick="if(confirm('Disconnect backend?')){clearBackendConfig()}"><i class="fa-solid fa-link-slash"></i> Disconnect</button>
+      </div>
+
+      <div id="bk-test-result" style="font-size:12px;margin-top:8px"></div>
+
+      ${isLive ? `
+      <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:1rem">
+        <h4 style="font-size:14px;font-weight:600;margin-bottom:.5rem"><i class="fa-solid fa-arrows-rotate" style="color:var(--brand)"></i> Sync with sheet</h4>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="seedSheetWithLocalDB()"><i class="fa-solid fa-cloud-arrow-up"></i> Push all listings to sheet</button>
+          <button class="btn btn-ghost btn-sm" onclick="refreshFromSheet()"><i class="fa-solid fa-cloud-arrow-down"></i> Pull from sheet</button>
         </div>
+        <div id="seed-result" style="font-size:12px;margin-top:8px"></div>
+      </div>` : ''}
+    </div>
 
-        <p style="margin-bottom:1rem"><strong>Step 6.</strong> Click <strong>Deploy → New deployment</strong>. Settings:</p>
-        <ul style="margin-left:1.5rem;margin-bottom:1rem">
-          <li>Type: <strong>Web app</strong></li>
-          <li>Execute as: <strong>Me</strong></li>
-          <li>Who has access: <strong>Anyone</strong></li>
-        </ul>
-        <p style="margin-bottom:1rem">Click <strong>Deploy</strong>, authorise the script (you'll get a warning — click "Advanced → Go to project name (unsafe)" — that's normal for personal scripts), then copy the <strong>Web app URL</strong>.</p>
+    <!-- CSV import/export -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.5rem">
+      <h3 style="font-size:15px;font-weight:600;margin-bottom:.5rem"><i class="fa-solid fa-file-csv" style="color:var(--brand)"></i> CSV import / export</h3>
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem;line-height:1.6">Download all listings as CSV, edit in Excel or Google Sheets, then upload back. Rows with matching <code>id</code> update existing listings; new <code>id</code> values create new ones.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem">
+        <button class="btn btn-primary" onclick="downloadDBAsCSV()"><i class="fa-solid fa-download"></i> Download CSV</button>
+        <label class="btn btn-ghost" style="cursor:pointer;margin:0">
+          <i class="fa-solid fa-upload"></i> Upload edited CSV
+          <input type="file" id="listings-csv-file" accept=".csv" onchange="previewListingsCSV(this)" style="display:none">
+        </label>
+      </div>
+      <div id="listings-csv-preview"></div>
+    </div>
 
-        <p style="margin-bottom:1rem"><strong>Step 7.</strong> Paste that URL into the field above and click <strong>Save &amp; activate</strong>. Click <strong>Test connection</strong> to verify it's working.</p>
-
-        <p style="margin-bottom:.625rem;padding:.875rem;background:var(--green-bg);border-radius:var(--r-md);color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> Once connected, your <strong>entire business directory</strong> lives in the Listings tab, and all <strong>reviews and edit submissions</strong> sync to your Google Sheet — visible to every visitor on every device. Edit listings directly in the sheet and they appear on the site within 60 seconds.</p>
-        <p style="margin-bottom:0;padding:.875rem;background:var(--amber-bg);border-radius:var(--r-md);color:var(--amber-t);font-size:12px"><i class="fa-solid fa-circle-info"></i> <strong>To seed your sheet with the current listings:</strong> after deploying the script, come back to admin and click <strong>Sync local listings to sheet</strong> on the Backend tab (button appears once URL is saved).</p>
+    <!-- Setup guide -->
+    <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.5rem">
+      <summary style="font-size:15px;font-weight:600;cursor:pointer;list-style:none"><i class="fa-solid fa-circle-info" style="color:var(--brand);margin-right:6px"></i> Setup guide — Google Sheets backend (step-by-step)</summary>
+      <div style="margin-top:1.25rem;font-size:13px;line-height:1.7;color:var(--text-2)">
+        <p><strong>Step 1.</strong> Create a sheet at <a href="https://sheets.new" target="_blank" rel="noopener" style="color:var(--brand-dark)">sheets.new</a></p>
+        <p><strong>Step 2.</strong> Create four tabs: <code>Listings</code>, <code>Reviews</code>, <code>Edits</code>, <code>Overrides</code></p>
+        <p><strong>Step 3.</strong> Listings tab headers (row 1):</p>
+        <div style="background:var(--bg-tint);padding:.5rem;border-radius:var(--r-md);font-family:monospace;font-size:11px;margin:.5rem 0;overflow-x:auto">id | name | industry | cat | suburb | state | desc | icon | tags | phone | mobile | email | web | address | hours | contact | status | featured | addedBy | lastUpdated | submittedAt | notes</div>
+        <p><strong>Step 4.</strong> Reviews tab headers:</p>
+        <div style="background:var(--bg-tint);padding:.5rem;border-radius:var(--r-md);font-family:monospace;font-size:11px;margin:.5rem 0;overflow-x:auto">id | listingId | listingType | listingName | reviewer | rating | title | body | suburb | ts | status | helpful | reported</div>
+        <p><strong>Step 5.</strong> Edits tab headers:</p>
+        <div style="background:var(--bg-tint);padding:.5rem;border-radius:var(--r-md);font-family:monospace;font-size:11px;margin:.5rem 0;overflow-x:auto">id | listingId | listingType | listingName | submitterName | submitterEmail | submitterRole | changes | reason | ts | status | adminNotes</div>
+        <p><strong>Step 6.</strong> Overrides tab headers:</p>
+        <div style="background:var(--bg-tint);padding:.5rem;border-radius:var(--r-md);font-family:monospace;font-size:11px;margin:.5rem 0;overflow-x:auto">listingId | listingType | changes | appliedBy | ts</div>
+        <p><strong>Step 7.</strong> Extensions → Apps Script. Delete default code, paste this:</p>
+        <div style="position:relative;margin:.5rem 0">
+          <button onclick="copyAppsScript(this)" style="position:absolute;top:8px;right:8px;background:var(--brand);color:#fff;border:none;padding:4px 12px;border-radius:6px;font-size:11px;cursor:pointer;z-index:1"><i class="fa-solid fa-copy"></i> Copy</button>
+          <pre id="apps-script-code" style="background:#1a1a1a;color:#f0f0f0;padding:1rem;border-radius:6px;font-size:11px;overflow-x:auto;line-height:1.5;margin:0;max-height:300px;overflow-y:auto"></pre>
+        </div>
+        <p><strong>Step 8.</strong> Deploy → New deployment → Web app → Execute as: <strong>Me</strong> → Who has access: <strong>Anyone</strong> → Deploy → authorise.</p>
+        <p><strong>Step 9.</strong> Copy the Web app URL, paste above, click <strong>Save &amp; activate</strong>, then click <strong>Push all listings to sheet</strong> to seed your sheet.</p>
+        <p style="padding:.625rem;background:var(--green-bg);border-radius:6px;color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> Once done, edit listings directly in the sheet — changes appear on the site within 60 seconds.</p>
       </div>
     </details>
   </div>`;
+
+  // Insert apps script code into the pre block (safer than putting it inline in the template)
+  const codeEl = document.getElementById('apps-script-code');
+  if (codeEl) codeEl.textContent = APPS_SCRIPT_CODE;
 }
 
 function saveBackendConfig() {
@@ -1236,3 +1229,117 @@ async function refreshFromSheet() {
     if (out) out.innerHTML = '<div style="padding:.625rem;background:var(--red-bg);border:1px solid var(--red-b);border-radius:var(--r-md);color:var(--red-t)"><i class="fa-solid fa-xmark"></i> Pull failed.</div>';
   }
 }
+
+
+// ─── CSV import/export of the FULL listings database ──────────────
+function downloadDBAsCSV() {
+  if (typeof DB === 'undefined') { showToast('DB not loaded', 'var(--red-t)'); return; }
+  const fields = ['id','name','industry','cat','suburb','state','desc','icon','tags','phone','mobile','wa','email','web','address','status','featured','addedBy','contact','lastUpdated','submittedAt','notes'];
+  const rows = [fields];
+  DB.forEach(b => {
+    rows.push(fields.map(f => {
+      let v = b[f];
+      if (Array.isArray(v)) v = v.join(',');
+      if (typeof v === 'object' && v !== null) v = JSON.stringify(v);
+      return v === undefined || v === null ? '' : String(v);
+    }));
+  });
+  const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = 'listily-listings-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('✓ Listings CSV downloaded (' + DB.length + ' rows)');
+}
+
+let _listingsCsvParsed = null;
+
+function previewListingsCSV(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+    function parseCSV(str) {
+      const rows=[]; let row=[], field='', inQuotes=false;
+      for (let i=0;i<str.length;i++) {
+        const ch=str[i], next=str[i+1];
+        if (inQuotes) {
+          if (ch==='"' && next==='"') { field+='"'; i++; }
+          else if (ch==='"') inQuotes=false;
+          else field+=ch;
+        } else {
+          if (ch==='"') inQuotes=true;
+          else if (ch===',') { row.push(field); field=''; }
+          else if (ch==='\n') { row.push(field); rows.push(row); row=[]; field=''; }
+          else field+=ch;
+        }
+      }
+      if (field !== '' || row.length>0) { row.push(field); rows.push(row); }
+      return rows.filter(r => r.some(c => c.trim() !== ''));
+    }
+    const rows = parseCSV(text);
+    if (rows.length < 2) {
+      document.getElementById('listings-csv-preview').innerHTML = '<p style="color:var(--red-t);font-size:13px">No data rows found.</p>';
+      return;
+    }
+    const headers = rows[0].map(h => h.trim());
+    _listingsCsvParsed = rows.slice(1).map(vals => {
+      const obj = {};
+      headers.forEach((h, i) => { obj[h] = (vals[i] || '').trim(); });
+      return obj;
+    }).filter(o => o.id && o.name);
+
+    const valid = _listingsCsvParsed.length;
+    document.getElementById('listings-csv-preview').innerHTML = `
+      <div style="padding:.875rem;background:var(--green-bg);border:1px solid var(--green-b);border-radius:var(--r-md);margin-bottom:.875rem">
+        <strong style="color:var(--green-t)">${valid} valid listings ready to import.</strong>
+        <div style="font-size:11px;color:var(--text-3);margin-top:4px">Each row's <code>id</code> determines whether it's a new listing (new id) or an update to an existing one (matching id).</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick="commitListingsCSV()">Import / update ${valid} listings</button>
+        <button class="btn btn-ghost btn-sm" onclick="_listingsCsvParsed=null;document.getElementById('listings-csv-preview').innerHTML='';document.getElementById('listings-csv-file').value=''">Cancel</button>
+      </div>`;
+  };
+  reader.readAsText(file);
+}
+
+function commitListingsCSV() {
+  if (!_listingsCsvParsed || !_listingsCsvParsed.length) return;
+  let added=0, updated=0;
+  _listingsCsvParsed.forEach(row => {
+    const id = parseInt(row.id, 10);
+    if (!id) return;
+    const listing = {
+      id, name: row.name, industry: row.industry||'Community & Culture',
+      cat: row.cat || '',
+      suburb: row.suburb||'', state: row.state||'VIC',
+      desc: row.desc||'', icon: row.icon||'🏢',
+      tags: (row.tags||'').split(',').map(t=>t.trim()).filter(Boolean),
+      hours: tryParse(row.hours) || { Mon:'9am–5pm',Tue:'9am–5pm',Wed:'9am–5pm',Thu:'9am–5pm',Fri:'9am–5pm',Sat:'Closed',Sun:'Closed',PH:'Closed' },
+      status: row.status || 'approved',
+      addedBy: row.addedBy || 'csv',
+      contact: row.contact||'',
+      lastUpdated: row.lastUpdated || new Date().toISOString().slice(0,10),
+      submittedAt: row.submittedAt || new Date().toISOString().slice(0,10),
+    };
+    ['phone','mobile','wa','email','web','address','notes'].forEach(k => { if (row[k]) listing[k] = row[k]; });
+    if (row.featured === 'true' || row.featured === 'TRUE' || row.featured === '1') listing.featured = true;
+    const existing = DB.findIndex(b => String(b.id) === String(id));
+    if (existing > -1) { DB[existing] = { ...DB[existing], ...listing }; updated++; }
+    else { DB.push(listing); added++; }
+  });
+
+  // Push to sheet too if configured
+  if (typeof SheetListings !== 'undefined' && SheetListings.isShared()) {
+    SheetListings.bulkUpsert(_listingsCsvParsed.map(r => ({...r, id: parseInt(r.id, 10)}))).catch(()=>{});
+  }
+
+  _listingsCsvParsed = null;
+  document.getElementById('listings-csv-preview').innerHTML = `<div style="padding:.875rem;background:var(--green-bg);border:1px solid var(--green-b);border-radius:var(--r-md);color:var(--green-t)"><strong>✓ Imported.</strong> ${added} new · ${updated} updated.</div>`;
+  document.getElementById('listings-csv-file').value = '';
+  showToast(`✓ ${added} new + ${updated} updated`);
+  renderAdminDash();
+}
+
+function tryParse(s) { try { return JSON.parse(s); } catch (e) { return null; } }
