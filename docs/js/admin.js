@@ -603,6 +603,13 @@ function importCSV(autoApprove=false) {
   document.getElementById('csv-preview').innerHTML = '';
   document.getElementById('csv-actions').style.display = 'none';
   document.getElementById('bulk-csv-file').value = '';
+  // Push the newly imported listings to the sheet if shared backend is active
+  if (typeof SheetListings !== 'undefined' && SheetListings.isShared()) {
+    const newOnes = DB.slice(-count);
+    SheetListings.bulkUpsert(newOnes).then(ok => {
+      if (ok) showToast(`✓ Also pushed ${newOnes.length} listings to sheet`);
+    });
+  }
   renderAdminDash();
 }
 
@@ -636,6 +643,10 @@ function importJSON(autoApprove=false) {
   });
   result.innerHTML = `<span style="color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> ${count} listings imported${autoApprove?' and approved':' as pending'}.</span>`;
   document.getElementById('json-paste').value = '';
+  if (typeof SheetListings !== 'undefined' && SheetListings.isShared()) {
+    const newOnes = DB.slice(-count);
+    SheetListings.bulkUpsert(newOnes).then(()=>{}).catch(()=>{});
+  }
   renderAdminDash();
 }
 
@@ -875,6 +886,11 @@ function approveAndApplyEdit(editId) {
     });
   }
 
+  // Push the updated listing to the sheet too (so all visitors see it)
+  if (typeof SheetListings !== 'undefined' && SheetListings.isShared() && e.listingType === 'business') {
+    SheetListings.upsert(target).catch(()=>{});
+  }
+
   ListingEdits.approve(editId, true);
   showToast('✓ Edit applied to listing');
   renderAdminDash();
@@ -926,6 +942,17 @@ function renderBackendConfig() {
         <button class="btn btn-ghost" style="color:var(--red-t)" onclick="if(confirm('Disconnect backend? Reviews/edits will revert to single-device localStorage.')){clearBackendConfig()}"><i class="fa-solid fa-link-slash"></i> Disconnect</button>
       </div>
 
+      ${isLive ? `
+      <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:1rem">
+        <h4 style="font-size:14px;font-weight:600;margin-bottom:.5rem"><i class="fa-solid fa-arrows-rotate" style="color:var(--brand)"></i> Sync controls</h4>
+        <p style="font-size:12px;color:var(--text-2);margin-bottom:.875rem;line-height:1.5">Listings sync between this site and your Google Sheet. Use these controls to push or pull manually.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="seedSheetWithLocalDB()" style="background:var(--brand)"><i class="fa-solid fa-cloud-arrow-up"></i> Push all listings to sheet (seed)</button>
+          <button class="btn btn-ghost btn-sm" onclick="refreshFromSheet()"><i class="fa-solid fa-cloud-arrow-down"></i> Pull from sheet</button>
+        </div>
+        <div id="seed-result" style="font-size:12px;margin-top:8px"></div>
+      </div>` : ''}
+
       <div id="bk-test-result" style="font-size:12px;margin-top:8px"></div>
     </div>
 
@@ -938,9 +965,12 @@ function renderBackendConfig() {
 
         <p style="margin-bottom:1rem"><strong>Step 1.</strong> Create a new Google Sheet at <a href="https://sheets.new" target="_blank" rel="noopener" style="color:var(--brand-dark)">sheets.new</a> and rename it to "Listily Data".</p>
 
-        <p style="margin-bottom:1rem"><strong>Step 2.</strong> Create three tabs in the sheet: <code>Reviews</code>, <code>Edits</code>, and <code>Overrides</code>.</p>
+        <p style="margin-bottom:1rem"><strong>Step 2.</strong> Create four tabs in the sheet: <code>Listings</code>, <code>Reviews</code>, <code>Edits</code>, and <code>Overrides</code>.</p>
 
-        <p style="margin-bottom:.5rem"><strong>Step 3.</strong> In the <code>Reviews</code> tab, add these column headers in row 1:</p>
+        <p style="margin-bottom:.5rem"><strong>Step 3.</strong> In the <code>Listings</code> tab, add these column headers in row 1 (this is your master business directory):</p>
+        <div style="background:var(--bg-tint);padding:.75rem;border-radius:var(--r-md);font-family:monospace;font-size:11px;margin-bottom:1rem;overflow-x:auto">id | name | industry | cat | suburb | state | desc | icon | tags | phone | mobile | email | web | address | hours | contact | status | featured | addedBy | lastUpdated | submittedAt | notes</div>
+
+        <p style="margin-bottom:.5rem"><strong>Step 3b.</strong> In the <code>Reviews</code> tab, add these column headers in row 1:</p>
         <div style="background:var(--bg-tint);padding:.75rem;border-radius:var(--r-md);font-family:monospace;font-size:11px;margin-bottom:1rem;overflow-x:auto">id | listingId | listingType | listingName | reviewer | rating | title | body | suburb | ts | status | helpful | reported</div>
 
         <p style="margin-bottom:.5rem"><strong>Step 4.</strong> In the <code>Edits</code> tab, add these column headers in row 1:</p>
@@ -960,32 +990,63 @@ function doGet(e) {
   if (action === 'getReviews')   return jsonReply(readSheet('Reviews'));
   if (action === 'getEdits')     return jsonReply(readSheet('Edits'));
   if (action === 'getOverrides') return jsonReply(readSheet('Overrides'));
+  if (action === 'getListings')  return jsonReply(readSheet('Listings'));
   return jsonReply({ ok: true, ts: new Date().toISOString() });
 }
 
 function doPost(e) {
   const body = JSON.parse(e.postData.contents);
   let tab;
-  if (body.action.includes('Override')) tab = 'Overrides';
-  else if (body.action.includes('Edit')) tab = 'Edits';
+  if (body.action.includes('Listing'))  tab = 'Listings';
+  else if (body.action.includes('Override')) tab = 'Overrides';
+  else if (body.action.includes('Edit'))     tab = 'Edits';
   else tab = 'Reviews';
   const sheet = SS.getSheetByName(tab);
   if (!sheet) return jsonReply({ error: 'Sheet not found: ' + tab });
 
   if (body.action === 'add' || body.action === 'addEdit' || body.action === 'addOverride') {
-    const row = body.review || body.edit || body.override;
-    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    const values = headers.map(h => {
-      const v = row[h];
-      return (typeof v === 'object' && v !== null) ? JSON.stringify(v) : (v || '');
-    });
-    sheet.appendRow(values);
+    appendRow(sheet, body.review || body.edit || body.override);
   } else if (body.action === 'update' || body.action === 'updateEdit') {
     updateRow(sheet, body.id, body.patch);
   } else if (body.action === 'remove' || body.action === 'removeEdit') {
     removeRow(sheet, body.id);
+  } else if (body.action === 'upsertListing') {
+    upsertListing(sheet, body.listing);
+  } else if (body.action === 'deleteListing') {
+    removeRow(sheet, body.id);
+  } else if (body.action === 'bulkUpsertListings') {
+    (body.listings || []).forEach(l => upsertListing(sheet, l));
   }
   return jsonReply({ ok: true });
+}
+
+function appendRow(sheet, row) {
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const values = headers.map(h => {
+    const v = row[h];
+    return (typeof v === 'object' && v !== null) ? JSON.stringify(v) : (v || '');
+  });
+  sheet.appendRow(values);
+}
+
+function upsertListing(sheet, listing) {
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  const idCol = headers.indexOf('id');
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][idCol]) === String(listing.id)) {
+      headers.forEach((h, j) => {
+        if (listing[h] !== undefined) {
+          const v = listing[h];
+          sheet.getRange(i+1, j+1).setValue(
+            typeof v === 'object' && v !== null ? JSON.stringify(v) : v
+          );
+        }
+      });
+      return;
+    }
+  }
+  appendRow(sheet, listing);
 }
 
 function readSheet(name) {
@@ -1050,7 +1111,8 @@ function jsonReply(data) {
 
         <p style="margin-bottom:1rem"><strong>Step 7.</strong> Paste that URL into the field above and click <strong>Save &amp; activate</strong>. Click <strong>Test connection</strong> to verify it's working.</p>
 
-        <p style="margin-bottom:0;padding:.875rem;background:var(--green-bg);border-radius:var(--r-md);color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> Once connected, all reviews and edit submissions from <strong>every visitor</strong> will be saved to your Google Sheet — and you can see them all in one place.</p>
+        <p style="margin-bottom:.625rem;padding:.875rem;background:var(--green-bg);border-radius:var(--r-md);color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> Once connected, your <strong>entire business directory</strong> lives in the Listings tab, and all <strong>reviews and edit submissions</strong> sync to your Google Sheet — visible to every visitor on every device. Edit listings directly in the sheet and they appear on the site within 60 seconds.</p>
+        <p style="margin-bottom:0;padding:.875rem;background:var(--amber-bg);border-radius:var(--r-md);color:var(--amber-t);font-size:12px"><i class="fa-solid fa-circle-info"></i> <strong>To seed your sheet with the current listings:</strong> after deploying the script, come back to admin and click <strong>Sync local listings to sheet</strong> on the Backend tab (button appears once URL is saved).</p>
       </div>
     </details>
   </div>`;
@@ -1063,9 +1125,11 @@ function saveBackendConfig() {
   }
   const cfg = { sheets: url, adapter: 'auto' };
   localStorage.setItem('_listily_backend_cfg', JSON.stringify(cfg));
-  showToast(url ? '✓ Backend saved — reload page to activate' : 'Cleared backend URL');
+  showToast(url ? '✓ Backend saved — reloading…' : 'Cleared backend URL');
   document.getElementById('bk-test-result').innerHTML =
-    '<div style="padding:.75rem;background:var(--green-bg);border:1px solid var(--green-b);border-radius:var(--r-md);color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> Saved. <strong>Reload the page</strong> to activate the new backend.</div>';
+    '<div style="padding:.75rem;background:var(--green-bg);border:1px solid var(--green-b);border-radius:var(--r-md);color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> Saved! Reloading page in 1 second to activate the new backend…</div>';
+  // Auto-reload after a short delay so changes take effect everywhere
+  setTimeout(() => { location.reload(); }, 1200);
 }
 
 function clearBackendConfig() {
@@ -1079,17 +1143,58 @@ async function testBackendConnection() {
   const out = document.getElementById('bk-test-result');
   if (!url) { out.innerHTML = '<span style="color:var(--red-t)">Please enter a URL first.</span>'; return; }
   out.innerHTML = '<span style="color:var(--text-3)"><i class="fa-solid fa-spinner fa-spin"></i> Testing connection…</span>';
+
+  // Run multiple checks
+  const checks = [];
+
+  // Check 1: URL pattern
+  if (!url.startsWith('https://script.google.com/macros/s/')) {
+    checks.push({ ok: false, msg: 'URL doesn\'t look like an Apps Script Web App URL. It should start with https://script.google.com/macros/s/...' });
+  } else {
+    checks.push({ ok: true, msg: 'URL format looks correct' });
+  }
+
+  // Check 2: Reach the endpoint
   try {
     const res = await fetch(url + '?action=ping');
-    const data = await res.json();
-    if (data && (data.ok || data.ts || Array.isArray(data))) {
-      out.innerHTML = '<div style="padding:.75rem;background:var(--green-bg);border:1px solid var(--green-b);border-radius:var(--r-md);color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> Connection works! Click Save &amp; activate.</div>';
+    if (!res.ok) {
+      checks.push({ ok: false, msg: `Server returned HTTP ${res.status}. Check that the script is deployed as Web app with "Anyone" access.` });
     } else {
-      out.innerHTML = '<div style="padding:.75rem;background:var(--amber-bg);border:1px solid var(--amber-b);border-radius:var(--r-md);color:var(--amber-t)"><i class="fa-solid fa-triangle-exclamation"></i> Got a response but format unexpected. Check Apps Script deployment.</div>';
+      const data = await res.json();
+      if (data && (data.ok || data.ts || Array.isArray(data))) {
+        checks.push({ ok: true, msg: 'Server responded successfully' });
+      } else {
+        checks.push({ ok: false, msg: 'Server responded but with unexpected format. Check that you pasted the Apps Script code correctly.' });
+      }
     }
   } catch (e) {
-    out.innerHTML = `<div style="padding:.75rem;background:var(--red-bg);border:1px solid var(--red-b);border-radius:var(--r-md);color:var(--red-t)"><i class="fa-solid fa-xmark"></i> Connection failed: ${escHtml(e.message)}. Check the URL, deployment settings (must be "Anyone" access), and that Apps Script is deployed as Web app.</div>`;
+    checks.push({ ok: false, msg: `Could not reach server: ${e.message}. Common causes: (a) wrong URL, (b) deployment not set to "Anyone" access, (c) script not deployed as Web app.` });
   }
+
+  // Check 3: Listings tab accessible
+  try {
+    const res = await fetch(url + '?action=getListings');
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      checks.push({ ok: true, msg: `Listings tab readable — ${data.length} rows found` });
+    } else if (data && data.error) {
+      checks.push({ ok: false, msg: `Listings tab error: ${data.error}. Make sure your sheet has a tab called "Listings".` });
+    }
+  } catch (e) {
+    checks.push({ ok: false, msg: 'Could not fetch Listings tab — may not exist yet' });
+  }
+
+  // Render results
+  const allOk = checks.every(c => c.ok);
+  out.innerHTML = `
+    <div style="padding:.875rem;background:${allOk ? 'var(--green-bg)' : 'var(--amber-bg)'};border:1px solid ${allOk ? 'var(--green-b)' : 'var(--amber-b)'};border-radius:var(--r-md)">
+      <div style="font-weight:600;color:${allOk ? 'var(--green-t)' : 'var(--amber-t)'};margin-bottom:8px">
+        ${allOk ? '<i class="fa-solid fa-circle-check"></i> All checks passed' : '<i class="fa-solid fa-triangle-exclamation"></i> Some issues found'}
+      </div>
+      <ul style="margin:0;padding-left:1.5rem;font-size:12.5px;line-height:1.7">
+        ${checks.map(c => `<li style="color:${c.ok ? 'var(--green-t)' : 'var(--red-t)'}">${c.ok ? '✓' : '✗'} ${escHtml(c.msg)}</li>`).join('')}
+      </ul>
+    </div>`;
 }
 
 function copyAppsScript(btn) {
@@ -1099,4 +1204,35 @@ function copyAppsScript(btn) {
     btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
     setTimeout(() => { btn.innerHTML = orig; }, 1500);
   });
+}
+
+
+// ─── Sheet sync helpers ──────────────────────────────────────────
+async function seedSheetWithLocalDB() {
+  if (typeof SheetListings === 'undefined' || !SheetListings.isShared()) {
+    showToast('Configure and save a sheet URL first.', 'var(--red-t)'); return;
+  }
+  if (!confirm(`Push all ${DB.length} local listings to the Google Sheet?\n\nThis will create or update rows in the Listings tab. Existing rows with matching IDs will be updated.`)) return;
+  const out = document.getElementById('seed-result');
+  if (out) out.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Pushing ' + DB.length + ' listings…';
+  const ok = await SheetListings.bulkUpsert(DB);
+  if (ok) {
+    if (out) out.innerHTML = '<div style="padding:.625rem;background:var(--green-bg);border:1px solid var(--green-b);border-radius:var(--r-md);color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> Pushed ' + DB.length + ' listings to sheet. Refresh the sheet to verify.</div>';
+    showToast('✓ All listings pushed to sheet');
+  } else {
+    if (out) out.innerHTML = '<div style="padding:.625rem;background:var(--red-bg);border:1px solid var(--red-b);border-radius:var(--r-md);color:var(--red-t)"><i class="fa-solid fa-xmark"></i> Push failed. Check your Apps Script deployment.</div>';
+  }
+}
+
+async function refreshFromSheet() {
+  if (typeof SheetListings === 'undefined') { showToast('SheetListings not loaded', 'var(--red-t)'); return; }
+  const out = document.getElementById('seed-result');
+  if (out) out.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Pulling from sheet…';
+  const result = await SheetListings.refresh();
+  if (result) {
+    if (out) out.innerHTML = `<div style="padding:.625rem;background:var(--green-bg);border:1px solid var(--green-b);border-radius:var(--r-md);color:var(--green-t)"><i class="fa-solid fa-circle-check"></i> Pulled — ${result.added} added, ${result.updated} updated</div>`;
+    renderAdminDash();
+  } else {
+    if (out) out.innerHTML = '<div style="padding:.625rem;background:var(--red-bg);border:1px solid var(--red-b);border-radius:var(--r-md);color:var(--red-t)"><i class="fa-solid fa-xmark"></i> Pull failed.</div>';
+  }
 }
