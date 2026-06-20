@@ -53,12 +53,12 @@ function updateStats() {
   if (badge) { badge.textContent = tot; badge.style.display = tot > 0 ? 'inline-flex' : 'none'; }
 }
 
-function renderAdminDash() { updateStats(); renderPending(); renderApproved(); renderRejected(); renderOppPending(); renderOppApproved(); renderExpired(); renderBulkUpload(); renderReviews(); renderListingEdits(); renderBackendConfig(); renderAnalytics(); }
+function renderAdminDash() { updateStats(); renderPending(); renderApproved(); renderRejected(); renderOppPending(); renderOppApproved(); renderExpired(); renderBulkUpload(); renderReviews(); renderListingEdits(); renderMentors(); renderBackendConfig(); renderAnalytics(); }
 
 function switchAdminTab(t, btn) {
   document.querySelectorAll('.atab').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  ['pending','approved','rejected','opp-pending','opp-approved','expired','bulk-upload','reviews','edits','backend','analytics'].forEach(tab => {
+  ['pending','approved','rejected','opp-pending','opp-approved','expired','bulk-upload','reviews','edits','mentors','backend','analytics'].forEach(tab => {
     const pane = document.getElementById('admin-pane-' + tab);
     if (pane) pane.style.display = tab === t ? 'block' : 'none';
   });
@@ -110,7 +110,26 @@ function approveB(idx) { DB[idx].status = 'approved'; DB[idx].lastUpdated = new 
 function rejectB(idx) { DB[idx].status = 'rejected'; DB[idx].rejectReason = (document.getElementById('reason-b-' + idx)||{}).value || 'Did not meet criteria'; showToast('Listing rejected','var(--red-t)'); renderAdminDash(); }
 function approveO(idx) { OPPORTUNITIES[idx].status = 'approved'; OPPORTUNITIES[idx].lastUpdated = new Date().toISOString().slice(0,10); showToast('✓ Opportunity approved'); renderAdminDash(); }
 function rejectO(idx) { OPPORTUNITIES[idx].status = 'rejected'; OPPORTUNITIES[idx].rejectReason = (document.getElementById('reason-o-' + idx)||{}).value || 'Did not meet criteria'; showToast('Opportunity rejected','var(--red-t)'); renderAdminDash(); }
-function removeB(idx) { if (!confirm(`Remove "${DB[idx].name}"?`)) return; DB[idx].status = 'rejected'; DB[idx].rejectReason = 'Removed by admin'; showToast('Listing removed','var(--amber-t)'); renderAdminDash(); }
+function removeB(idx) {
+  if (!DB[idx]) return;
+  const name = DB[idx].name;
+  const choice = confirm('Remove "' + name + '"?\n\nOK = soft remove (marks rejected, recoverable)\nCancel = abort');
+  if (!choice) return;
+  if (confirm('PERMANENTLY DELETE "' + name + '"?\n\nOK = delete forever (cannot be undone)\nCancel = just hide it (mark rejected)')) {
+    const id = DB[idx].id;
+    DB.splice(idx, 1);
+    // Push delete to sheet too if connected
+    if (typeof SheetListings !== 'undefined' && SheetListings.isShared()) {
+      SheetListings.deleteListing(id).catch(()=>{});
+    }
+    showToast('✓ Permanently deleted','var(--red-t)');
+  } else {
+    DB[idx].status = 'rejected';
+    DB[idx].rejectReason = 'Removed by admin';
+    showToast('Marked as rejected','var(--amber-t)');
+  }
+  renderAdminDash();
+}
 function reinstateB(idx) { DB[idx].status = 'approved'; DB[idx].lastUpdated = new Date().toISOString().slice(0,10); delete DB[idx].rejectReason; showToast('✓ Reinstated'); renderAdminDash(); }
 
 function renderOppPending() {
@@ -179,7 +198,20 @@ function renderOppApproved() {
   }).join('')}</div>`;
 }
 
-function removeO(idx) { if (!confirm(`Remove "${OPPORTUNITIES[idx].title}"?`)) return; OPPORTUNITIES[idx].status = 'rejected'; OPPORTUNITIES[idx].rejectReason = 'Removed by admin'; showToast('Removed','var(--amber-t)'); renderAdminDash(); }
+function removeO(idx) {
+  if (!OPPORTUNITIES[idx]) return;
+  const title = OPPORTUNITIES[idx].title;
+  if (!confirm('Remove "' + title + '"?')) return;
+  if (confirm('PERMANENTLY DELETE "' + title + '"?\n\nOK = delete forever\nCancel = just hide it (mark rejected)')) {
+    OPPORTUNITIES.splice(idx, 1);
+    showToast('✓ Opportunity deleted','var(--red-t)');
+  } else {
+    OPPORTUNITIES[idx].status = 'rejected';
+    OPPORTUNITIES[idx].rejectReason = 'Removed by admin';
+    showToast('Marked as rejected','var(--amber-t)');
+  }
+  renderAdminDash();
+}
 
 function renderRejected() {
   const bl = DB.filter(b => b.status === 'rejected');
@@ -189,6 +221,92 @@ function renderRejected() {
   el.innerHTML =
     (bl.length ? `<h3 style="font-size:14px;font-weight:600;margin-bottom:8px;color:var(--text-2)">Businesses</h3><div class="list-table" style="margin-bottom:1rem">${bl.map(b => { const idx=DB.indexOf(b); return `<div class="list-row"><span style="font-size:20px">${b.icon}</span><div style="flex:1;min-width:0"><div class="list-name">${escHtml(b.name)}</div><div class="list-sub">${escHtml((b.rejectReason||'').substring(0,50))}</div></div><span class="status-badge sb-rejected">Rejected</span><button class="btn-icon btn-icon-green" onclick="reinstateB(${idx})" title="Reinstate"><i class="fa-solid fa-rotate-left"></i></button></div>`; }).join('')}</div>` : '')
     + (ol.length ? `<h3 style="font-size:14px;font-weight:600;margin-bottom:8px;color:var(--text-2)">Opportunities</h3><div class="list-table">${ol.map(o => `<div class="list-row"><span style="font-size:20px">${o.icon}</span><div style="flex:1;min-width:0"><div class="list-name">${escHtml(o.title)}</div><div class="list-sub">${escHtml(o.org)} · ${escHtml((o.rejectReason||'').substring(0,40))}</div></div><span class="status-badge sb-rejected">Rejected</span></div>`).join('')}</div>` : '');
+}
+
+
+
+// ─── Mentors admin ──────────────────────────────────────────────
+function renderMentors() {
+  const el = document.getElementById('admin-pane-mentors');
+  if (!el) return;
+  if (typeof MENTORS === 'undefined') {
+    el.innerHTML = '<div class="no-results"><h3>Mentors data not loaded</h3></div>';
+    return;
+  }
+  const approved = MENTORS.filter(m => m.status === 'approved');
+  const pending  = MENTORS.filter(m => m.status === 'pending');
+
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
+      <div>
+        <h2 style="font-size:18px;font-weight:600;margin-bottom:4px">Mentors</h2>
+        <p style="font-size:13px;color:var(--text-3)">${MENTORS.length} total · ${approved.length} active · ${pending.length} pending</p>
+      </div>
+    </div>
+
+    ${pending.length ? `
+      <h3 style="font-size:14px;font-weight:600;color:var(--amber-t);margin-bottom:.75rem">
+        <i class="fa-solid fa-clock"></i> Pending approval (${pending.length})
+      </h3>
+      <div class="list-table" style="margin-bottom:1.5rem">
+        ${pending.map(m => {
+          const idx = MENTORS.indexOf(m);
+          return `<div class="list-row">
+            <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#A89CFF,#5B4CF5);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;flex-shrink:0">${escHtml(m.avatar || (m.name||'?').charAt(0))}</div>
+            <div style="flex:1;min-width:0">
+              <div class="list-name">${escHtml(m.name)}</div>
+              <div class="list-sub">${escHtml(m.specialty||'')} · ${escHtml(m.suburb||'')}, ${escHtml(m.state||'')}</div>
+            </div>
+            <div class="list-actions">
+              <button class="btn-approve" onclick="approveMentor(${idx})"><i class="fa-solid fa-check"></i> Approve</button>
+              <button class="btn-icon btn-icon-red" onclick="deleteMentor(${idx})" title="Delete"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>` : ''}
+
+    <h3 style="font-size:14px;font-weight:600;color:var(--green-t);margin-bottom:.75rem">
+      <i class="fa-solid fa-circle-check"></i> Active mentors (${approved.length})
+    </h3>
+    ${approved.length ? `
+      <div class="list-table">
+        ${approved.map(m => {
+          const idx = MENTORS.indexOf(m);
+          return `<div class="list-row">
+            <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#A89CFF,#5B4CF5);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;flex-shrink:0">${escHtml(m.avatar || (m.name||'?').charAt(0))}</div>
+            <div style="flex:1;min-width:0">
+              <div class="list-name">${escHtml(m.name)}${m.featured ? ' <i class="fa-solid fa-star" style="color:#F59E0B;font-size:12px" title="Featured"></i>' : ''}</div>
+              <div class="list-sub">${escHtml(m.specialty||'')} · ${escHtml(m.suburb||'')}, ${escHtml(m.state||'')} · ${escHtml(m.experience||'')}</div>
+            </div>
+            <span class="status-badge sb-approved">Active</span>
+            <div class="list-actions">
+              <button class="btn-icon btn-icon-red" onclick="deleteMentor(${idx})" title="Delete"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>` : '<div class="no-results"><h3>No active mentors</h3></div>'}`;
+}
+
+function approveMentor(idx) {
+  if (!MENTORS[idx]) return;
+  MENTORS[idx].status = 'approved';
+  MENTORS[idx].lastUpdated = new Date().toISOString().slice(0,10);
+  showToast('✓ ' + MENTORS[idx].name + ' approved');
+  renderAdminDash();
+}
+
+function deleteMentor(idx) {
+  if (!MENTORS[idx]) return;
+  const name = MENTORS[idx].name;
+  if (!confirm('Remove mentor "' + name + '"?')) return;
+  if (confirm('PERMANENTLY DELETE "' + name + '"?\n\nOK = delete forever\nCancel = just hide it (mark rejected)')) {
+    MENTORS.splice(idx, 1);
+    showToast('✓ Mentor deleted', 'var(--red-t)');
+  } else {
+    MENTORS[idx].status = 'rejected';
+    showToast('Mentor hidden', 'var(--amber-t)');
+  }
+  renderAdminDash();
 }
 
 function renderAnalytics() {
