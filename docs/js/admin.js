@@ -113,21 +113,19 @@ function rejectO(idx) { OPPORTUNITIES[idx].status = 'rejected'; OPPORTUNITIES[id
 function removeB(idx) {
   if (!DB[idx]) return;
   const name = DB[idx].name;
-  const choice = confirm('Remove "' + name + '"?\n\nOK = soft remove (marks rejected, recoverable)\nCancel = abort');
-  if (!choice) return;
-  if (confirm('PERMANENTLY DELETE "' + name + '"?\n\nOK = delete forever (cannot be undone)\nCancel = just hide it (mark rejected)')) {
-    const id = DB[idx].id;
-    DB.splice(idx, 1);
-    // Push delete to sheet too if connected
-    if (typeof SheetListings !== 'undefined' && SheetListings.isShared()) {
-      SheetListings.deleteListing(id).catch(()=>{});
-    }
-    showToast('✓ Permanently deleted','var(--red-t)');
-  } else {
-    DB[idx].status = 'rejected';
-    DB[idx].rejectReason = 'Removed by admin';
-    showToast('Marked as rejected','var(--amber-t)');
+  const id = DB[idx].id;
+  if (!confirm('Permanently delete "' + name + '"?\n\nThis change persists across sessions and devices (when shared backend is connected).')) return;
+  // Mark deleted in memory (so it disappears immediately)
+  DB[idx].status = 'deleted';
+  // Persist via overrides system so it stays deleted on reload
+  if (typeof ListingOverrides !== 'undefined') {
+    ListingOverrides.save({ listingId: id, listingType: 'business', changes: { status: 'deleted' }, appliedBy: 'admin', ts: new Date().toISOString() });
   }
+  // Also remove from sheet's Listings tab if connected
+  if (typeof SheetListings !== 'undefined' && SheetListings.isShared()) {
+    SheetListings.deleteListing(id).catch(()=>{});
+  }
+  showToast('✓ "' + name + '" deleted', 'var(--red-t)');
   renderAdminDash();
 }
 function reinstateB(idx) { DB[idx].status = 'approved'; DB[idx].lastUpdated = new Date().toISOString().slice(0,10); delete DB[idx].rejectReason; showToast('✓ Reinstated'); renderAdminDash(); }
@@ -201,15 +199,13 @@ function renderOppApproved() {
 function removeO(idx) {
   if (!OPPORTUNITIES[idx]) return;
   const title = OPPORTUNITIES[idx].title;
-  if (!confirm('Remove "' + title + '"?')) return;
-  if (confirm('PERMANENTLY DELETE "' + title + '"?\n\nOK = delete forever\nCancel = just hide it (mark rejected)')) {
-    OPPORTUNITIES.splice(idx, 1);
-    showToast('✓ Opportunity deleted','var(--red-t)');
-  } else {
-    OPPORTUNITIES[idx].status = 'rejected';
-    OPPORTUNITIES[idx].rejectReason = 'Removed by admin';
-    showToast('Marked as rejected','var(--amber-t)');
+  const id = OPPORTUNITIES[idx].id;
+  if (!confirm('Permanently delete "' + title + '"?\n\nThis change persists across sessions.')) return;
+  OPPORTUNITIES[idx].status = 'deleted';
+  if (typeof ListingOverrides !== 'undefined') {
+    ListingOverrides.save({ listingId: id, listingType: 'opportunity', changes: { status: 'deleted' }, appliedBy: 'admin', ts: new Date().toISOString() });
   }
+  showToast('✓ "' + title + '" deleted', 'var(--red-t)');
   renderAdminDash();
 }
 
@@ -298,14 +294,13 @@ function approveMentor(idx) {
 function deleteMentor(idx) {
   if (!MENTORS[idx]) return;
   const name = MENTORS[idx].name;
-  if (!confirm('Remove mentor "' + name + '"?')) return;
-  if (confirm('PERMANENTLY DELETE "' + name + '"?\n\nOK = delete forever\nCancel = just hide it (mark rejected)')) {
-    MENTORS.splice(idx, 1);
-    showToast('✓ Mentor deleted', 'var(--red-t)');
-  } else {
-    MENTORS[idx].status = 'rejected';
-    showToast('Mentor hidden', 'var(--amber-t)');
+  const id = MENTORS[idx].id;
+  if (!confirm('Permanently delete mentor "' + name + '"?\n\nThis change persists across sessions.')) return;
+  MENTORS[idx].status = 'deleted';
+  if (typeof ListingOverrides !== 'undefined') {
+    ListingOverrides.save({ listingId: id, listingType: 'mentor', changes: { status: 'deleted' }, appliedBy: 'admin', ts: new Date().toISOString() });
   }
+  showToast('✓ Mentor "' + name + '" deleted', 'var(--red-t)');
   renderAdminDash();
 }
 
@@ -548,9 +543,15 @@ function reinstateOpp(idx) {
   renderAdminDash();
 }
 function purgeOpp(idx) {
-  if (!confirm('Permanently delete "' + OPPORTUNITIES[idx].title + '"? This cannot be undone.')) return;
-  OPPORTUNITIES.splice(idx, 1);
-  showToast('Opportunity deleted', 'var(--red-t)');
+  if (!OPPORTUNITIES[idx]) return;
+  const title = OPPORTUNITIES[idx].title;
+  const id = OPPORTUNITIES[idx].id;
+  if (!confirm('Permanently delete "' + title + '"? This cannot be undone.')) return;
+  OPPORTUNITIES[idx].status = 'deleted';
+  if (typeof ListingOverrides !== 'undefined') {
+    ListingOverrides.save({ listingId: id, listingType: 'opportunity', changes: { status: 'deleted' }, appliedBy: 'admin', ts: new Date().toISOString() });
+  }
+  showToast('✓ Opportunity deleted', 'var(--red-t)');
   renderAdminDash();
 }
 
