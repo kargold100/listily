@@ -140,7 +140,15 @@
     return _loadAll();
   }
 
-  function getAllSync() { return _cache || (Array.isArray(adapter.getAll()) ? adapter.getAll() : []); }
+  function getAllSync() {
+    if (Array.isArray(_cache)) return _cache;
+    // Don't call adapter.getAll() here if it's async (Sheets) — that returns a Promise
+    // Local adapter is sync and returns array; safe to call
+    try {
+      const r = adapter.getAll();
+      return Array.isArray(r) ? r : [];
+    } catch (e) { return []; }
+  }
 
   // ── Public API ─────────────────────────────────────────
   window.Reviews = {

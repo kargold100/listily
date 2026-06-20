@@ -110,7 +110,13 @@
   }
   _load();
   function refresh() { _cache = null; return _load(); }
-  function getAllSync() { return _cache || adapter.getAll() || []; }
+  function getAllSync() {
+    if (Array.isArray(_cache)) return _cache;
+    try {
+      const r = adapter.getAll();
+      return Array.isArray(r) ? r : [];
+    } catch (e) { return []; }
+  }
 
   // ── Public API ────────────────────────────────────────
   window.ListingEdits = {
