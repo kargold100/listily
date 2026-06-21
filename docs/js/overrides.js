@@ -72,6 +72,7 @@
   // ── Public API ─────────────────────────────────────────────
   window.ListingOverrides = {
     getAll() { return LocalAdapter.getAll(); /* sync, from local cache */ },
+    getDeletedKeys: getDeletedKeys,
 
     isShared: () => SHARED,
 
@@ -87,15 +88,25 @@
       return ov;
     },
 
-    // Fetch fresh overrides from backend (call on page load if shared)
+    // Fetch fresh overrides from backend — MERGE with local (never wipe)
     async refresh() {
       if (!SHARED) return;
       try {
         const remote = await SheetsAdapter.getAll();
-        if (Array.isArray(remote)) {
-          LocalAdapter.saveAll(remote);
-          applyAll();
-        }
+        if (!Array.isArray(remote)) return;
+        const local = LocalAdapter.getAll();
+        // Merge: for each remote override, keep newer ts if same listingId/type
+        const merged = [...local];
+        remote.forEach(r => {
+          const i = merged.findIndex(x => String(x.listingId) === String(r.listingId) && x.listingType === r.listingType);
+          if (i < 0) {
+            merged.push(r);
+          } else if (new Date(r.ts) > new Date(merged[i].ts)) {
+            merged[i] = { ...merged[i], ...r, changes: { ...merged[i].changes, ...r.changes } };
+          }
+        });
+        LocalAdapter.saveAll(merged);
+        applyAll();
       } catch (e) { /* silent */ }
     },
 
@@ -106,10 +117,41 @@
   };
 
   // ── Apply overrides to source arrays ───────────────────────
+  // Returns Set of "type:id" keys that have been deleted via overrides
+  function getDeletedKeys() {
+    const all = LocalAdapter.getAll();
+    return new Set(all
+      .filter(ov => ov && ov.changes && ov.changes.status === 'deleted')
+      .map(ov => ov.listingType + ':' + ov.listingId));
+  }
+
   function applyAll() {
     const all = LocalAdapter.getAll();
-    let appliedCount = 0;
+    const deletedKeys = getDeletedKeys();
+    let removedCount = 0;
+    let updatedCount = 0;
+
+    // STEP 1: Remove deleted items from arrays (iterate in reverse to splice safely)
+    if (typeof DB !== 'undefined') {
+      for (let i = DB.length - 1; i >= 0; i--) {
+        if (deletedKeys.has('business:' + DB[i].id)) { DB.splice(i, 1); removedCount++; }
+      }
+    }
+    if (typeof MENTORS !== 'undefined') {
+      for (let i = MENTORS.length - 1; i >= 0; i--) {
+        if (deletedKeys.has('mentor:' + MENTORS[i].id)) { MENTORS.splice(i, 1); removedCount++; }
+      }
+    }
+    if (typeof OPPORTUNITIES !== 'undefined') {
+      for (let i = OPPORTUNITIES.length - 1; i >= 0; i--) {
+        if (deletedKeys.has('opportunity:' + OPPORTUNITIES[i].id)) { OPPORTUNITIES.splice(i, 1); removedCount++; }
+      }
+    }
+
+    // STEP 2: Apply non-deletion overrides (field updates)
     all.forEach(ov => {
+      if (!ov || !ov.changes) return;
+      if (ov.changes.status === 'deleted') return; // already handled above
       let arr = null;
       if (ov.listingType === 'business' && typeof DB !== 'undefined') arr = DB;
       else if (ov.listingType === 'mentor' && typeof MENTORS !== 'undefined') arr = MENTORS;
@@ -117,14 +159,15 @@
       if (!arr) return;
       const target = arr.find(x => String(x.id) === String(ov.listingId));
       if (!target) return;
-      Object.entries(ov.changes || {}).forEach(([k, v]) => {
+      Object.entries(ov.changes).forEach(([k, v]) => {
         if (v !== '' && v !== undefined && v !== null) target[k] = v;
       });
       target.lastUpdated = ov.ts ? ov.ts.slice(0, 10) : target.lastUpdated;
-      appliedCount++;
+      updatedCount++;
     });
-    if (appliedCount > 0 && window.console) {
-      console.info(`[Listily] Applied ${appliedCount} override(s) to listings`);
+
+    if ((removedCount + updatedCount) > 0 && window.console) {
+      console.info('[Listily] Overrides applied: ' + removedCount + ' removed, ' + updatedCount + ' updated');
     }
   }
 

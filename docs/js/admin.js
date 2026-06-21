@@ -106,10 +106,10 @@ function toggleReject(key) {
   const show = r.style.display === 'none' || !r.style.display;
   r.style.display = show ? 'block' : 'none'; rp.style.display = show ? 'flex' : 'none';
 }
-function approveB(idx) { DB[idx].status = 'approved'; DB[idx].lastUpdated = new Date().toISOString().slice(0,10); showToast('✓ ' + DB[idx].name + ' approved'); renderAdminDash(); }
-function rejectB(idx) { DB[idx].status = 'rejected'; DB[idx].rejectReason = (document.getElementById('reason-b-' + idx)||{}).value || 'Did not meet criteria'; showToast('Listing rejected','var(--red-t)'); renderAdminDash(); }
-function approveO(idx) { OPPORTUNITIES[idx].status = 'approved'; OPPORTUNITIES[idx].lastUpdated = new Date().toISOString().slice(0,10); showToast('✓ Opportunity approved'); renderAdminDash(); }
-function rejectO(idx) { OPPORTUNITIES[idx].status = 'rejected'; OPPORTUNITIES[idx].rejectReason = (document.getElementById('reason-o-' + idx)||{}).value || 'Did not meet criteria'; showToast('Opportunity rejected','var(--red-t)'); renderAdminDash(); }
+function approveB(idx) { DB[idx].status = 'approved'; DB[idx].lastUpdated = new Date().toISOString().slice(0,10); if (window.Mutations) Mutations.recordStatus('business', DB[idx].id, 'approved'); showToast('✓ ' + DB[idx].name + ' approved'); renderAdminDash(); }
+function rejectB(idx) { DB[idx].status = 'rejected'; DB[idx].rejectReason = (document.getElementById('reason-b-' + idx)||{}).value || 'Did not meet criteria'; if (window.Mutations) Mutations.recordStatus('business', DB[idx].id, 'rejected', DB[idx].rejectReason); showToast('Listing rejected','var(--red-t)'); renderAdminDash(); }
+function approveO(idx) { OPPORTUNITIES[idx].status = 'approved'; OPPORTUNITIES[idx].lastUpdated = new Date().toISOString().slice(0,10); if (window.Mutations) Mutations.recordStatus('opportunity', OPPORTUNITIES[idx].id, 'approved'); showToast('✓ Opportunity approved'); renderAdminDash(); }
+function rejectO(idx) { OPPORTUNITIES[idx].status = 'rejected'; OPPORTUNITIES[idx].rejectReason = (document.getElementById('reason-o-' + idx)||{}).value || 'Did not meet criteria'; if (window.Mutations) Mutations.recordStatus('opportunity', OPPORTUNITIES[idx].id, 'rejected', OPPORTUNITIES[idx].rejectReason); showToast('Opportunity rejected','var(--red-t)'); renderAdminDash(); }
 function removeB(idx) {
   if (!DB[idx]) return;
   const name = DB[idx].name;
@@ -128,7 +128,7 @@ function removeB(idx) {
   showToast('✓ "' + name + '" deleted', 'var(--red-t)');
   renderAdminDash();
 }
-function reinstateB(idx) { DB[idx].status = 'approved'; DB[idx].lastUpdated = new Date().toISOString().slice(0,10); delete DB[idx].rejectReason; showToast('✓ Reinstated'); renderAdminDash(); }
+function reinstateB(idx) { DB[idx].status = 'approved'; DB[idx].lastUpdated = new Date().toISOString().slice(0,10); delete DB[idx].rejectReason; if (window.Mutations) Mutations.recordStatus('business', DB[idx].id, 'approved'); showToast('✓ Reinstated'); renderAdminDash(); }
 
 function renderOppPending() {
   const list = OPPORTUNITIES.filter(o => o.status === 'pending');
@@ -287,6 +287,7 @@ function approveMentor(idx) {
   if (!MENTORS[idx]) return;
   MENTORS[idx].status = 'approved';
   MENTORS[idx].lastUpdated = new Date().toISOString().slice(0,10);
+  if (window.Mutations) Mutations.recordStatus('mentor', MENTORS[idx].id, 'approved');
   showToast('✓ ' + MENTORS[idx].name + ' approved');
   renderAdminDash();
 }
@@ -1201,6 +1202,19 @@ function jsonReply(data) {
       <div id="listings-csv-preview"></div>
     </div>
 
+    <!-- Reset admin changes -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.5rem">
+      <h3 style="font-size:15px;font-weight:600;margin-bottom:.5rem;color:var(--red-t)"><i class="fa-solid fa-rotate-left"></i> Reset admin changes</h3>
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:.875rem;line-height:1.6">All your delete/approve/reject actions are saved in this browser. Use these buttons to view or reset them.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="showMutationsLog()"><i class="fa-solid fa-clock-rotate-left"></i> View change log</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--red-t)" onclick="if(confirm('Reset ALL admin changes? This will undo every delete, approve, reject and edit applied — listings will revert to their original state. Cannot be undone.')){Mutations.clear();ListingOverrides.clear();showToast('✓ All changes reset — reload page');setTimeout(()=>location.reload(),900)}">
+          <i class="fa-solid fa-trash"></i> Reset all admin changes
+        </button>
+      </div>
+      <div id="mutations-log" style="font-size:12px;margin-top:12px"></div>
+    </div>
+
     <!-- Setup guide -->
     <details style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:1.5rem">
       <summary style="font-size:15px;font-weight:600;cursor:pointer;list-style:none"><i class="fa-solid fa-circle-info" style="color:var(--brand);margin-right:6px"></i> Setup guide — Google Sheets backend (step-by-step)</summary>
@@ -1480,3 +1494,24 @@ function commitListingsCSV() {
 }
 
 function tryParse(s) { try { return JSON.parse(s); } catch (e) { return null; } }
+
+
+function showMutationsLog() {
+  const el = document.getElementById('mutations-log');
+  if (!el) return;
+  const muts = (window.Mutations && Mutations.getAll()) || [];
+  const overs = (window.ListingOverrides && ListingOverrides.getAll()) || [];
+  if (!muts.length && !overs.length) {
+    el.innerHTML = '<div style="padding:.625rem;background:var(--bg-tint);border-radius:var(--r-md);color:var(--text-3)">No admin changes recorded yet.</div>';
+    return;
+  }
+  let html = '<div style="padding:.625rem;background:var(--bg-tint);border-radius:var(--r-md)"><div style="font-weight:600;margin-bottom:8px">' + (muts.length + overs.length) + ' changes saved (persist across sessions):</div><ul style="margin:0;padding-left:1.25rem;line-height:1.7;font-size:11.5px;font-family:monospace">';
+  muts.slice(-15).forEach(m => {
+    html += '<li>' + new Date(m.ts).toLocaleDateString() + ' · ' + m.op + ' ' + m.type + ' id=' + m.id + (m.status ? ' → ' + m.status : '') + (m.data && m.data.name ? ' (' + escHtml(m.data.name) + ')' : '') + '</li>';
+  });
+  overs.slice(-15).forEach(o => {
+    html += '<li>' + new Date(o.ts).toLocaleDateString() + ' · override ' + o.listingType + ' id=' + o.listingId + ' → ' + Object.keys(o.changes||{}).join(',') + '</li>';
+  });
+  html += '</ul></div>';
+  el.innerHTML = html;
+}

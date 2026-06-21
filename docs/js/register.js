@@ -118,6 +118,7 @@ function submitReg(){
     fb:document.getElementById("r-fb")?.value.trim(),
     hours:getHoursFromForm(),lastUpdated:today,submittedAt:today,status:"pending"
   });
+  if (window.Mutations) Mutations.recordAdd("business", DB[DB.length-1]);
   document.getElementById("success-msg").textContent=`"${name}" has been submitted for review and will go live within 24 hours.`;
   document.getElementById("reg-form-wrapper").style.display="none";
   document.getElementById("success-panel").style.display="block";
@@ -154,6 +155,7 @@ function submitOpp(){
     phone:document.getElementById("ro-phone")?.value.trim()||"",
     postedAt:today,lastUpdated:today,status:"pending"
   });
+  if (window.Mutations) Mutations.recordAdd("opportunity", OPPORTUNITIES[OPPORTUNITIES.length-1]);
   document.getElementById("opp-success-msg").textContent=`"${title}" has been submitted and will appear after admin review.`;
   document.getElementById("opp-form").style.display="none";
   document.getElementById("opp-success").style.display="block";
@@ -221,6 +223,7 @@ function submitMentor() {
       submittedAt: today,
       status: 'pending'
     });
+  if (window.Mutations) Mutations.recordAdd("mentor", MENTORS[MENTORS.length-1]);
   }
 
   document.getElementById('mentor-success-msg').textContent =
