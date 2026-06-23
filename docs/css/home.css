@@ -268,3 +268,23 @@
   .hero-search-box{border-radius:0 0 16px 16px}
   .hero{padding:4rem 0 3.5rem}
 }
+
+
+/* ── Refined hero polish ──────────────────────────────────────── */
+.hero-headline{
+  letter-spacing:-0.025em!important;
+  line-height:1.05!important;
+}
+.hero-eyebrow{
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+
+/* ── Industry tiles refinement ────────────────────────────────── */
+.ind-tile{transition:all .25s cubic-bezier(.4,0,.2,1)}
+.ind-tile:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 12px 32px rgba(13,92,64,.15)}
+.ind-tile-icon{transition:transform .25s}
+.ind-tile:hover .ind-tile-icon{transform:scale(1.1)}
+
+/* ── Stat cards if any ────────────────────────────────────────── */
+.stat-num,.hero-stat-num{font-feature-settings:'tnum'}
