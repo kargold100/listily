@@ -16,8 +16,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="css/base.css?v=29">
-  <link rel="stylesheet" href="css/home.css?v=29">
+  <link rel="stylesheet" href="css/base.css?v=30">
+  <link rel="stylesheet" href="css/home.css?v=30">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -30,7 +30,7 @@
         <div class="logo-dot-1"></div><div class="logo-dot-2"></div>
       </div>
       <span class="logo-word">l<span class="li">i</span>st<span class="li">i</span>ly</span>
-      <span class="logo-suffix">.au</span>
+      <span class="logo-suffix">.au</span><span class="logo-version" style="font-size:9.5px;font-weight:600;color:var(--brand-dark);background:var(--brand-bg);padding:1.5px 5px;border-radius:3px;margin-left:6px;letter-spacing:.02em;vertical-align:2px">v1.0</span>
     </a>
         <div class="nav-links" id="nav-links">
       <a href="index.html" class="nav-link active">Home</a>
@@ -50,6 +50,11 @@
     </div>
   </div>
 </nav>
+<div style="background:#FEF3DC;border-bottom:2px solid #F4BD5E;padding:.875rem 1rem;font-size:13px;color:#7C2D12;text-align:center;line-height:1.6">
+  <i class="fa-solid fa-triangle-exclamation" style="margin-right:6px"></i>
+  <strong>Beta v1.0:</strong> Listings are community-submitted and sourced from public information. Details may change without notice — please verify directly with the business or organisation before relying on any contact information. Spot something incorrect? Use <strong>"Suggest an edit"</strong> on any listing.
+</div>
+
 
 <!-- HERO -->
 <section class="hero">
@@ -342,21 +347,32 @@
   </div>
   <div class="footer-bottom">
     <div class="container">
-      <p>© 2026 Listily.au — Australian Business Directory &amp; Opportunities Board. All listings are community-submitted and admin-verified.</p>
+      <div style="padding:1rem 0;border-bottom:1px solid rgba(255,255,255,.05);margin-bottom:1rem">
+        <p style="font-size:12px;color:rgba(255,255,255,.55);line-height:1.65;margin:0;max-width:920px">
+          <strong style="color:rgba(255,255,255,.75)"><i class="fa-solid fa-circle-info" style="margin-right:5px"></i> Disclaimer:</strong>
+          Listings on Listily.au are <strong>community-submitted</strong> and sourced from publicly available information, including official websites, government directories, and trusted local sources. Information including phone numbers, addresses, hours, and services may change without notice. <strong>Listily.au does not independently verify every listing and provides this directory as a general reference only.</strong> Visitors should validate details directly with the business or organisation before relying on them. Listings do not constitute endorsement or recommendation. Use of this directory is at your own discretion. To report incorrect information, use the "Suggest an edit" button on any listing.
+        </p>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <p style="margin:0">© 2026 Listily.au — Australian Business Directory &amp; Opportunities Board.</p>
+        <p style="margin:0;font-family:monospace;color:rgba(255,255,255,.4)">
+          <i class="fa-solid fa-code-branch" style="font-size:11px;margin-right:4px"></i>v1.0 · June 2026
+        </p>
+      </div>
     </div>
   </div>
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="js/analytics.js?v=29"></script>
-<script src="js/config.js?v=29"></script>
-<script src="js/reviews.js?v=29"></script>
-<script src="js/edits.js?v=29"></script>
-<script src="js/data.js?v=29"></script>
-<script src="js/listings.js?v=29"></script>
-<script src="js/mutations.js?v=29"></script>
-<script src="js/overrides.js?v=29"></script>
-<script src="js/utils.js?v=29"></script>
-<script src="js/home.js?v=29"></script>
+<script src="js/analytics.js?v=30"></script>
+<script src="js/config.js?v=30"></script>
+<script src="js/reviews.js?v=30"></script>
+<script src="js/edits.js?v=30"></script>
+<script src="js/data.js?v=30"></script>
+<script src="js/listings.js?v=30"></script>
+<script src="js/mutations.js?v=30"></script>
+<script src="js/overrides.js?v=30"></script>
+<script src="js/utils.js?v=30"></script>
+<script src="js/home.js?v=30"></script>
 </body>
 </html>

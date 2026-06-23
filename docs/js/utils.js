@@ -159,6 +159,11 @@ function openBizModal(id){
     Reviews.renderForm('biz-review-form-' + b.id, b.id, 'business', b.name);
   }
   // Mount edit trigger
+    // Add disclaimer line for verifying contact info
+  const disclaimerEl = document.createElement('div');
+  disclaimerEl.style.cssText = 'margin-top:1rem;padding:.625rem .875rem;background:var(--amber-bg,#FEF3DC);border-left:3px solid var(--amber-b,#F4BD5E);border-radius:6px;font-size:11.5px;color:var(--amber-t,#7C2D12);line-height:1.6';
+  disclaimerEl.innerHTML = '<i class="fa-solid fa-circle-info" style="margin-right:5px"></i><strong>Please verify:</strong> Contact details and hours are community-submitted and may have changed. Check directly with the business before relying on this information.';
+  document.getElementById('modal-body').appendChild(disclaimerEl);
   if (typeof ListingEdits !== 'undefined') {
     const editContainer = document.createElement('div');
     editContainer.id = 'biz-edit-trigger-' + b.id;
