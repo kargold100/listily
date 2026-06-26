@@ -18,3 +18,18 @@
   .filter-toggle-btn{display:inline-flex}
   .sidebar-close{display:block}
 }
+
+
+/* ── Mobile directory polish ──────────────────────────────────── */
+@media(max-width:880px){
+  .view-toggle{display:none}  /* hide grid/list toggle on mobile */
+  .dir-topbar{flex-direction:column;align-items:flex-start;gap:.75rem}
+  .dir-topbar-right{width:100%;display:flex;justify-content:flex-end;gap:.5rem}
+  .dir-title{font-size:22px}
+  .biz-card{padding:1rem}
+}
+@media(max-width:420px){
+  .dir-title{font-size:20px}
+  .biz-emoji{width:42px;height:42px;font-size:19px}
+  .biz-name{font-size:14.5px}
+}

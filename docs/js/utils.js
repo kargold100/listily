@@ -282,7 +282,19 @@ document.addEventListener("DOMContentLoaded",()=>{
   document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
   // Burger
   const burger=document.getElementById("nav-burger"),links=document.getElementById("nav-links");
-  if(burger&&links)burger.addEventListener("click",()=>{const open=links.classList.toggle("open");burger.setAttribute("aria-expanded",open);});
+  if(burger&&links){
+    burger.addEventListener("click",()=>{const open=links.classList.toggle("open");burger.setAttribute("aria-expanded",open);document.body.style.overflow=open?"hidden":"";});
+    // Close drawer when a link is clicked
+    links.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{links.classList.remove("open");burger.setAttribute("aria-expanded","false");document.body.style.overflow="";}));
+    // Inject Admin + Add Business into the drawer for mobile (only added once, only visible on mobile via CSS)
+    if(!document.getElementById("nav-mobile-cta")){
+      const wrap=document.createElement("div");
+      wrap.id="nav-mobile-cta";
+      wrap.className="nav-mobile-cta";
+      wrap.innerHTML='<a href="admin.html" class="nav-link" style="background:var(--bg-tint);font-weight:600;display:flex;align-items:center;gap:8px;margin-top:.5rem"><i class="fa-solid fa-shield-halved" style="color:var(--brand-dark)"></i> Admin</a><a href="register.html" class="nav-link" style="background:var(--brand);color:#fff;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:.5rem"><i class="fa-solid fa-plus"></i> Add your business</a>';
+      links.appendChild(wrap);
+    }
+  }
   // Sticky nav shadow
   const nav=document.getElementById("navbar");
   if(nav)window.addEventListener("scroll",()=>{nav.style.boxShadow=window.scrollY>10?"0 2px 12px rgba(0,0,0,.08)":"";},{passive:true});
